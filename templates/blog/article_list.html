@@ -1,0 +1,128 @@
+{% extends 'base.html' %} {% load blog_tags %} {% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="white-board ariticle-list">
+                {% if category_pk %}
+                <ul class="category-nav">
+                    {% count_total_articles as total %}
+                    {% get_article_categories as categories %}
+                    <li>
+                        {% if category_pk == 0 %}
+                        <a class="on" href="{% url 'blog:category' 0 %}">
+                            全部文章<span>&nbsp;&nbsp;{{ total }}</span>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'blog:category' 0 %}">
+                            全部文章<span>&nbsp;&nbsp;{{ total }}</span>
+                        </a>
+                        {% endif %}
+                    </li>
+                    {% for cate in categories %}
+                    <li>
+                        {% if category_pk == cate.pk %}
+                        <a class="on" href="{% url 'blog:category' cate.pk %}">
+                            {{ cate.name }}<span>&nbsp;&nbsp;{{ cate.counts }}</span>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'blog:category' cate.pk %}">
+                            {{ cate.name }}<span>&nbsp;&nbsp;{{ cate.counts }}</span>
+                        </a>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="topics-nav" data-topic-pk="{{ topic_pk }}">
+                    <span>话题&emsp;</span>
+                    {% get_topics as topics %}
+                    {% for topic in topics %}
+                    <a href="{% url 'blog:topic' topic.pk %}">
+                        {{ topic.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                <script>
+                    //选择当前浏览的话题
+                    $(function(){
+                        var topic_pk = $(".topics-nav").attr("data-topic-pk");
+                        $(".topics-nav").children("a").each(function(){
+                            var pk = $(this).attr("href").split("/")[3];
+                            if (pk == topic_pk) {
+                                $(this).addClass("on");
+                            }
+                        });
+                    });
+                </script>
+                {% endif %}
+                {% for article in articles %}
+                <article>
+                    <div class="row">
+                        {% if article.cover %}
+                        <div class="col-lg-4 cover">
+                            <div class="zoom-container">
+                                <a href="{{ article.get_absolute_url }}">
+                                    <img src="{{ article.cover.url }}">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 info">
+                            <div class="title">
+                                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                            </div>
+                            <div class="abstract">
+                                {{ article.content|striptags|truncatechars:100|safe }}&emsp;
+                                <a href="{{ article.get_absolute_url }}">阅读全文 &gt;</a>
+                            </div>
+                            <div class="meta">
+                                {{ article.pub_date }}&nbsp;&nbsp; 分类:&nbsp;
+                                <a href="{% url 'blog:category' article.category.pk %}">
+                                    {{ article.category }}
+                                </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
+                                <a href="{% url 'blog:topic' topic.pk %}">{{ topic.name }}</a>&nbsp;{% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-lg-12 info">
+                            <div class="title">
+                                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                            </div>
+                            <div class="abstract">
+                                {{ article.content|striptags|truncatechars:150|safe }}&emsp;
+                                <a href="{{ article.get_absolute_url }}">阅读全文 &gt;</a>
+                            </div>
+                            <div class="meta">
+                                {{ article.pub_date }}&nbsp;&nbsp; 分类:&nbsp;
+                                <a href="{% url 'blog:category' article.category.pk %}">
+                                    {{ article.category }}
+                                </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
+                                <a href="{% url 'blog:topic' topic.pk %}">{{ topic.name }}</a>&nbsp;{% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %} {% if is_paginated %}
+                <div class="f-pagination">
+                    {% if first %}
+                    <a href="?page=1">1</a>
+                    {% endif %} {% if left %} {% if left_has_more %}
+                    <span>...</span>
+                    {% endif %} {% for i in left %}
+                    <a href="?page={{ i }}">{{ i }}</a>
+                    {% endfor %} {% endif %}
+                    <a class="current-page" href="?page={{ page_obj.number }}">{{ page_obj.number }}</a>
+                    {% if right %} {% for i in right %}
+                    <a href="?page={{ i }}">{{ i }}</a>
+                    {% endfor %} {% if right_has_more %}
+                    <span>···</span>
+                    {% endif %} {% endif %} {% if last %}
+                    <a href="?page={{ paginator.num_pages }}">{{ paginator.num_pages }}</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main %}

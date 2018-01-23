@@ -1,0 +1,96 @@
+{% load staticfiles %} {% load blog_tags %}
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <title>Fossen的博客</title>
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+    <meta name="description" content="Fossen's blog">
+    <meta name="author" content="Fossen">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/css/bootstrap.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.css" rel="stylesheet">
+    <link href="http://apps.bdimg.com/libs/ueditor/1.4.3.1/third-party/SyntaxHighlighter/shCoreDefault.css" rel="stylesheet">
+    <link href="{% static 'public/css/style.css' %}" rel="stylesheet">
+
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+    <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/js/bootstrap.js"></script>
+    <script src="http://apps.bdimg.com/libs/ueditor/1.4.3.1/third-party/SyntaxHighlighter/shCore.js"></script>
+    <script src="{% static 'public/js/common.js' %}"></script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <nav class="navbar navbar-expand">
+                        <div class="menu-toggle">≡</div>
+                        <a class="logo" href="/">FOSSEN</a>
+                        <ul class="navbar-nav" id="menu">
+                            <li>
+                                <a href="/">首页</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'blog:category' 0 %}">文章</a>
+                                {% get_article_category_names as acates %}
+                                <ul>
+                                    {% for cate in acates %}
+                                    <li>
+                                        <a href="{% url 'blog:category' cate.pk %}">{{ cate.name }}</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#">健身</a>
+                                <ul>
+                                    <li>
+                                        <a href="#">训练方案</a>
+                                    </li>
+                                    <li>
+                                        <a href="#">动作库</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <div class="tools">
+                            <form method="get" action="/search" id="search">
+                                <input name="q" type="text" size="40" placeholder="Search..." />
+                            </form>
+                            <div id="userbar">
+                                {% if user.is_authenticated %}
+                                <a>{{ user.username }}</a>
+                                <a href="{% url 'logout' %}">注销</a>
+                                {% else %}
+                                <a href="/accounts/login?next=/">登录</a>
+                                <a>注册</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main>
+        {% block main %} {% endblock main %}
+    </main>
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="copy-right">
+                        <p>
+                            <a href="#">Fossen</a>©2018</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,71 @@
+{% extends 'base.html' %} {% load blog_tags %}  {% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="white-board ariticle-detail">
+                <div class="breadcrumb-nav">
+                    <a href="/">首页</a> &gt;
+                    <a href="{% url 'blog:category' 0 %}">文章</a> &gt;
+                    <a href="{% url 'blog:category' article.category.pk %}">
+                        {{ article.category }}
+                    </a>
+                </div>
+                <article>
+                    {% if article.cover %}
+                    <div class="cover">
+                        <img src="{{ article.cover.url }}">
+                    </div>
+                    {% endif %}
+                    <h1 class="title">{{ article.title }}</h1>
+                    <div class="meta">
+                        {{ article.pub_date }} &emsp;{{ article.views }} 阅读&emsp;
+                        <a href="#comment">
+                            0 评论
+                        </a>&emsp;分类:&nbsp;
+                        <a href="{% url 'blog:category' article.category.pk %}">
+                            {{ article.category }}
+                        </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
+                        <a href="{% url 'blog:topic' topic.pk %}">{{ topic.name }}</a>&nbsp;{% endfor %}
+                    </div>
+                    <div class="content">
+                        {{ article.content|safe }}
+                    </div>
+                </article>
+                <div id='comment'>
+                    <ul class="comment-list list-unstyled">
+                        {% for comment in comment_list %}
+                        <li class="comment-item">
+                            <span class="nickname">{{ comment.user }}</span>
+                            <time class="submit-date">{{ comment.pub_date }}</time>
+                            <div class="content">
+                                {{ comment.content }}
+                            </div>
+                        </li>
+                        {% empty %} 暂无评论 {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="white-board widget">
+                <h6 class="widget-title">分类</h6>
+                <ul class="category-widget">
+                    <li>
+                        <a href="{% url 'blog:category' 0 %}">
+                            全部文章
+                        </a>
+                    </li>
+                    {% get_article_category_names as categories %}
+                    {% for cate in categories %}
+                    <li>
+                        <a href="{% url 'blog:category' cate.pk %}">
+                            {{ cate.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main %}
