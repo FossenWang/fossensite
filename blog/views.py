@@ -90,7 +90,7 @@ class CategoryView(ArticleListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category_pk'] = int(self.kwargs.get('category_pk'))
+        context['category_pk'] = self.kwargs.get('category_pk')
         return context
 
 class TopicView(ArticleListView):

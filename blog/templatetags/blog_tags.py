@@ -14,7 +14,7 @@ def get_article_category_names():
 
 @register.simple_tag
 def get_article_categories():
-    return Category.objects.annotate(counts=Count('article')).filter(counts__gt=0)
+    return Category.objects.annotate(counts=Count('article')).filter(counts__gt=0).filter(pk__gt=1)
 
 @register.simple_tag
 def count_total_articles():

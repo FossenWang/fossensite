@@ -55,7 +55,7 @@ header { background-color: white; box-shadow: 0 1px 3px #ccc; }
 #menu ul ul li:first-child:hover:before { border-right-color: #17375E; }
 
 .navbar .tools { display: flex; align-items:center; justify-content: flex-end; width: 100%; }
-#search input[type="text"] {
+#search input {
     background: url(/static/public/images/search-dark.png) no-repeat 8px 8px #fff;
     width: 0px; padding: 6px 15px 6px 15px;
     border-radius: 20px; border: 1px solid transparent;
@@ -71,8 +71,8 @@ header { background-color: white; box-shadow: 0 1px 3px #ccc; }
     #menu { 
         display: block;  position: absolute; z-index: 1;
         opacity: 0; visibility: hidden; margin-top: -20px;
-        transition: all .2s ease-in-out; top: 50px; background: white; 
-        border-radius: 5px; box-shadow: 1px 1px 3px #ccc;
+        transition: all .2s ease-in-out; top: 50px; left: 15px;
+        background: white; border-radius: 5px; box-shadow: 1px 1px 3px #ccc;
         }
     .menu-show { opacity: 1 !important; visibility: visible !important; margin-top: 0 !important;}
     #menu li { margin: 0; border-bottom: 1px solid lightgray;}

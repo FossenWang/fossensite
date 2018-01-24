@@ -4,58 +4,31 @@
         <div class="col-lg-12">
             <div class="white-board ariticle-list">
                 {% if category_pk %}
-                <ul class="category-nav">
-                    {% count_total_articles as total %}
-                    {% get_article_categories as categories %}
+                <ul class="category-nav" data-category-pk="{{ category_pk }}">
+                    {% count_total_articles as total %} {% get_article_categories as categories %}
                     <li>
-                        {% if category_pk == 0 %}
-                        <a class="on" href="{% url 'blog:category' 0 %}">
-                            全部文章<span>&nbsp;&nbsp;{{ total }}</span>
-                        </a>
-                        {% else %}
                         <a href="{% url 'blog:category' 0 %}">
-                            全部文章<span>&nbsp;&nbsp;{{ total }}</span>
+                            全部文章
+                            <span>&nbsp;&nbsp;{{ total }}</span>
                         </a>
-                        {% endif %}
                     </li>
                     {% for cate in categories %}
                     <li>
-                        {% if category_pk == cate.pk %}
-                        <a class="on" href="{% url 'blog:category' cate.pk %}">
-                            {{ cate.name }}<span>&nbsp;&nbsp;{{ cate.counts }}</span>
-                        </a>
-                        {% else %}
                         <a href="{% url 'blog:category' cate.pk %}">
-                            {{ cate.name }}<span>&nbsp;&nbsp;{{ cate.counts }}</span>
+                            {{ cate.name }}
+                            <span>&nbsp;&nbsp;{{ cate.counts }}</span>
                         </a>
-                        {% endif %}
                     </li>
                     {% endfor %}
-                </ul>
-                {% else %}
+                </ul>{% else %}
                 <div class="topics-nav" data-topic-pk="{{ topic_pk }}">
                     <span>话题&emsp;</span>
-                    {% get_topics as topics %}
-                    {% for topic in topics %}
+                    {% get_topics as topics %} {% for topic in topics %}
                     <a href="{% url 'blog:topic' topic.pk %}">
                         {{ topic.name }}
                     </a>
                     {% endfor %}
-                </div>
-                <script>
-                    //选择当前浏览的话题
-                    $(function(){
-                        var topic_pk = $(".topics-nav").attr("data-topic-pk");
-                        $(".topics-nav").children("a").each(function(){
-                            var pk = $(this).attr("href").split("/")[3];
-                            if (pk == topic_pk) {
-                                $(this).addClass("on");
-                            }
-                        });
-                    });
-                </script>
-                {% endif %}
-                {% for article in articles %}
+                </div>{% endif %} {% for article in articles %}
                 <article>
                     <div class="row">
                         {% if article.cover %}
