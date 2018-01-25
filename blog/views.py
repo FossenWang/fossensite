@@ -19,7 +19,7 @@ class ArticleListView(ListView):
     model = Article
     template_name = 'blog/article_list.html'
     context_object_name = 'articles'
-    paginate_by = 1
+    paginate_by = 10
 
     def get_context_data(self, **kwargs):
         '处理分页数据'
