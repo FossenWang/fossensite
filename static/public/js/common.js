@@ -1,17 +1,35 @@
 $(function () {
 
     //设置移动端的菜单按钮
-    $(".menu-toggle").click(function () {
+    $(".menu-toggle").click(function(e){
+        e.stopPropagation();
         $("#menu").toggleClass("menu-show");
     });
+    //设置移动端的搜索按钮
+    $(".fa-search").click(function (e) {
+        e.stopPropagation();
+        $("#search input").toggleClass("search-show");
+        setTimeout(function(){ $("#search input").focus(); }, 100)
+    });
+    $("#search input").click(function (e){
+        e.stopPropagation();
+    });
+    //设置移动端的用户按钮
+    $(".fa-user").click(function (e) {
+        e.stopPropagation();
+        $("#userbar").toggleClass("userbar-show");
+        setTimeout(function(){ $("#userbar").focus(); }, 100)
+    });
+    $("#userbar").click(function (e){
+        e.stopPropagation();
+    });
 
-    //代码高亮
-    SyntaxHighlighter.all()
-
-    //选择导航栏中当前浏览的分类
-    current_category()
-    //选择导航栏中当前浏览的话题
-    current_topic()
+    //点击页面其他地方隐藏部件
+    $(document).on('click', function(){
+        $('#menu').removeClass("menu-show");
+        $("#search input").removeClass("search-show");
+        $("#userbar").removeClass("userbar-show")
+    });
 
     // 设置浮动内容
     $(window).scroll(function () {
@@ -38,25 +56,3 @@ $(function () {
         }
     });
 });
-
-//选择导航栏中当前浏览的分类
-function current_category() {
-    var category_pk = $(".category-nav").attr("data-category-pk");
-    $(".category-nav").find("a").each(function () {
-        var pk = $(this).attr("href").split("/")[3];
-        if (pk == category_pk) {
-            $(this).addClass("on");
-        }
-    });
-}
-
-//选择导航栏中当前浏览的话题
-function current_topic() {
-    var topic_pk = $(".topics-nav").attr("data-topic-pk");
-    $(".topics-nav").children("a").each(function () {
-        var pk = $(this).attr("href").split("/")[3];
-        if (pk == topic_pk) {
-            $(this).addClass("on");
-        }
-    });
-}

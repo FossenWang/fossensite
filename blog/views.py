@@ -19,7 +19,7 @@ class ArticleListView(ListView):
     model = Article
     template_name = 'blog/article_list.html'
     context_object_name = 'articles'
-    paginate_by = 2
+    paginate_by = 1
 
     def get_context_data(self, **kwargs):
         '处理分页数据'
@@ -107,7 +107,7 @@ class TopicView(ArticleListView):
 class ArticleDetailView(DetailView):
     '文章详情视图'
     model = Article
-    template_name = 'blog/detail.html'
+    template_name = 'blog/article_detail.html'
     context_object_name = 'article'
 
     def get_context_data(self, **kwargs):

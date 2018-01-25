@@ -1,42 +1,9 @@
-{% extends 'base.html' %} {% load blog_tags %} {% block main %}
+{% extends 'base.html' %} {% load blog_tags %}
+
+{% block main %}
 <div class="container">
     <div class="row">
-        <div class="col-lg-4 order-lg-2">
-            <div class="white-board widget">
-                <h6 class="widget-title">关于Fossen</h6>
-                <p>不知道写些什么。。。</p>
-            </div>
-            <div class="white-board widget">
-                <h6 class="widget-title">分类</h6>
-                <ul class="category-widget">
-                    <li>
-                        <a href="{% url 'blog:category' 0 %}">
-                            全部文章
-                        </a>
-                    </li>
-                    {% get_article_category_names as categories %}
-                    {% for cate in categories %}
-                    <li>
-                        <a href="{% url 'blog:category' cate.pk %}">
-                            {{ cate.name }}
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            <div class="white-board widget">
-                <h6 class="widget-title">话题</h6>
-                <div class="topic-widget">
-                    {% get_topics as topics %}
-                    {% for topic in topics %}
-                    <a href="{% url 'blog:topic' topic.pk %}">
-                        {{ topic.name }}
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-8 order-lg-1">
+        <div class="col-lg-8">
             <div class="white-board ariticle-list">
                 <div class="list-title">最新文章</div>
                 {% for article in articles %}
@@ -90,6 +57,41 @@
                 <article>
                     <a href="{% url 'blog:category' 0 %}">更多文章 . . .</a>
                 </article>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="white-board widget">
+                <h6 class="widget-title">关于Fossen</h6>
+                <p>不知道写些什么。。。</p>
+            </div>
+            <div class="white-board widget">
+                <h6 class="widget-title">分类</h6>
+                <ul class="category-widget">
+                    <li>
+                        <a href="{% url 'blog:category' 0 %}">
+                            全部文章
+                        </a>
+                    </li>
+                    {% get_article_category_names as categories %}
+                    {% for cate in categories %}
+                    <li>
+                        <a href="{% url 'blog:category' cate.pk %}">
+                            {{ cate.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="white-board widget">
+                <h6 class="widget-title">话题</h6>
+                <div class="topic-widget">
+                    {% get_topics as topics %}
+                    {% for topic in topics %}
+                    <a href="{% url 'blog:topic' topic.pk %}">
+                        {{ topic.name }}
+                    </a>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

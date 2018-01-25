@@ -10,11 +10,11 @@ def get_recent_articles(num=5):
 
 @register.simple_tag
 def get_article_category_names():
-    return Category.objects.filter(pk__gt=1)
+    return Category.objects.filter(number__gt=0)
 
 @register.simple_tag
 def get_article_categories():
-    return Category.objects.annotate(counts=Count('article')).filter(counts__gt=0).filter(pk__gt=1)
+    return Category.objects.annotate(counts=Count('article')).filter(number__gt=0)
 
 @register.simple_tag
 def count_total_articles():
@@ -23,4 +23,4 @@ def count_total_articles():
 
 @register.simple_tag
 def get_topics():
-    return Topic.objects.annotate(counts=Count('article')).filter(counts__gt=0)
+    return Topic.objects.all()

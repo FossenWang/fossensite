@@ -1,5 +1,6 @@
 
 *.pyc
-blog/migrations/0001_initial.py
 fossensite/settings.py
 media/
+static/admin/
+blog/migrations/

@@ -5,21 +5,22 @@
 <head>
     <meta charset="utf-8">
     <title>Fossen的博客</title>
-    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+    <link rel="shortcut icon" href="/static/favicon.ico">
     <meta name="description" content="Fossen's blog">
     <meta name="author" content="Fossen">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/css/bootstrap.css" rel="stylesheet">
-    <link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.css" rel="stylesheet">
-    <link href="http://apps.bdimg.com/libs/ueditor/1.4.3.1/third-party/SyntaxHighlighter/shCoreDefault.css" rel="stylesheet">
-    <link href="{% static 'public/css/style.css' %}" rel="stylesheet">
+    <!--link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.css" rel="stylesheet"-->
+    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/static/public/css/style.css" rel="stylesheet">
 
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
-    <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.js"></script>
+    <!--script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.js"></script-->
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/js/bootstrap.js"></script>
     <script src="http://apps.bdimg.com/libs/ueditor/1.4.3.1/third-party/SyntaxHighlighter/shCore.js"></script>
-    <script src="{% static 'public/js/common.js' %}"></script>
+    <script src="/static/public/js/common.js"></script>
+    {% block script %} {% endblock script %}
 </head>
 
 <body>
@@ -28,7 +29,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <nav class="navbar navbar-expand">
-                        <div class="menu-toggle">≡</div>
+                        <i class="fa fa-bars fa-lg menu-toggle"></i>
                         <a class="logo" href="/">FOSSEN</a>
                         <ul class="navbar-nav" id="menu">
                             <li>
@@ -58,9 +59,11 @@
                             </li>
                         </ul>
                         <div class="tools">
+                            <i class="fa fa-search"></i>
                             <form method="get" action="/search" id="search">
                                 <input name="q" type="text" size="40" placeholder="Search..." />
                             </form>
+                            <i class="fa fa-user"></i>
                             <div id="userbar">
                                 {% if user.is_authenticated %}
                                 <a>{{ user.username }}</a>

@@ -4,11 +4,13 @@ from django.urls import reverse
 
 class Category(models.Model):
     name = models.CharField('分类', max_length=16)
+    number = models.PositiveIntegerField('次序', default=0)
 
     def __str__(self):
         return self.name
 
     class Meta:
+        ordering = ['number']
         verbose_name = '分类'
         verbose_name_plural = '分类'
 
