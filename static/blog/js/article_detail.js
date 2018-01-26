@@ -1,6 +1,9 @@
 $(function () {
 
     //代码高亮
-    SyntaxHighlighter.all()
+    $('pre code').css({"background":"#f6f8fa"})
+    .each(function(i, block) {
+        hljs.highlightBlock(block);
+    });
 
 });

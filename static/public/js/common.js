@@ -25,7 +25,7 @@ $(function () {
     });
 
     //点击页面其他地方隐藏部件
-    $(document).on('click', function(){
+    $(document).click(function(){
         $('#menu').removeClass("menu-show");
         $("#search input").removeClass("search-show");
         $("#userbar").removeClass("userbar-show")
