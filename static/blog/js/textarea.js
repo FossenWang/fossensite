@@ -4,9 +4,10 @@ $(function() {
         placeholder: "在此编辑你的文章",
         autosave: 'editor-content',
         toolbar: [
-            'bold', 'italic', 'underline', 'strikethrough', 'fontScale', 'color',
+            'title', 'bold', 'italic', 'underline', 'strikethrough', 'fontScale', 'color',
             '|', 'code', 'link', 'image', 'blockquote', 
-            '|', 'ol', 'ul', 'hr', 'alignment', 'table','|', 'html'
+            '|', 'ol', 'ul', 'hr', 'alignment', 'table',
+            '|', 'html', 'markdown'
         ],
         codeLanguages: [
             { name: 'Python', value: 'python' },
@@ -34,5 +35,5 @@ $(function() {
           ]
     });
     $(".simditor").css({"max-width":"1200px"});
-    $(".simditor-body").css({"max-height":"400px", "overflow":"auto"});
+    $(".simditor-body, .simditor textarea").css({"max-height":"400px", "overflow":"auto"});
 });

@@ -6,3 +6,5 @@
   display: none;
 }
 .simditor-body p, .simditor-body li { font-size:16px; }
+.simditor-body h2 { background-color: white; }
+.simditor-body h5 { text-transform: none; }
