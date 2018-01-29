@@ -1,35 +1,12 @@
 $(function () {
+    //判断有无touchend事件
+    if(typeof(document.ontouchend)!="undefined"){
+        FastClick.attach(document.body);
+    }
 
-    //设置移动端的菜单按钮
-    $(".menu-toggle").click(function(e){
-        e.stopPropagation();
-        $("#menu").toggleClass("menu-show");
-    });
-    //设置移动端的搜索按钮
-    $(".fa-search").click(function (e) {
-        e.stopPropagation();
-        $("#search input").toggleClass("search-show");
-        setTimeout(function(){ $("#search input").focus(); }, 100)
-    });
-    $("#search input").click(function (e){
-        e.stopPropagation();
-    });
-    //设置移动端的用户按钮
-    $(".fa-user").click(function (e) {
-        e.stopPropagation();
-        $("#userbar").toggleClass("userbar-show");
-        setTimeout(function(){ $("#userbar").focus(); }, 100)
-    });
-    $("#userbar").click(function (e){
-        e.stopPropagation();
-    });
-
-    //点击页面其他地方隐藏部件
-    $(document).click(function(){
-        $('#menu').removeClass("menu-show");
-        $("#search input").removeClass("search-show");
-        $("#userbar").removeClass("userbar-show")
-    });
+    //查询当前窗口大小
+    mediaQuery();
+    $(window).resize(mediaQuery);
 
     // 设置浮动内容
     $(window).scroll(function () {
@@ -56,3 +33,61 @@ $(function () {
         }
     });
 });
+
+//查询当前窗口大小
+function mediaQuery(){
+    if (window.innerWidth > 992){
+        largeDevice();
+    }else{
+        smallDevice();
+    }
+}
+
+//桌面端设置
+function largeDevice(){
+    //清空事件
+    $(document).unbind("click");
+    $(".menu-toggle, #search input, .fa-user, #userbar").unbind("click");
+    //设置桌面端的搜索按钮
+    $(".fa-search").on("click",function (e) {
+        e.stopPropagation();
+        $("#search input").focus();
+    });
+}
+
+//移动端设置
+function smallDevice(){
+    //清空事件
+    $(document).unbind("click");
+    $(".menu-toggle, .fa-search, #search input, .fa-user, #userbar").unbind("click");
+    //设置移动端的菜单按钮
+    $(".menu-toggle").on("click", function(e){
+        e.stopPropagation();
+        $("#menu").toggleClass("menu-show");
+    });
+    //设置移动端的搜索按钮
+    $(".fa-search").on("click",function (e) {
+        e.stopPropagation();
+        $("#search input").toggleClass("search-show");
+        setTimeout(function(){ $("#search input").focus(); }, 100)
+    });
+    $("#search input").on("click",function (e){
+        e.stopPropagation();
+    });
+    //设置移动端的用户按钮
+    $(".fa-user").on("click",function (e) {
+        e.stopPropagation();
+        $("#userbar").toggleClass("userbar-show");
+        setTimeout(function(){ $("#userbar").focus(); }, 100)
+    });
+    $("#userbar").on("click",function (e){
+        e.stopPropagation();
+    });
+
+    //点击页面其他地方隐藏部件
+    $(document).on("click",function(){
+        $('#menu').removeClass("menu-show");
+        $("#search input").removeClass("search-show");
+        $("#userbar").removeClass("userbar-show")
+    });
+}

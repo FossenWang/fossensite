@@ -144,6 +144,7 @@ Uploader = (function(superClass) {
       contentType: false,
       type: 'POST',
       headers: {
+        "X-CSRFToken": file.params.csrftoken,
         'X-File-Name': encodeURIComponent(file.name)
       },
       xhr: function() {

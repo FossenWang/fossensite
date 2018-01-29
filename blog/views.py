@@ -1,5 +1,10 @@
+import os
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView, TemplateView
+from django.core.exceptions import PermissionDenied
+from django.core.files.storage import default_storage
+from django.http import JsonResponse
+from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
 
@@ -127,3 +132,24 @@ def search(request):
     article_list = Article.objects.filter(Q(title__icontains=q) | Q(content__icontains=q))
     return render(request, 'blog/index.html', {'error_msg': error_msg,
                                                'article_list': article_list})
+
+def upload_image(request):
+    if request.method == 'POST':
+        image = request.FILES.get("upload_image")
+        if image.name.split('.')[-1] in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
+            file_path = settings.MEDIA_ROOT + '/blog/image/' + image.name[-10:]
+            file_path = default_storage.save(file_path, image)
+            return JsonResponse({
+                "success": True,
+                #返回的是文件的url
+                'file_path': settings.MEDIA_URL + 'blog/image/' + os.path.split(file_path)[-1],
+                'msg': 'Success!'
+                })
+        else:
+            return JsonResponse({
+                'success': False,
+                'file_path': '',
+                'msg': 'Unexpected File Format!'
+                })
+    else:
+        raise PermissionDenied('Only Accept POST Method!')

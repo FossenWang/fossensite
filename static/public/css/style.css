@@ -89,18 +89,18 @@ header { background-color: white; box-shadow: 0 1px 3px #ccc; }
     #search input {
         font-size: 1rem;
         width: 100%; z-index: 1; margin: 0; padding: 0.25rem 1rem;
-        position: absolute; left: 0; top: 2rem;
+        position: absolute; left: 0; top: 3rem;
         opacity: 0; visibility: hidden; border: 1px solid #17375E;
     }
     #search input:focus { width: 100%; margin: 0; }
-    .search-show { opacity: 1 !important; visibility: visible !important; top: 3rem !important;}
+    .search-show { opacity: 1 !important; visibility: visible !important; }
 
     #userbar {
         border-radius: 5px; box-shadow: 1px 1px 3px #ccc;
         background-color: white; padding: 0.5rem 1.5rem 0.5rem 0;
         opacity: 0; visibility: hidden;
         transition: all 0.2s ease-in-out; -webkit-transition: all 0.2s ease-in-out;
-        position: absolute; right: 0; top: 2rem; z-index: 1;
+        position: absolute; right: 0; top: 2.5rem; z-index: 1;
     }
     .userbar-show { opacity: 1 !important; visibility: visible !important; top: 3rem !important;}
 }
@@ -133,11 +133,13 @@ main { margin: 10px 0; }
 .article-detail .title { font-size: 1.5rem; margin: 1.5rem 0;}
 .article-detail .meta { font-size: 0.875rem; color: gray; margin-bottom: 1.25rem; }
 .article-detail .meta a { color: gray; }
-.article-detail .meta a:hover { color: #17375E; }
+.article-detail .meta a:hover { color: #0070C0; }
 .article-detail .content { color: #333; }
 .article-detail .content a { color: #0070C0; }
+.article-detail .content a:hover { text-decoration: underline; }
 .article-detail .content ul { list-style: disc; padding-left: 2rem; margin-bottom: 1rem; }
-.article-detail .content pre>code { word-wrap: normal; }
+.article-detail .content h5 { margin-top: 1.5rem; margin-bottom: 1rem; }
+.article-detail .content code { word-wrap: normal; background-color: #f6f8fa; }
 
 #comment { padding: 15px; }
 
