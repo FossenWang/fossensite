@@ -60,11 +60,13 @@ function smallDevice(){
     //清空事件
     $(document).unbind("click");
     $(".menu-toggle, .fa-search, #search input, .fa-user, #userbar").unbind("click");
+
     //设置移动端的菜单按钮
     $(".menu-toggle").on("click", function(e){
         e.stopPropagation();
         $("#menu").toggleClass("menu-show");
     });
+
     //设置移动端的搜索按钮
     $(".fa-search").on("click",function (e) {
         e.stopPropagation();
@@ -74,11 +76,11 @@ function smallDevice(){
     $("#search input").on("click",function (e){
         e.stopPropagation();
     });
+
     //设置移动端的用户按钮
     $(".fa-user").on("click",function (e) {
         e.stopPropagation();
         $("#userbar").toggleClass("userbar-show");
-        setTimeout(function(){ $("#userbar").focus(); }, 100)
     });
     $("#userbar").on("click",function (e){
         e.stopPropagation();
