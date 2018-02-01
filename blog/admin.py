@@ -3,7 +3,8 @@ from django.contrib import admin
 from .models import Category, Topic, Article
 
 class ArticleAdmin(admin.ModelAdmin):
-    readonly_fields = ('author',)#'views',)
+    readonly_fields = ('author',)
+
     class Media:
         css = {'all':(
             'blog/css/simditor.css',

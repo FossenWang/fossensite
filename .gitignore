@@ -5,3 +5,4 @@ media/
 static/admin/
 blog/migrations/
 account/migrations/
+comment/migrations/

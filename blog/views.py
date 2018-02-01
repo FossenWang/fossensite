@@ -119,6 +119,7 @@ class ArticleDetailView(DetailView):
         context = super(ArticleDetailView, self).get_context_data(**kwargs)
         #每处理一次get请求就增加一次阅读量
         self.object.increase_views()
+        context['comment_list'] = context['article'].articlecomment_set.all()
         return context
 
 def search(request):
