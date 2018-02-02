@@ -8,7 +8,6 @@ class BaseComment(models.Model):
     content = models.TextField('评论', max_length=500)
     time = models.DateTimeField('评论时间', auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='评论者')
-    reply = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, verbose_name='评论回复')
 
     class Meta:
         abstract = True

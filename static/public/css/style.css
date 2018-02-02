@@ -142,6 +142,16 @@ main { margin: 10px 0; }
 .article-detail .content code { word-wrap: normal; background-color: #f6f8fa; }
 
 #comment { padding: 15px; }
+#comment .comment-list { }
+#comment .comment-item { padding: 15px 0 15px 65px; border-top: 1px solid lightgray; }
+#comment .avatar {
+    width: 48px; height: 48px;
+    position: absolute; left: 30px;
+    text-align: center; color: white;
+    background-color: #eee; border-radius: 4px;
+}
+#comment .content { padding: 10px 0 0; }
+#comment time { font-size: 0.875rem; color: gray; }
 
 .category-nav { margin: 0; padding: 10px 0 0; }
 .category-nav li { display: inline-block; margin: 0; padding: 0; }

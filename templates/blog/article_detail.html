@@ -40,14 +40,25 @@
                     </div>
                 </article>
                 <div id='comment'>
-                    <ul class="comment-list list-unstyled">
+                    <ul class="comment-list">
                         {% for comment in comment_list %}
                         <li class="comment-item">
-                            <span class="nickname">{{ comment.user }}</span>
-                            <time class="submit-date">{{ comment.time }}</time>
+                            {% with avatar=comment.user.profile.avatar %}
+                            {% if avatar %}
+                            <a class="avatar" href="#">
+                                <img src="{{ avatar.url }} " atl="avator">
+                            </a>
+                            {% else %}
+                            <a class="avatar" href="#">
+                                <i class="fa fa-user fa-3x"></i>
+                            </a>
+                            {% endif %}
+                            {% endwith %}
+                            <a class="nickname" href="#">{{ comment.user.profile.nickname }}</a>
                             <div class="content">
                                 {{ comment.content }}
                             </div>
+                            <time>{{ comment.time }}</time>
                         </li>
                         {% empty %} 暂无评论 {% endfor %}
                     </ul>
