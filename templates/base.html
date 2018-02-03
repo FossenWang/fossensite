@@ -69,7 +69,7 @@
                                 <a>{{ user.username }}</a>
                                 <a href="{% url 'logout' %}">注销</a>
                                 {% else %}
-                                <a href="{% url 'login' %}?next=/">登录</a>
+                                <a href="{% url 'login' %}?next={{ request.path }}">登录</a>
                                 <a>注册</a>
                                 {% endif %}
                             </div>

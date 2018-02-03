@@ -1,7 +1,5 @@
 {% extends 'base.html' %} {% load blog_tags %}
 {% block script %}
-<link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/mono-blue.min.css" rel="stylesheet" disabled>
-<link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/atelier-sulphurpool-light.min.css" rel="stylesheet" disabled>
 <link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 <script src="/static/blog/js/article_detail.js"></script>
@@ -26,10 +24,7 @@
                     {% endif %}
                     <h1 class="title">{{ article.title }}</h1>
                     <div class="meta">
-                        {{ article.pub_date }} &emsp;{{ article.views }} 阅读&emsp;
-                        <a href="#comment">
-                            0 评论
-                        </a>&emsp;分类:&nbsp;
+                        {{ article.pub_date }} &emsp;{{ article.views }} 阅读&emsp;分类:&nbsp;
                         <a href="{% url 'blog:category' article.category.pk %}">
                             {{ article.category }}
                         </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
@@ -39,29 +34,7 @@
                         {{ article.content|safe }}
                     </div>
                 </article>
-                <div id='comment'>
-                    <ul class="comment-list">
-                        {% for comment in comment_list %}
-                        <li class="comment-item">
-                            {% with avatar=comment.user.profile.avatar %}
-                            {% if avatar %}
-                            <a class="avatar" href="#">
-                                <img src="{{ avatar.url }} " atl="avator">
-                            </a>
-                            {% else %}
-                            <a class="avatar" href="#">
-                                <i class="fa fa-user fa-3x"></i>
-                            </a>
-                            {% endif %}
-                            {% endwith %}
-                            <a class="nickname" href="#">{{ comment.user.profile.nickname }}</a>
-                            <div class="content">
-                                {{ comment.content }}
-                            </div>
-                            <time>{{ comment.time }}</time>
-                        </li>
-                        {% empty %} 暂无评论 {% endfor %}
-                    </ul>
+                <div id='comment' data-url="{% url 'comment:article_comment' article.pk %}">
                 </div>
             </div>
         </div>

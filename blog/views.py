@@ -90,8 +90,7 @@ class CategoryView(ArticleListView):
         if self.kwargs.get('category_pk') == '0':
             return super(CategoryView, self).get_queryset()
         else:
-            cate = get_object_or_404(Category, pk=self.kwargs.get('category_pk'))
-            return super(CategoryView, self).get_queryset().filter(category=cate)
+            return super(CategoryView, self).get_queryset().filter(category_id=self.kwargs.get('category_pk'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -119,7 +118,6 @@ class ArticleDetailView(DetailView):
         context = super(ArticleDetailView, self).get_context_data(**kwargs)
         #每处理一次get请求就增加一次阅读量
         self.object.increase_views()
-        context['comment_list'] = context['article'].articlecomment_set.all()
         return context
 
 def search(request):
