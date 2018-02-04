@@ -1,7 +1,7 @@
 {% if page_obj.number == 1 %}
 <div class="title">{{ paginator.count }}条评论</div>
 {% if user.is_authenticated %}
-<form action="{% url 'comment:create_article_comment' %}" method="post">
+<form id="comment-form" action="{% url 'comment:create_article_comment' %}" method="post">
 {% csrf_token %}
 {% for field in form %}
 {{ field }}
@@ -9,7 +9,6 @@
 <div class="submit">
     <input type="submit" class="button" value="评论">
 </div>
-<!--div class="submit"><button>评论</button></div-->
 </form>
 <script>$("#id_content").attr("placeholder", "写下你的评论...")</script>
 {% else %}
@@ -25,13 +24,14 @@
             <i class="fa fa-user fa-2x"></i>
             {% endif %} {% endwith %}
         </a>
-        <a class="nickname" href="#">{{ comment.user.profile.nickname }}</a>
+        <a class="username" href="#">{{ comment.user.username }}</a>
         <span style="float: right;">#{{ i }}</span>
         <div class="content">
             {{ comment.content }}
         </div>
-        <span>{{ comment.time }}</span>
-        <a class="reply-this" href="#">回复</a>
+        <span>{{ comment.time }}&emsp;</span>
+        <span class="reply-this" data-comment-id="{{ comment.id }}">
+            <i class="fa fa-reply"></i> 回复</span>
         <ul class="reply-list">
             {% for reply in replies %}
             <li class="reply-item">
@@ -41,15 +41,17 @@
                     <i class="fa fa-user fa-2x"></i>
                     {% endif %} {% endwith %}
                 </a>
-                <a class="nickname" href="#">{{ reply.user.profile.nickname }}</a>
-                {% if reply.reply %}
+                <a class="username" href="#">{{ reply.user.username }}</a>
+                {% if reply.reply.id %}
                 <span> 回复 </span>
-                <a class="nickname" href="#">{{ reply.reply.user.profile.nickname }}</a>
+                <a class="username" href="#">{{ reply.reply.user.username }}</a>
                 {% endif %}
                 <div class="content">
                     {{ reply.content }}
                 </div>
-                <span>{{ reply.time }}</span>
+                <span>{{ reply.time }}&emsp;</span>
+                <span class="reply-this" data-reply-id="{{ reply.id }}">
+                    <i class="fa fa-reply"></i> 回复</span>
             </li>
             {% endfor %}
         </ul>

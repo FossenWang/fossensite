@@ -3,15 +3,16 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="white-board">
+                <div class="login flex-center">
                 {% if form.errors %}
-                <p>Your username and password didn't match. Please try again.</p>
+                <p>用户名和密码不匹配，请重试！</p>
                 {% endif %} {% if next %} {% if user.is_authenticated %}
-                <p>Your account doesn't have access to this page. To proceed, please login with an account that has access.</p>
+                <p>该账户无权浏览此页面，想继续浏览请更换账户</p>
                 {% else %}
-                <p>Please login to see this page.</p>
+                <p>登录后继续浏览</p>
                 {% endif %} {% endif %}
 
-                <form method="post" action="{% url 'login' %}">
+                <form class="flex-center" method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     <table>
                         <tr>
@@ -23,15 +24,13 @@
                             <td>{{ form.password }}</td>
                         </tr>
                     </table>
-
-                    <input type="submit" value="login" />
+                    <input class="button" type="submit" value="login" />
                     <input type="hidden" name="next" value="{{ next }}" />
                 </form>
-
-                {# Assumes you setup the password_reset view in your URLconf #}
                 <p>
-                    <a href="{% url 'password_reset' %}">Lost password?</a>
+                    <a href="{% url 'password_reset' %}">忘记密码了？</a>
                 </p>
+            </div>
             </div>
         </div>
     </div>

@@ -18,6 +18,7 @@ ul { list-style: none; margin: 0; padding: 0; }
     color: #0070C0; border: 1px solid #0070C0;; border-radius: 4px;
 }
 .button:hover { background-color: #1F497D;  color: white; }
+.flex-center { display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
 /* ------------------------------------------------------------------------- */
 /* -------------------------------------Header------------------------------ */
@@ -168,14 +169,14 @@ main { margin: 10px 0; }
 
 #comment { padding: 15px; }
 #comment .title { margin: 0; padding: 15px 0; font-size: 1.2rem; border-top: 1px solid lightgray; }
-#comment textarea { margin-bottom: 10px; width: 100%; height: 10rem; border-radius: 4px; padding: 10px; }
+#comment textarea { margin-bottom: 10px; padding: 10px; width: 100%; height: 10rem; border-radius: 5px; }
 #comment .login {
     display: flex; align-items: center; justify-content: center;
     margin-bottom: 10px; height: 10rem;
     border: 1px solid lightgray; border-radius: 4px;
 }
-#comment .submit { text-align: right; margin-bottom: 15px; font-size: 0.9rem;}
-#comment .comment-item { padding: 15px 0 15px 50px; border-top: 1px solid lightgray; }
+#comment .submit { text-align: right; margin-bottom: 15px; font-size: 0.9rem; }
+#comment .comment-item { padding: 15px 0 0 50px; border-top: 1px solid lightgray; }
 #comment .avatar {
     width: 32px; height: 32px;
     position: absolute; left: 30px;
@@ -187,6 +188,11 @@ main { margin: 10px 0; }
 #comment .reply-list { padding-top: 15px; }
 #comment .reply-item { padding: 15px 0 15px 45px; border-top: 1px solid lightgray; }
 #comment .reply-item .avatar { width: 32px; height: 32px; left: 80px; }
+#comment .reply-this { cursor: pointer; }
+#comment .reply-this:hover { color: #17375E; }
+#comment .cancel { margin: 0 10px; cursor: pointer; }
+#comment .cancel:hover { color: #17375E; }
+#comment .reply-form textarea { height: 5rem; }
 
 .widget { margin-bottom: 10px; padding: 10px; }
 .widget-title { border-bottom: 1px solid lightgray; padding: 10px; margin-bottom: 0; }
@@ -197,6 +203,9 @@ main { margin: 10px 0; }
 .topic-widget { padding: 10px; }
 .topic-widget a { display: inline-block; margin: 0 5px 5px 0; padding: 2px 10px; border: 1px solid #ccc; border-radius: 1rem; }
 
+.login { padding: 50px 0 30px 0; }
+.login form label { margin: 0; }
+.login form input { margin: 10px; }
 /* ------------------------------------------------------------------------- */
 /* -------------------------------------Footer------------------------------ */
 /* ------------------------------------------------------------------------- */

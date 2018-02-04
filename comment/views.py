@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.edit import BaseCreateView
-from django.http import Http404, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest
 from django.urls import reverse, NoReverseMatch
 from django.core.exceptions import ImproperlyConfigured
 
 from .models import ArticleComment, ArticleCommentReply
-from .forms import ArticleCommentForm
+from .forms import ArticleCommentForm, ArticleCommentReplyForm
 
 
 class ArticleCommentView(ListView):
@@ -19,10 +19,14 @@ class ArticleCommentView(ListView):
     ordering = '-time'
 
     def get_queryset(self):
-        return super().get_queryset().filter(article_id=self.kwargs.get('article_pk'))
+        return super().get_queryset() \
+        .filter(article_id=self.kwargs.get('article_pk')) \
+        .select_related('user', 'user__profile') \
+        .only('content', 'time', 'user__username', 'user__profile__avatar')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        comments = context['comment_list']
 
         if self.request.user.is_authenticated and context["page_obj"].number == 1:
             context['form'] = ArticleCommentForm({
@@ -32,18 +36,19 @@ class ArticleCommentView(ListView):
         else:
             context['article_pk'] = self.kwargs['article_pk']
 
-        context['replies_list'] = []
-        for comment in context['comment_list']:
-            replies = ArticleCommentReply.objects.filter(comment=comment)
-            context['replies_list'].append(replies)
-
         first_num = context["paginator"].count - \
             self.paginate_by * (context["page_obj"].number - 1)
-        last_num = first_num - len(context['comment_list'])
+        last_num = first_num - comments.count()
+
+        replies = ArticleCommentReply.objects.filter(comment_id__in=[c.id for c in comments]) \
+        .select_related('user', 'user__profile', 'reply__user') \
+        .only('content', 'time', 'user__username', 'user__profile__avatar', 'reply__user__username') \
+        .order_by('time')
+
         context['comment_list'] = zip(
             range(first_num, last_num, -1),
-            context['comment_list'],
-            context['replies_list'])
+            comments,
+            [[r for r in replies if r.comment.id == c.id] for c in comments])
         return context
 
 class CreateArticleCommentView(BaseCreateView):
@@ -59,10 +64,12 @@ class CreateArticleCommentView(BaseCreateView):
             raise ImproperlyConfigured('No URL to redirect to. Provide a success_url.')
         return url
 
-    def get(self, request, *args, **kwargs):
-        '禁止get方法'
-        return HttpResponseBadRequest()
+    def render_to_response(self, context, **response_kwargs):
+        'Deny get method & post method with invalid form.'
+        return HttpResponseBadRequest('Deny get method & post method with invalid form.')
 
-    def form_invalid(self, form):
-        '不处理无效的表单'
-        return HttpResponseBadRequest()
+class CreateArticleCommentReplyView(CreateArticleCommentView):
+    '创建一条新的文章二级评论，只接受POST请求'
+    model = ArticleCommentReply
+    context_object_name = 'article_comment_reply'
+    form_class = ArticleCommentReplyForm
