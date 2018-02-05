@@ -13,14 +13,14 @@
     <link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/css/bootstrap.css" rel="stylesheet">
     <!--link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.css" rel="stylesheet"-->
     <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/static/public/css/style.css" rel="stylesheet">
-
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
     <!--script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.js"></script-->
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/js/bootstrap.js"></script>
     <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
-    <script src="/static/public/js/common.js"></script>
     {% block script %} {% endblock script %}
+
+    <link href="/static/public/css/style.css" rel="stylesheet">
+    <script src="/static/public/js/common.js"></script>
 </head>
 
 <body>
@@ -41,7 +41,7 @@
                                 <ul>
                                     {% for cate in acates %}
                                     <li>
-                                        <a href="{% url 'blog:category' cate.pk %}">{{ cate.name }}</a>
+                                        <a href="{% url 'blog:category' cate.id %}">{{ cate.name }}</a>
                                     </li>
                                     {% endfor %}
                                 </ul>

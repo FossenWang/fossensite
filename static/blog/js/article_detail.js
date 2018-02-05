@@ -36,24 +36,50 @@ function loadCommentWhenScollToBottom() {
     }
 }
 
+//获取评论列表
 function getCommentList(page) {
     var url = $("#comment").attr("data-url");
     if (page) {
         url += "?page=" + page;
     }
     $.get(url, function (data, status) {
+        //$.get()是异步请求，在得到服务器响应后才能操作相应DOM
         if (status == "success") {
             $("#comment").append(data);
+            var reply_this = $(".reply-this");
+            reply_this.unbind("click");
+            reply_this.click(reply);
+            reply_this.each(function(){
+                var user_id = $("#comment-form").attr("data-login-user");
+                var comment_user_id = $(this).attr("data-user-id");
+                if ( user_id==comment_user_id && $(this).siblings(".delete-this").length==0){
+                    $(this).after('<span class="delete-this"><i class="fa fa-trash""></i> 删除</span>');
+                    $(this).siblings(".delete-this").click(openDeleteDialog);
+                }
+            });
+            $("#comment .loading").remove();
         } else {
-            $("#comment").append("网络好像出问题了");
+            $("#comment .loading").html("无法加载评论");
         }
-        //$.get()是异步请求，在得到服务器响应后才能操作相应DOM
-        $("#comment .loading").remove();
-        $(".reply-this").unbind("click");
-        $(".reply-this").click(reply);
-    })
+    });
 }
 
+//打开删除对话框窗口
+function openDeleteDialog() {
+    var url;
+    var reply_this = $(this).siblings(".reply-this");
+    var comment_id = reply_this.attr("data-comment-id");
+    if (comment_id) {
+        url = "/article/comment/delete/" + comment_id +"/";
+    }else{
+        url = "/article/comment/reply/delete/" + reply_this.attr("data-reply-id") +"/";
+    }
+    $("#delete-comment-dialog form").attr("action", url);
+    $("#delete-comment-dialog form p").last().text("评论内容：" + $(this).siblings(".content").text());
+    $("#delete-comment-dialog").dialog("open");
+}
+
+//创建回复对话框
 function reply() {
     var reply_id = $(this).attr("data-reply-id");
     var reply_user = $(this).siblings(".username").first().text();
@@ -66,13 +92,14 @@ function reply() {
         comment_id = $(this).attr("data-comment-id");
     }
     if ($("#comment-form").length == 0) {
+        //没有#comment-form意味着未登录
         $("body").animate({scrollTop: $("#comment .login").offset().top-100}, 500);
     } else {
         if (reply_list.siblings(".reply-form").length == 0) {
-            reply_list.after('<form class="reply-form" action="/comment/reply/create/" method="post">'
+            reply_list.after('<form class="reply-form" action="/article/comment/reply/create/" method="post">'
                 + '<input type="hidden" name="reply" value>'
                 + '<input type="hidden" name="comment" value></form>');
-            reply_form = reply_list.next();
+            reply_form = reply_list.siblings(".reply-form");
             reply_form.append($("#comment-form").html());
             reply_form.find("input[name=comment]").val(comment_id);
             reply_form.find(".submit").prepend('<span></span><span class="cancel">取消</span>');

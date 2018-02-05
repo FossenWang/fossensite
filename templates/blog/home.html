@@ -27,10 +27,10 @@
                             </div>
                             <div class="meta">
                                 {{ article.pub_date }}&nbsp;&nbsp; 分类:&nbsp;
-                                <a href="{% url 'blog:category' article.category.pk %}">
+                                <a href="{% url 'blog:category' article.category.id %}">
                                     {{ article.category }}
                                 </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
-                                <a href="{% url 'blog:topic' topic.pk %}">{{ topic.name }}</a>&nbsp;{% endfor %}
+                                <a href="{% url 'blog:topic' topic.id %}">{{ topic.name }}</a>&nbsp;{% endfor %}
                             </div>
                         </div>
                         {% else %}
@@ -44,10 +44,10 @@
                             </div>
                             <div class="meta">
                                 {{ article.pub_date }}&nbsp;&nbsp; 分类:&nbsp;
-                                <a href="{% url 'blog:category' article.category.pk %}">
+                                <a href="{% url 'blog:category' article.category.id %}">
                                     {{ article.category }}
                                 </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
-                                <a href="{% url 'blog:topic' topic.pk %}">{{ topic.name }}</a>&nbsp;{% endfor %}
+                                <a href="{% url 'blog:topic' topic.id %}">{{ topic.name }}</a>&nbsp;{% endfor %}
                             </div>
                         </div>
                         {% endif %}
@@ -75,7 +75,7 @@
                     {% get_article_category_names as categories %}
                     {% for cate in categories %}
                     <li>
-                        <a href="{% url 'blog:category' cate.pk %}">
+                        <a href="{% url 'blog:category' cate.id %}">
                             {{ cate.name }}
                         </a>
                     </li>
@@ -87,7 +87,7 @@
                 <div class="topic-widget">
                     {% get_topics as topics %}
                     {% for topic in topics %}
-                    <a href="{% url 'blog:topic' topic.pk %}">
+                    <a href="{% url 'blog:topic' topic.id %}">
                         {{ topic.name }}
                     </a>
                     {% endfor %}

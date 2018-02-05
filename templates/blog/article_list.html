@@ -7,8 +7,8 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="white-board article-list">
-                {% if category_pk %}
-                <ul class="category-nav" data-category-pk="{{ category_pk }}">
+                {% if category_id %}
+                <ul class="category-nav" data-category-id="{{ category_id }}">
                     {% count_total_articles as total %} {% get_article_categories as categories %}
                     <li>
                         <a href="{% url 'blog:category' 0 %}">
@@ -18,17 +18,17 @@
                     </li>
                     {% for cate in categories %}
                     <li>
-                        <a href="{% url 'blog:category' cate.pk %}">
+                        <a href="{% url 'blog:category' cate.id %}">
                             {{ cate.name }}
                             <span>&nbsp;&nbsp;{{ cate.counts }}</span>
                         </a>
                     </li>
                     {% endfor %}
                 </ul>{% else %}
-                <div class="topics-nav" data-topic-pk="{{ topic_pk }}">
+                <div class="topics-nav" data-topic-id="{{ topic_id }}">
                     <span>话题&emsp;</span>
                     {% get_topics as topics %} {% for topic in topics %}
-                    <a href="{% url 'blog:topic' topic.pk %}">
+                    <a href="{% url 'blog:topic' topic.id %}">
                         {{ topic.name }}
                     </a>
                     {% endfor %}
@@ -53,10 +53,10 @@
                             </div>
                             <div class="meta">
                                 {{ article.pub_date }}&nbsp;&nbsp; 分类:&nbsp;
-                                <a href="{% url 'blog:category' article.category.pk %}">
+                                <a href="{% url 'blog:category' article.category.id %}">
                                     {{ article.category }}
                                 </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
-                                <a href="{% url 'blog:topic' topic.pk %}">{{ topic.name }}</a>&nbsp;{% endfor %}
+                                <a href="{% url 'blog:topic' topic.id %}">{{ topic.name }}</a>&nbsp;{% endfor %}
                             </div>
                         </div>
                         {% else %}
@@ -70,10 +70,10 @@
                             </div>
                             <div class="meta">
                                 {{ article.pub_date }}&nbsp;&nbsp; 分类:&nbsp;
-                                <a href="{% url 'blog:category' article.category.pk %}">
+                                <a href="{% url 'blog:category' article.category.id %}">
                                     {{ article.category }}
                                 </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
-                                <a href="{% url 'blog:topic' topic.pk %}">{{ topic.name }}</a>&nbsp;{% endfor %}
+                                <a href="{% url 'blog:topic' topic.id %}">{{ topic.name }}</a>&nbsp;{% endfor %}
                             </div>
                         </div>
                         {% endif %}

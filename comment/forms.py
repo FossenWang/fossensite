@@ -5,18 +5,16 @@ from .models import ArticleComment, ArticleCommentReply
 class ArticleCommentForm(ModelForm):
     class Meta:
         model = ArticleComment
-        fields = ['content', 'user', 'article']
+        fields = ['content', 'article']
         widgets = {
-            'user': HiddenInput,
             'article': HiddenInput,
         }
 
 class ArticleCommentReplyForm(ModelForm):
     class Meta:
         model = ArticleCommentReply
-        fields = ['content', 'user', 'comment', 'reply']
+        fields = ['content', 'comment', 'reply']
         widgets = {
-            'user': HiddenInput,
             'comment': HiddenInput,
             'reply': HiddenInput,
         }

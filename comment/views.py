@@ -1,9 +1,10 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
-from django.views.generic.edit import BaseCreateView
-from django.http import HttpResponseBadRequest
+from django.views.generic.edit import BaseCreateView, BaseDeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import HttpResponseBadRequest, HttpResponseNotAllowed
 from django.urls import reverse, NoReverseMatch
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 
 from .models import ArticleComment, ArticleCommentReply
 from .forms import ArticleCommentForm, ArticleCommentReplyForm
@@ -20,7 +21,7 @@ class ArticleCommentView(ListView):
 
     def get_queryset(self):
         return super().get_queryset() \
-        .filter(article_id=self.kwargs.get('article_pk')) \
+        .filter(article_id=self.kwargs['article_id']) \
         .select_related('user', 'user__profile') \
         .only('content', 'time', 'user__username', 'user__profile__avatar')
 
@@ -29,12 +30,9 @@ class ArticleCommentView(ListView):
         comments = context['comment_list']
 
         if self.request.user.is_authenticated and context["page_obj"].number == 1:
-            context['form'] = ArticleCommentForm({
-                'user': self.request.user.id,
-                'article': self.kwargs['article_pk']
-                })
+            context['form'] = ArticleCommentForm({'article': self.kwargs['article_id']})
         else:
-            context['article_pk'] = self.kwargs['article_pk']
+            context['article_id'] = self.kwargs['article_id']
 
         first_num = context["paginator"].count - \
             self.paginate_by * (context["page_obj"].number - 1)
@@ -51,25 +49,56 @@ class ArticleCommentView(ListView):
             [[r for r in replies if r.comment.id == c.id] for c in comments])
         return context
 
-class CreateArticleCommentView(BaseCreateView):
-    '创建一条新的文章评论，只接受POST请求'
-    model = ArticleComment
-    context_object_name = 'article_comment'
-    form_class = ArticleCommentForm
-
+class EditArticleCommentMixin():
+    '修改文章评论Mixin'
     def get_success_url(self):
-        try:
+        '操作成功后转向文章详情页'
+        try:#POST字典中必须提供文章的id
             url = reverse('blog:detail', kwargs={'pk': self.request.POST['article']})
         except NoReverseMatch:
-            raise ImproperlyConfigured('No URL to redirect to. Provide a success_url.')
+            raise ImproperlyConfigured('Wrong URL to redirect.')
         return url
 
     def render_to_response(self, context, **response_kwargs):
-        'Deny get method & post method with invalid form.'
-        return HttpResponseBadRequest('Deny get method & post method with invalid form.')
+        '禁止get方法和form无效的post'
+        if self.request.method == "GET":
+            return HttpResponseNotAllowed('Get Method Not Alllowed')
+        else:
+            return HttpResponseBadRequest('Invalid Form')
+
+    def form_valid(self, form):
+        '保存前设置创建评论的用户'
+        self.object = form.save(commit=False)
+        self.object.user = self.request.user
+        self.object.save()
+        return super().form_valid(form)
+
+class CreateArticleCommentView(LoginRequiredMixin, EditArticleCommentMixin, BaseCreateView):
+    '创建一条新的文章评论'
+    model = ArticleComment
+    form_class = ArticleCommentForm
 
 class CreateArticleCommentReplyView(CreateArticleCommentView):
-    '创建一条新的文章二级评论，只接受POST请求'
+    '创建一条新的文章二级评论'
     model = ArticleCommentReply
-    context_object_name = 'article_comment_reply'
     form_class = ArticleCommentReplyForm
+
+
+class CommentCreatorTestMixin(UserPassesTestMixin):
+    '验证发送请求的用户是否是评论创建者'
+    def test_func(self):
+        if self.request.user.is_authenticated:
+            self.object = self.get_object()
+            is_creator = self.request.user.id == self.object.user_id
+            self.raise_exception = not is_creator
+        else:
+            is_creator = False
+        return is_creator
+
+class DeleteArticleCommentView(CommentCreatorTestMixin, EditArticleCommentMixin, BaseDeleteView):
+    '删除一条文章评论'
+    model = ArticleComment
+
+class DeleteArticleCommentReplyView(DeleteArticleCommentView):
+    '删除一条文章二级评论'
+    model = ArticleCommentReply

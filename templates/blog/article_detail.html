@@ -1,6 +1,8 @@
 {% extends 'base.html' %} {% load blog_tags %}
 {% block script %}
+<link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.css" rel="stylesheet">
 <link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 <script src="/static/blog/js/article_detail.js"></script>
 {% endblock script %}
@@ -12,7 +14,7 @@
                 <div class="breadcrumb-nav">
                     <a href="/">首页</a> &gt;
                     <a href="{% url 'blog:category' 0 %}">文章</a> &gt;
-                    <a href="{% url 'blog:category' article.category.pk %}">
+                    <a href="{% url 'blog:category' article.category.id %}">
                         {{ article.category }}
                     </a>
                 </div>
@@ -25,16 +27,16 @@
                     <h1 class="title">{{ article.title }}</h1>
                     <div class="meta">
                         {{ article.pub_date }} &emsp;{{ article.views }} 阅读&emsp;分类:&nbsp;
-                        <a href="{% url 'blog:category' article.category.pk %}">
+                        <a href="{% url 'blog:category' article.category.id %}">
                             {{ article.category }}
                         </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
-                        <a href="{% url 'blog:topic' topic.pk %}">{{ topic.name }}</a>&nbsp;{% endfor %}
+                        <a href="{% url 'blog:topic' topic.id %}">{{ topic.name }}</a>&nbsp;{% endfor %}
                     </div>
                     <div class="content">
                         {{ article.content|safe }}
                     </div>
                 </article>
-                <div id='comment' data-url="{% url 'comment:article_comment' article.pk %}">
+                <div id='comment' data-url="{% url 'blog:article_comment' article.id %}">
                 </div>
             </div>
         </div>
@@ -50,7 +52,7 @@
                     {% get_article_category_names as categories %}
                     {% for cate in categories %}
                     <li>
-                        <a href="{% url 'blog:category' cate.pk %}">
+                        <a href="{% url 'blog:category' cate.id %}">
                             {{ cate.name }}
                         </a>
                     </li>

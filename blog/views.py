@@ -87,25 +87,25 @@ class ArticleListView(ListView):
 class CategoryView(ArticleListView):
     '文章分类视图'
     def get_queryset(self):
-        if self.kwargs.get('category_pk') == '0':
+        if self.kwargs.get('category_id') == '0':
             return super(CategoryView, self).get_queryset()
         else:
-            return super(CategoryView, self).get_queryset().filter(category_id=self.kwargs.get('category_pk'))
+            return super(CategoryView, self).get_queryset().filter(category_id=self.kwargs.get('category_id'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category_pk'] = self.kwargs.get('category_pk')
+        context['category_id'] = self.kwargs.get('category_id')
         return context
 
 class TopicView(ArticleListView):
     '文章话题视图'
     def get_queryset(self):
-        topic = get_object_or_404(Topic, pk=self.kwargs.get('topic_pk'))
+        topic = get_object_or_404(Topic, id=self.kwargs.get('topic_id'))
         return super(TopicView, self).get_queryset().filter(topics=topic)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['topic_pk'] = int(self.kwargs.get('topic_pk'))
+        context['topic_id'] = int(self.kwargs.get('topic_id'))
         return context
 
 class ArticleDetailView(DetailView):
