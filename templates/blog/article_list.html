@@ -11,7 +11,7 @@
                 <ul class="category-nav" data-category-id="{{ category_id }}">
                     {% count_total_articles as total %} {% get_article_categories as categories %}
                     <li>
-                        <a href="{% url 'blog:category' 0 %}">
+                        <a href="{% url 'blog:category' 1 %}">
                             全部文章
                             <span>&nbsp;&nbsp;{{ total }}</span>
                         </a>

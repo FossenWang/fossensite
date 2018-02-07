@@ -45,7 +45,7 @@ $("#delete-comment-dialog span").click(function() {
     <li class="comment-item">
         <a class="avatar" href="#">
             {% with avatar=comment.user.profile.avatar %} {% if avatar %}
-            <img src="{{ avatar.url }} " atl="avator"> {% else %}
+            <img src="{{ avatar.name }} " atl="avator"> {% else %}
             <i class="fa fa-user fa-2x"></i>
             {% endif %} {% endwith %}
         </a>
@@ -60,7 +60,7 @@ $("#delete-comment-dialog span").click(function() {
             <li class="reply-item">
                 <a class="avatar" href="#">
                     {% with avatar=reply.user.profile.avatar %} {% if avatar %}
-                    <img src="{{ avatar.url }} " atl="avator"> {% else %}
+                    <img src="{{ avatar.name }} " atl="avator"> {% else %}
                     <i class="fa fa-user fa-2x"></i>
                     {% endif %} {% endwith %}
                 </a>

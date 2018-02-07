@@ -11,10 +11,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/css/bootstrap.css" rel="stylesheet">
-    <!--link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.css" rel="stylesheet"-->
     <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
-    <!--script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.js"></script-->
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/js/bootstrap.js"></script>
     <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
     {% block script %} {% endblock script %}
@@ -36,27 +34,14 @@
                                 <a href="/">首页</a>
                             </li>
                             <li>
-                                <a href="{% url 'blog:category' 0 %}">文章</a>
-                                {% get_article_category_names as acates %}
-                                <ul>
-                                    {% for cate in acates %}
-                                    <li>
-                                        <a href="{% url 'blog:category' cate.id %}">{{ cate.name }}</a>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
+                                <a href="{% url 'blog:category' 1 %}">文章</a>
                             </li>
+                            {% get_article_category_names as acates %}
+                            {% for cate in acates %}
                             <li>
-                                <a href="#">健身</a>
-                                <ul>
-                                    <li>
-                                        <a href="#">训练方案</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">动作库</a>
-                                    </li>
-                                </ul>
+                                <a href="{% url 'blog:category' cate.id %}">{{ cate.name }}</a>
                             </li>
+                            {% endfor %}
                         </ul>
                         <div class="tools">
                             <i class="fa fa-search fa-lg"></i>

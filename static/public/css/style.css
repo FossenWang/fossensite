@@ -13,7 +13,9 @@ a:hover { color: #0070C0; text-decoration: none; }
 i { cursor: pointer; }
 img { max-width: 100%; height: auto; border-radius: 5px; }
 ul { list-style: none; margin: 0; padding: 0; }
-input:-webkit-autofill { -webkit-box-shadow: 100px 0 0 0 white inset; }
+blockquote { border-left: 0.4rem solid #ddd; padding: 0.5rem 0 0.5rem 0.8rem; margin: 1rem 0 1rem 0.8rem; }
+blockquote>p { margin: 0; }
+input:-webkit-autofill { -webkit-box-shadow: 1000px 0 0 0 white inset; }
 
 .button {
     background-color: white; padding: 3px 9px; cursor: pointer;
@@ -159,7 +161,7 @@ main { margin: 10px 0; }
     text-align: center; color: white;
     background-color: #eee; border-radius: 4px;
 }
-#comment .content { padding: 10px 0 0; white-space: pre; }
+#comment .content { padding: 10px 0 0; white-space: pre-wrap; }
 #comment span { font-size: 0.875rem; color: gray; }
 #comment .reply-list { padding-top: 15px; }
 #comment .reply-item { padding: 15px 0 15px 45px; border-top: 1px solid lightgray; }

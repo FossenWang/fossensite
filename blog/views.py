@@ -25,6 +25,7 @@ class ArticleListView(ListView):
     template_name = 'blog/article_list.html'
     context_object_name = 'articles'
     paginate_by = 10
+    allow_empty = False
 
     def get_context_data(self, **kwargs):
         '处理分页数据'
@@ -87,7 +88,7 @@ class ArticleListView(ListView):
 class CategoryView(ArticleListView):
     '文章分类视图'
     def get_queryset(self):
-        if self.kwargs.get('category_id') == '0':
+        if self.kwargs.get('category_id') == '1':
             return super(CategoryView, self).get_queryset()
         else:
             return super(CategoryView, self).get_queryset().filter(category_id=self.kwargs.get('category_id'))
