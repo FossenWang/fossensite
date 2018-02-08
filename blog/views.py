@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 from .models import Article, Category, Topic
 
@@ -17,6 +18,7 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['articles'] = Article.objects.filter(pub_date__lt=timezone.now())[:10]
+        context['fossen'] = User.objects.values('last_name', 'profile__avatar').get(id=2)
         return context
 
 class ArticleListView(ListView):
@@ -89,9 +91,9 @@ class CategoryView(ArticleListView):
     '文章分类视图'
     def get_queryset(self):
         if self.kwargs.get('category_id') == '1':
-            return super(CategoryView, self).get_queryset()
+            return super().get_queryset()
         else:
-            return super(CategoryView, self).get_queryset().filter(category_id=self.kwargs.get('category_id'))
+            return super().get_queryset().filter(category_id=self.kwargs.get('category_id'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -101,8 +103,7 @@ class CategoryView(ArticleListView):
 class TopicView(ArticleListView):
     '文章话题视图'
     def get_queryset(self):
-        topic = get_object_or_404(Topic, id=self.kwargs.get('topic_id'))
-        return super(TopicView, self).get_queryset().filter(topics=topic)
+        return super().get_queryset().filter(topics=self.kwargs.get('topic_id'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -119,6 +120,17 @@ class ArticleDetailView(DetailView):
         context = super(ArticleDetailView, self).get_context_data(**kwargs)
         #每处理一次get请求就增加一次阅读量
         self.object.increase_views()
+        return context
+
+class SearchArticleView(ArticleListView):
+    '文章搜索视图'
+    def get_queryset(self):
+        q = self.request.GET['q']
+        return super().get_queryset().filter(Q(title__icontains=q) | Q(content__icontains=q))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['q'] = self.request.GET['q']
         return context
 
 def search(request):

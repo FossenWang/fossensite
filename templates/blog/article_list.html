@@ -24,7 +24,7 @@
                         </a>
                     </li>
                     {% endfor %}
-                </ul>{% else %}
+                </ul>{% elif topic_id %}
                 <div class="topics-nav" data-topic-id="{{ topic_id }}">
                     <span>话题&emsp;</span>
                     {% get_topics as topics %} {% for topic in topics %}
@@ -32,7 +32,10 @@
                         {{ topic.name }}
                     </a>
                     {% endfor %}
-                </div>{% endif %} {% for article in articles %}
+                </div>{% else %}
+                <div class="search-result">关键词：{{ q }}&emsp;搜索结果 共{{ articles.count }}条</div>
+                {% endif %}
+                {% for article in articles %}
                 <article>
                     <div class="row">
                         {% if article.cover %}

@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.edit import BaseCreateView, BaseDeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -82,7 +81,6 @@ class CreateArticleCommentReplyView(CreateArticleCommentView):
     '创建一条新的文章二级评论'
     model = ArticleCommentReply
     form_class = ArticleCommentReplyForm
-
 
 class CommentCreatorTestMixin(UserPassesTestMixin):
     '验证发送请求的用户是否是评论创建者'

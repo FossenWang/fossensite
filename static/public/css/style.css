@@ -106,6 +106,8 @@ main { margin: 10px 0; }
 .topics-nav a { display: inline-block; padding: 5px 10px; border-radius: 5px; }
 .topics-nav .on { background-color: #17375E; color: white;}
 
+.search-result { padding: 10px; }
+
 .breadcrumb-nav { padding: 10px 15px; border-bottom: 1px solid lightgray; }
 
 /*文章列表*/
@@ -178,6 +180,13 @@ main { margin: 10px 0; }
 .widget { margin-bottom: 10px; padding: 10px; }
 .widget-title { border-bottom: 1px solid lightgray; padding: 10px; margin-bottom: 0; }
 .widget p { padding: 10px; margin: 0; }
+
+.widget .social-list {
+    padding: 10px; display: flex; align-items: center;
+    border-top: 1px solid lightgray; padding-bottom: 0;
+}
+.widget .social-list li { margin-right: 10px; }
+
 .category-widget { padding: 10px 30px; list-style: disc;  }
 .category-widget li { margin-bottom: 5px; }
 .category-widget span { font-size: 0.8rem; color: gray;}
