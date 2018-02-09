@@ -133,18 +133,6 @@ class SearchArticleView(ArticleListView):
         context['q'] = self.request.GET['q']
         return context
 
-def search(request):
-    q = request.GET.get('q')
-    error_msg = ''
-
-    if not q:
-        error_msg = "请输入关键词"
-        return render(request, 'blog/index.html', {'error_msg': error_msg})
-
-    article_list = Article.objects.filter(Q(title__icontains=q) | Q(content__icontains=q))
-    return render(request, 'blog/index.html', {'error_msg': error_msg,
-                                               'article_list': article_list})
-
 def upload_image(request):
     if request.method == 'POST':
         image = request.FILES.get("upload_image")

@@ -33,7 +33,7 @@
                     </a>
                     {% endfor %}
                 </div>{% else %}
-                <div class="search-result">关键词：{{ q }}&emsp;搜索结果 共{{ articles.count }}条</div>
+                <div class="search-result">关键词：{{ q }}&emsp;搜索结果 共{{ paginator.count }}条</div>
                 {% endif %}
                 {% for article in articles %}
                 <article>

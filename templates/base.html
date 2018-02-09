@@ -55,7 +55,7 @@
                                 <a href="{% url 'logout' %}?next={{ request.path }}">注销</a>
                                 {% else %}
                                 <a href="{% url 'login' %}?next={{ request.path }}">登录</a>
-                                <a>注册</a>
+                                <a href="{% url 'account:create' %}">注册</a>
                                 {% endif %}
                             </div>
                         </div>
@@ -71,9 +71,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="copy-right">
-                        <p>© 2018 Fossen</p>
-                    </div>
+                    <div class="copy-right">© 2018 Fossen</div>
+                    <div class="beian"><a href="http://www.miitbeian.gov.cn/">鄂ICP备18003155号-1</a></div>
                 </div>
             </div>
         </div>

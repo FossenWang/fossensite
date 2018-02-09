@@ -195,15 +195,25 @@ main { margin: 10px 0; }
 
 /*登录页面*/
 .login { padding: 50px 0 30px 0; }
+.login .title { font-size: 1.2rem; margin-bottom: 20px; }
 .login form label { margin: 0; }
 .login form input { margin: 10px; }
+
+/*注册页面*/
+#create-user-form { padding: 20px; }
+#create-user-form .title { font-size: 1.2rem; margin-bottom: 20px; }
+#create-user-form .field label { width: 5rem; }
+#create-user-form .help { color: gray; font-size: 0.8rem; margin-bottom: 20px; }
 
 /* ------------------------------------------------------------------------- */
 /* -------------------------------------Footer------------------------------ */
 /* ------------------------------------------------------------------------- */
 
-footer { background-color:white; border-top: 1px solid #eee; }
-.copy-right { text-align: center; padding-top: 20px; }
+footer {
+    padding: 20px; background-color:white; border-top: 1px solid #eee;
+    text-align: center; color: gray; font-size: 0.8rem;
+}
+.beian a { color: gray; }
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------Effects------------------------------ */

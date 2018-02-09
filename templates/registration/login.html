@@ -4,33 +4,34 @@
         <div class="col-lg-12">
             <div class="white-board">
                 <div class="login flex-center">
-                {% if form.errors %}
-                <p>用户名和密码不匹配，请重试！</p>
-                {% endif %} {% if next %} {% if user.is_authenticated %}
-                <p>该账户无权浏览此页面，想继续浏览请更换账户</p>
-                {% else %}
-                <p>登录后继续浏览</p>
-                {% endif %} {% endif %}
+                    <div class="title">用户登录</div>
+                    {% if form.errors %}
+                    <p>用户名和密码不匹配，请重试！</p>
+                    {% endif %} {% if next %} {% if user.is_authenticated %}
+                    <p>该账户无权浏览此页面，想继续浏览请更换账户</p>
+                    {% else %}
+                    <p>登录后继续浏览</p>
+                    {% endif %} {% endif %}
 
-                <form class="flex-center" method="post" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    <table>
-                        <tr>
-                            <td>{{ form.username.label_tag }}</td>
-                            <td>{{ form.username }}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ form.password.label_tag }}</td>
-                            <td>{{ form.password }}</td>
-                        </tr>
-                    </table>
-                    <input class="button" type="submit" value="login" />
-                    <input type="hidden" name="next" value="{{ next }}" />
-                </form>
-                <p>
-                    <a href="{% url 'password_reset' %}">忘记密码了？</a>
-                </p>
-            </div>
+                    <form class="flex-center" method="post" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <table>
+                            <tr>
+                                <td>{{ form.username.label_tag }}</td>
+                                <td>{{ form.username }}</td>
+                            </tr>
+                            <tr>
+                                <td>{{ form.password.label_tag }}</td>
+                                <td>{{ form.password }}</td>
+                            </tr>
+                        </table>
+                        <input class="button" type="submit" value="login" />
+                        <input type="hidden" name="next" value="{{ next }}" />
+                    </form>
+                    <p>
+                        <a href="{% url 'password_reset' %}">忘记密码了？</a>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
