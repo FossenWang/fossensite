@@ -35,7 +35,7 @@ $("#delete-comment-dialog span").click(function() {
 </script>
 
 {% else %}
-<div class="login"><a href="{% url 'login' %}?next={% url 'blog:detail' article_id %}">登录后即可评论</a></div>
+<div class="need-login"><a href="{% url 'account:login' %}?next={% url 'blog:detail' article_id %}">登录后即可评论</a></div>
 {% endif %}
 {% endif %}
 

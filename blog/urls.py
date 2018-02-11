@@ -1,4 +1,4 @@
-from django.conf.urls import re_path
+from django.urls import re_path
 from comment.views import ArticleCommentView, CreateArticleCommentView, \
 CreateArticleCommentReplyView, DeleteArticleCommentView, DeleteArticleCommentReplyView
 from . import views

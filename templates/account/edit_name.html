@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block script %}
+{% endblock script %}
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="white-board">
+                <form id="create-user-form" class="flex-center" action="" method="post">
+                <div class="title">修改用户名</div>
+                {% if username %}
+                <p>第三方账号的用户名 {{ username }} 已被其他用户使用，请输入其他的用户名以完成登录</p>
+                {% endif %}
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="field">
+                    {{ field.errors }}
+                    {{ field.label_tag }} {{ field }}
+                </div>
+                {% if field.help_text %}
+                <div class="help">{{ field.help_text|safe }}</div>
+                {% endif %}
+                {% endfor %}
+                <div class="submit">
+                    <input type="submit" class="button" value="确认">
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main %}
