@@ -17,7 +17,8 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['articles'] = Article.objects.filter(pub_date__lt=timezone.now())[:10]
+        context['articles'] = Article.objects.filter(pub_date__lt=timezone.now())[:10] \
+        .defer('author', 'category__number').select_related('category').prefetch_related('topics')
         context['fossen'] = User.objects.values('last_name', 'profile__avatar').get(id=2)
         return context
 
@@ -28,6 +29,10 @@ class ArticleListView(ListView):
     context_object_name = 'articles'
     paginate_by = 10
     allow_empty = False
+
+    def get_queryset(self):
+        return super().get_queryset().defer('author', 'category__number') \
+        .select_related('category').prefetch_related('topics')
 
     def get_context_data(self, **kwargs):
         '处理分页数据'
@@ -90,24 +95,24 @@ class ArticleListView(ListView):
 class CategoryView(ArticleListView):
     '文章分类视图'
     def get_queryset(self):
-        if self.kwargs.get('category_id') == '1':
+        if self.kwargs['category_id'] == '1':
             return super().get_queryset()
         else:
-            return super().get_queryset().filter(category_id=self.kwargs.get('category_id'))
+            return super().get_queryset().filter(category=self.kwargs['category_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category_id'] = self.kwargs.get('category_id')
+        context['category_id'] = self.kwargs['category_id']
         return context
 
 class TopicView(ArticleListView):
     '文章话题视图'
     def get_queryset(self):
-        return super().get_queryset().filter(topics=self.kwargs.get('topic_id'))
+        return super().get_queryset().filter(topics=self.kwargs['topic_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['topic_id'] = int(self.kwargs.get('topic_id'))
+        context['topic_id'] = self.kwargs['topic_id']
         return context
 
 class ArticleDetailView(DetailView):

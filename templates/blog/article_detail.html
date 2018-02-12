@@ -26,7 +26,7 @@
                     {% endif %}
                     <h1 class="title">{{ article.title }}</h1>
                     <div class="meta">
-                        {{ article.pub_date }} &emsp;{{ article.views }} 阅读&emsp;分类:&nbsp;
+                        {{ article.pub_date }}&emsp;{{ article.views }} 阅读&emsp;分类:&nbsp;
                         <a href="{% url 'blog:category' article.category.id %}">
                             {{ article.category }}
                         </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}

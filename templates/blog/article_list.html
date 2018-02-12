@@ -36,26 +36,27 @@
                 <div class="search-result">关键词：{{ q }}&emsp;搜索结果 共{{ paginator.count }}条</div>
                 {% endif %}
                 {% for article in articles %}
+                {% with article_url=article.get_absolute_url %}
                 <article>
                     <div class="row">
                         {% if article.cover %}
                         <div class="col-lg-4 cover">
                             <div class="zoom-container">
-                                <a href="{{ article.get_absolute_url }}">
+                                <a href="{{ article_url }}">
                                     <img src="{{ article.cover.url }}">
                                 </a>
                             </div>
                         </div>
                         <div class="col-lg-8 info">
                             <div class="title">
-                                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                                <a href="{{ article_url }}">{{ article.title }}</a>
                             </div>
                             <div class="abstract">
                                 {{ article.content|striptags|truncatechars:100|safe }}&emsp;
-                                <a href="{{ article.get_absolute_url }}">阅读全文 &gt;</a>
+                                <a href="{{ article_url }}">阅读全文 &gt;</a>
                             </div>
                             <div class="meta">
-                                {{ article.pub_date }}&nbsp;&nbsp; 分类:&nbsp;
+                                {{ article.pub_date }}&emsp;{{ article.views }} 阅读&emsp;分类:&nbsp;
                                 <a href="{% url 'blog:category' article.category.id %}">
                                     {{ article.category }}
                                 </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
@@ -65,14 +66,14 @@
                         {% else %}
                         <div class="col-lg-12 info">
                             <div class="title">
-                                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                                <a href="{{ article_url }}">{{ article.title }}</a>
                             </div>
                             <div class="abstract">
                                 {{ article.content|striptags|truncatechars:150|safe }}&emsp;
-                                <a href="{{ article.get_absolute_url }}">阅读全文 &gt;</a>
+                                <a href="{{ article_url }}">阅读全文 &gt;</a>
                             </div>
                             <div class="meta">
-                                {{ article.pub_date }}&nbsp;&nbsp; 分类:&nbsp;
+                                {{ article.pub_date }}&emsp;{{ article.views }} 阅读&emsp;分类:&nbsp;
                                 <a href="{% url 'blog:category' article.category.id %}">
                                     {{ article.category }}
                                 </a>&emsp;话题:&nbsp;{% for topic in article.topics.all %}
@@ -82,6 +83,7 @@
                         {% endif %}
                     </div>
                 </article>
+                {% endwith %}
                 {% endfor %} {% if is_paginated %}
                 <div class="f-pagination">
                     {% if first %}

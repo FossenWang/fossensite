@@ -17,7 +17,7 @@ class BaseComment(models.Model):
 
 class ArticleComment(BaseComment):
     '文章评论'
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, verbose_name='评论文章')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments', verbose_name='评论文章')
 
     class Meta:
         verbose_name = '文章评论'
@@ -25,7 +25,7 @@ class ArticleComment(BaseComment):
 
 class ArticleCommentReply(BaseComment):
     '文章评论回复(二级评论)'
-    comment = models.ForeignKey(ArticleComment, on_delete=models.CASCADE, verbose_name='一级评论')
+    comment = models.ForeignKey(ArticleComment, on_delete=models.CASCADE, related_name='replies', verbose_name='一级评论')
     reply = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, verbose_name='回复对象')
 
     class Meta:

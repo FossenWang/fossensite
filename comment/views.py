@@ -3,6 +3,7 @@ from django.views.generic.edit import BaseCreateView, BaseDeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseBadRequest, HttpResponseNotAllowed
 from django.urls import reverse, NoReverseMatch
+from django.db.models import Prefetch
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 
 from .models import ArticleComment, ArticleCommentReply
@@ -19,33 +20,29 @@ class ArticleCommentView(ListView):
     ordering = '-time'
 
     def get_queryset(self):
+        replies = ArticleCommentReply.objects \
+        .select_related('user', 'user__profile', 'reply__user') \
+        .only('content', 'time', 'user__username', 'user__profile__avatar', 'reply__user__username') \
+        .order_by('time')
         return super().get_queryset() \
         .filter(article_id=self.kwargs['article_id']) \
         .select_related('user', 'user__profile') \
-        .only('content', 'time', 'user__username', 'user__profile__avatar')
+        .only('content', 'time', 'user__username', 'user__profile__avatar') \
+        .prefetch_related(Prefetch('replies', queryset=replies))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        comments = context['comment_list']
 
         if self.request.user.is_authenticated and context["page_obj"].number == 1:
             context['form'] = ArticleCommentForm({'article': self.kwargs['article_id']})
         else:
             context['article_id'] = self.kwargs['article_id']
 
+        comments = context['comment_list']
         first_num = context["paginator"].count - \
             self.paginate_by * (context["page_obj"].number - 1)
         last_num = first_num - comments.count()
-
-        replies = ArticleCommentReply.objects.filter(comment_id__in=[c.id for c in comments]) \
-        .select_related('user', 'user__profile', 'reply__user') \
-        .only('content', 'time', 'user__username', 'user__profile__avatar', 'reply__user__username') \
-        .order_by('time')
-
-        context['comment_list'] = zip(
-            range(first_num, last_num, -1),
-            comments,
-            [[r for r in replies if r.comment.id == c.id] for c in comments])
+        context['comment_list'] = zip(range(first_num, last_num, -1), comments)
         return context
 
 class EditArticleCommentMixin():

@@ -40,7 +40,7 @@ $("#delete-comment-dialog span").click(function() {
 {% endif %}
 
 <ul class="comment-list" data-page="{{ page_obj.number }}" data-next="{{ page_obj.has_next }}">
-    {% for i, comment, replies in comment_list %}
+    {% for i, comment in comment_list %}
     <li class="comment-item">
         <a class="avatar" href="#">
             {% with avatar=comment.user.profile.avatar %} {% if avatar %}
@@ -55,7 +55,7 @@ $("#delete-comment-dialog span").click(function() {
         <span class="reply-this" data-comment-id="{{ comment.id }}" data-user-id="{{ comment.user.id }}">
             <i class="fa fa-reply"></i> 回复</span>
         <ul class="reply-list">
-            {% for reply in replies %}
+            {% for reply in comment.replies.all %}
             <li class="reply-item">
                 <a class="avatar" href="#">
                     {% with avatar=reply.user.profile.avatar %} {% if avatar %}
