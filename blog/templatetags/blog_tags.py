@@ -1,4 +1,5 @@
 from django import template
+from django.utils import timezone
 from django.db.models.aggregates import Count
 from blog.models import Article, Category, Topic
 
@@ -14,12 +15,14 @@ def get_article_category_names():
 
 @register.simple_tag
 def get_article_categories():
-    return Category.objects.annotate(counts=Count('article')).filter(number__gt=0)
+    return Category.objects.filter(number__gt=0) \
+    .filter(article__pub_date__lt=timezone.now()) \
+    .annotate(counts=Count('article'))
 
 @register.simple_tag
 def count_total_articles():
     '文章总数'
-    return Article.objects.all().count()
+    return Article.objects.filter(pub_date__lt=timezone.now()).count()
 
 @register.simple_tag
 def get_topics():

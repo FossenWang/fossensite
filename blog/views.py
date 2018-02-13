@@ -31,8 +31,11 @@ class ArticleListView(ListView):
     allow_empty = False
 
     def get_queryset(self):
-        return super().get_queryset().defer('author', 'category__number') \
-        .select_related('category').prefetch_related('topics')
+        return super().get_queryset() \
+        .filter(pub_date__lt=timezone.now()) \
+        .defer('author', 'category__number') \
+        .select_related('category') \
+        .prefetch_related('topics')
 
     def get_context_data(self, **kwargs):
         '处理分页数据'
@@ -131,7 +134,9 @@ class SearchArticleView(ArticleListView):
     '文章搜索视图'
     def get_queryset(self):
         q = self.request.GET['q']
-        return super().get_queryset().filter(Q(title__icontains=q) | Q(content__icontains=q))
+        return super().get_queryset() \
+        .filter(pub_date__lt=timezone.now()) \
+        .filter(Q(title__icontains=q) | Q(content__icontains=q))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
