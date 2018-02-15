@@ -132,6 +132,8 @@ class ArticleDetailView(DetailView):
 
 class SearchArticleView(ArticleListView):
     '文章搜索视图'
+    allow_empty = True
+
     def get_queryset(self):
         q = self.request.GET['q']
         return super().get_queryset() \

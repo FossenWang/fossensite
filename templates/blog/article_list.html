@@ -1,8 +1,5 @@
-{% extends 'base.html' %} {% load blog_tags %}
-{% block script %}
-<script src="/static/blog/js/article_list.js"></script>
-{% endblock script %}
-{% block main %}
+{% extends 'base.html' %} {% load blog_tags %} {% block script %}
+<script src="/static/blog/js/article_list.js"></script> {% endblock script %} {% block main %}
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
@@ -34,9 +31,7 @@
                     {% endfor %}
                 </div>{% else %}
                 <div class="search-result">关键词：{{ q }}&emsp;搜索结果 共{{ paginator.count }}条</div>
-                {% endif %}
-                {% for article in articles %}
-                {% with article_url=article.get_absolute_url %}
+                {% endif %} {% for article in articles %} {% with article_url=article.get_absolute_url %}
                 <article>
                     <div class="row">
                         {% if article.cover %}
@@ -83,7 +78,17 @@
                         {% endif %}
                     </div>
                 </article>
-                {% endwith %}
+                {% endwith %} {% empty %}
+                <article>
+                    <div class="row">
+                        <div class="col-lg-12 empty flex-center">
+                            <div class="title">未找到相关的文章，试一试别的关键词？</div>
+                            <form method="get" action="/article/search/">
+                                <input name="q" type="text" required placeholder="Search..." />
+                            </form>
+                        </div>
+                    </div>
+                </article>
                 {% endfor %} {% if is_paginated %}
                 <div class="f-pagination">
                     {% if first %}

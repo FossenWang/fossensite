@@ -21,6 +21,9 @@ class Topic(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('blog:topic', kwargs={'topic_id': self.pk})
+
     class Meta:
         verbose_name = '话题'
         verbose_name_plural = '话题'

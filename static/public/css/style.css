@@ -113,7 +113,7 @@ main { margin: 10px 0; }
 /*文章列表*/
 .article-list .list-title { padding: 10px 15px; }
 .article-list article { word-break: break-all; padding: 10px 15px; border-top: 1px solid lightgray; }
-.article-list .info { margin: auto 0; padding-left: 10px;}
+.article-list .info { margin: auto 0; padding-left: 10px; }
 .article-list .title { font-size: 1.25rem; }
 .article-list .meta { font-size: 0.875rem; color: gray; word-break: keep-all; }
 .article-list .meta a { color: gray; }
@@ -131,6 +131,9 @@ main { margin: 10px 0; }
 .article-list .f-pagination .current-page { color: white; background-color: #17375E; }
 .article-list .f-pagination .current-page:hover { color: white; border-color: #17375E; }
 .article-list .f-pagination span { display: inline-block; font-size: 1.25rem; line-height: 2.5rem; padding: 0 0.5rem; }
+.article-list .empty { margin: 120px 0; padding-left: 10px; }
+.article-list .empty form { margin: 20px 0 10px; }
+.article-list .empty input { width: 18rem; padding: 0 0.25rem; }
 
 /*文章详情*/
 .article-detail article { word-wrap: break-word; padding: 10px 15px; }

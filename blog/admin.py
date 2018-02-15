@@ -1,8 +1,15 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
 from .models import Category, Topic, Article
 
-class ArticleAdmin(admin.ModelAdmin):
+class ViewOnSiteAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'html_url')
+    def html_url(self, obj):
+        return format_html('<a href="{}">在站点查看</a>', obj.get_absolute_url())
+    html_url.short_description = 'url'
+
+class ArticleAdmin(ViewOnSiteAdmin):
     readonly_fields = ('author',)
 
     class Media:
@@ -23,11 +30,13 @@ class ArticleAdmin(admin.ModelAdmin):
             'blog/js/simditor/simditor-html.js',
             'blog/js/simditor/simditor-autosave.js',
             'blog/js/simditor/simditor-markdown.js',
-            'blog/js/textarea.js',
+            'blog/js/rich_text.js',
         )
+
 
 admin.site.site_header = 'Fossen 管理'
 admin.site.site_title = 'Fossen 站点管理员'
 
 admin.site.register(Article, admin_class=ArticleAdmin)
-admin.site.register([Topic, Category])
+admin.site.register(Topic, admin_class=ViewOnSiteAdmin)
+admin.site.register([Category])
