@@ -26,4 +26,4 @@ def count_total_articles():
 
 @register.simple_tag
 def get_topics():
-    return Topic.objects.all()
+    return Topic.objects.filter(number__gt=0)

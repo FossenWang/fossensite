@@ -10,6 +10,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('blog:category', kwargs={'category_id': self.pk})
+
     class Meta:
         ordering = ['number']
         verbose_name = '分类'
@@ -17,6 +20,7 @@ class Category(models.Model):
 
 class Topic(models.Model):
     name = models.CharField('话题', max_length=16)
+    number = models.PositiveIntegerField('次序', default=0)
 
     def __str__(self):
         return self.name
