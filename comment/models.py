@@ -20,6 +20,7 @@ class ArticleComment(BaseComment):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments', verbose_name='评论文章')
 
     class Meta:
+        ordering = ['time']
         verbose_name = '文章评论'
         verbose_name_plural = '文章评论'
 
@@ -29,5 +30,6 @@ class ArticleCommentReply(BaseComment):
     reply = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, verbose_name='回复对象')
 
     class Meta:
+        ordering = ['time']
         verbose_name = '文章评论回复'
         verbose_name_plural = '文章评论回复'

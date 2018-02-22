@@ -17,13 +17,11 @@ class ArticleCommentView(ListView):
     template_name = 'comment/article_comment.html'
     context_object_name = 'comment_list'
     paginate_by = 10
-    ordering = '-time'
 
     def get_queryset(self):
         replies = ArticleCommentReply.objects \
         .select_related('user', 'user__profile', 'reply__user') \
-        .only('content', 'time', 'user__username', 'user__profile__avatar', 'reply__user__username') \
-        .order_by('time')
+        .only('content', 'time', 'user__username', 'user__profile__avatar', 'reply__user__username')
         return super().get_queryset() \
         .filter(article_id=self.kwargs['article_id']) \
         .select_related('user', 'user__profile') \

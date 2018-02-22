@@ -8,7 +8,7 @@ $(function () {
             autosave: 'editor-content',
             upload: {
                 url: '/article/upload/image/',
-                params: {'csrftoken': csrftoken,},
+                params: {csrfmiddlewaretoken: csrftoken,},
                 fileKey: 'upload_image',
                 connectionCount: 3,
                 leaveConfirm: 'Uploading is in progress, are you sure to leave this page?',
@@ -28,10 +28,11 @@ $(function () {
                 { name: 'CSS', value: 'css' },
                 { name: 'JavaScript', value: 'javascript' },
                 { name: 'HTML,XML', value: 'html' },
+                { name: 'No Highlight', value: 'nohighlight' },
+                { name: 'Diff', value: 'diff' },
+                { name: 'SQL', value: 'sql' },
                 { name: 'C++', value: 'c++' },
                 { name: 'C#', value: 'cs' },
-                { name: 'SQL', value: 'sql' },
-                { name: 'Diff', value: 'diff' },
                 { name: 'JSON', value: 'json' },
                 { name: 'Markdown', value: 'markdown' },
             ]

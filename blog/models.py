@@ -29,6 +29,7 @@ class Topic(models.Model):
         return reverse('blog:topic', kwargs={'topic_id': self.pk})
 
     class Meta:
+        ordering = ['number']
         verbose_name = '话题'
         verbose_name_plural = '话题'
 

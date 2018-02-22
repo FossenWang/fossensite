@@ -1,4 +1,3 @@
-import os
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView, TemplateView
 from django.core.exceptions import PermissionDenied
@@ -147,14 +146,14 @@ class SearchArticleView(ArticleListView):
 
 def upload_image(request):
     if request.method == 'POST':
-        image = request.FILES.get("upload_image")
+        image = request.FILES['upload_image']
         if image.name.split('.')[-1] in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
             file_path = settings.MEDIA_ROOT + '/blog/image/' + image.name[-10:]
             file_path = default_storage.save(file_path, image)
             return JsonResponse({
-                "success": True,
+                'success': True,
                 #返回的是文件的url
-                'file_path': settings.MEDIA_URL + 'blog/image/' + os.path.split(file_path)[-1],
+                'file_path': settings.MEDIA_URL + 'blog/image/' + file_path.split('/')[-1],
                 'msg': 'Success!'
                 })
         else:
@@ -164,4 +163,4 @@ def upload_image(request):
                 'msg': 'Unexpected File Format!'
                 })
     else:
-        raise PermissionDenied('Only Accept POST Method!')
+        raise PermissionDenied('Only Accept POST Request!')
