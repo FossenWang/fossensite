@@ -135,9 +135,16 @@ class SearchArticleView(ArticleListView):
 
     def get_queryset(self):
         q = self.request.GET['q']
-        return super().get_queryset() \
-        .filter(pub_date__lt=timezone.now()) \
-        .filter(Q(title__icontains=q) | Q(content__icontains=q))
+        ql = len(q)
+        if ql<0 or ql>88:
+            raise PermissionDenied
+        q = q.split(' ')
+        while '' in q:
+            q.remove('')
+        queryset = super().get_queryset()
+        for k in q:
+            queryset = queryset.filter(Q(title__icontains=k) | Q(content__icontains=k))
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

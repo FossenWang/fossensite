@@ -10,6 +10,7 @@ def main():
         results.append(run('git pull'))
         results[-1].check_returncode()
         if results[-1].stdout == 'Already up-to-date.\n':
+            #no need to continue
             return 0
 
         results.append(run('python3 manage.py makemigrations'))
@@ -29,7 +30,7 @@ def main():
     message += '\n——————详情——————\n'
     for r in results:
         message += '命令：' + str(r.args) + '\t返回码:' + str(r.returncode) \
-        + '\n输出：' + str(r.stdout) + '\n错误：' + str(r.stderr) + '\n'
+        + '\n输出：' + str(r.stdout) + '\n错误：' + str(r.stderr) + '\n——————————————\n'
     send_mail(
         'www.fossen.cn自动部署结果',
         message[:-1],
