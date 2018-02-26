@@ -3,6 +3,7 @@ from django import setup
 from django.core.mail import send_mail
 
 def main():
+    os.chdir('/usr/fossen/website/fossensite')
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fossensite.settings")
     setup()
     results = []
@@ -20,6 +21,8 @@ def main():
             results[-1].check_returncode()
 
         results.append(run('apachectl restart'))
+        results[-1].check_returncode()
+        results.append(run('chown -R fossen:root /usr/fossen/website/fossensite'))
         results[-1].check_returncode()
 
     except Exception as e:

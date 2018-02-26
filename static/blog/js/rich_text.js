@@ -37,8 +37,7 @@ $(function () {
                 { name: 'Markdown', value: 'markdown' },
             ]
         });
-        $(".simditor").css({ "max-width": "1200px" });
-        $(".simditor-body, .simditor textarea").css({ "max-height": "400px", "overflow": "auto" });
+        $(".simditor").css({ "max-width": "1200px", "overflow": "auto" });
     }
 });
 

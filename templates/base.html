@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Fossen的博客</title>
+    {% block title %} {% endblock title %}
     <link rel="shortcut icon" href="/static/favicon.ico">
     <meta name="description" content="Fossen's blog">
     <meta name="author" content="Fossen">
@@ -12,12 +12,13 @@
 
     <link href="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/css/bootstrap.css" rel="stylesheet">
     <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    {% block css %} {% endblock css %}
+    <link href="/static/public/css/style.css" rel="stylesheet">
+
     <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0-beta.3/js/bootstrap.js"></script>
     <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
     {% block script %} {% endblock script %}
-
-    <link href="/static/public/css/style.css" rel="stylesheet">
     <script src="/static/public/js/common.js"></script>
 </head>
 

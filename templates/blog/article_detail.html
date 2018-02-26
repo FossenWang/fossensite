@@ -1,11 +1,20 @@
 {% extends 'base.html' %} {% load blog_tags %}
-{% block script %}
+
+{% block title %}
+<title>{{ article.title }} | Fossen的博客</title>
+{% endblock title %}
+
+{% block css %}
 <link href="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.css" rel="stylesheet">
 <link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+{% endblock css %}
+
+{% block script %}
 <script src="https://cdn.bootcss.com/jqueryui/1.12.1/jquery-ui.js"></script>
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
 <script src="/static/blog/js/article_detail.js"></script>
 {% endblock script %}
+
 {% block main %}
 <div class="container">
     <div class="row">
