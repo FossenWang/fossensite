@@ -1,10 +1,11 @@
-{% extends 'base.html' %} {% load blog_tags %}
+{% extends 'base.html' %} {% load blog_tags %} {% load cache %}
 
 {% block title %}
 <title>Fossen的博客</title>
 {% endblock title %}
 
 {% block main %}
+{% cache 1800 home %}
 <div class="container">
     <div class="row">
         <div class="col-lg-8">
@@ -113,4 +114,5 @@
         </div>
     </div>
 </div>
+{% endcache %}
 {% endblock main %}

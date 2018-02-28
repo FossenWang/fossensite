@@ -1,16 +1,20 @@
-{% extends 'base.html' %} {% load blog_tags %}
+{% extends 'base.html' %} {% load blog_tags %} {% load cache %}
+
+{% block title %}
+<title>搜索 | Fossen的博客</title>
+{% endblock title %}
 
 {% block script %}
 <script src="/static/blog/js/article_list.js"></script>
 {% endblock script %}
 
-{% block main %}
+{% block main %} {% cache 1800 article_search cache_id %}
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
             <div class="white-board article-list">
-                {% for article in articles %}
-                {% with article_url=article.get_absolute_url %}
+                <div class="search-result">关键词：{{ q }}&emsp;搜索结果 共{{ paginator.count }}条</div>
+                {% for article in articles %} {% with article_url=article.get_absolute_url %}
                 <article>
                     <div class="row">
                         {% if article.cover %}
@@ -68,8 +72,7 @@
                         </div>
                     </div>
                 </article>
-                {% endfor %}
-                {% if is_paginated %}
+                {% endfor %} {% if is_paginated %}
                 <div class="f-pagination">
                     {% if first %}
                     <a href="?page=1">1</a>
@@ -92,4 +95,4 @@
         </div>
     </div>
 </div>
-{% endblock main %}
+{% endcache %} {% endblock main %}

@@ -39,9 +39,9 @@ class ArticleListView(ListView):
     def get_context_data(self, **kwargs):
         '处理分页数据'
         context = super().get_context_data(**kwargs)
-        paginator = context.get('paginator')
-        page = context.get('page_obj')
-        is_paginated = context.get('is_paginated')
+        paginator = context['paginator']
+        page = context['page_obj']
+        is_paginated = context['is_paginated']
         pagination_data = self.pagination_data(paginator, page, is_paginated)
         context.update(pagination_data)
         return context
@@ -96,6 +96,8 @@ class ArticleListView(ListView):
 
 class CategoryView(ArticleListView):
     '文章分类视图'
+    template_name = 'blog/article_category.html'
+
     def get_queryset(self):
         if self.kwargs['category_id'] == '1':
             return super().get_queryset()
@@ -105,33 +107,26 @@ class CategoryView(ArticleListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category_id'] = self.kwargs['category_id']
+        context['cache_id'] = self.kwargs['category_id'] + '-' + str(context['page_obj'].number)
         return context
 
 class TopicView(ArticleListView):
     '文章话题视图'
+    template_name = 'blog/article_topic.html'
+
     def get_queryset(self):
         return super().get_queryset().filter(topics=self.kwargs['topic_id'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['topic_id'] = self.kwargs['topic_id']
-        return context
-
-class ArticleDetailView(DetailView):
-    '文章详情视图'
-    model = Article
-    template_name = 'blog/article_detail.html'
-    context_object_name = 'article'
-
-    def get_context_data(self, **kwargs):
-        context = super(ArticleDetailView, self).get_context_data(**kwargs)
-        #每处理一次get请求就增加一次阅读量
-        self.object.increase_views()
+        context['cache_id'] = self.kwargs['topic_id'] + '-' + str(context['page_obj'].number)
         return context
 
 class SearchArticleView(ArticleListView):
     '文章搜索视图'
     allow_empty = True
+    template_name = 'blog/article_search.html'
 
     def get_queryset(self):
         q = self.request.GET['q']
@@ -149,6 +144,20 @@ class SearchArticleView(ArticleListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['q'] = self.request.GET['q']
+        context['cache_id'] = self.request.GET['q'] + '-' + str(context['page_obj'].number)
+        return context
+
+class ArticleDetailView(DetailView):
+    '文章详情视图'
+    model = Article
+    template_name = 'blog/article_detail.html'
+    context_object_name = 'article'
+
+    def get_context_data(self, **kwargs):
+        context = super(ArticleDetailView, self).get_context_data(**kwargs)
+        context['pk'] = self.kwargs['pk']
+        #每处理一次get请求就增加一次阅读量
+        self.object.increase_views()
         return context
 
 def upload_image(request):

@@ -1,4 +1,4 @@
-import urllib, json, requests
+import requests
 
 from django.shortcuts import redirect, reverse
 from django.http import Http404
@@ -26,8 +26,8 @@ class OAuthLoginView(TemplateView):
         context = super().get_context_data(**kwargs)
         if 'next' in self.request.GET:
             self.request.session['next'] = self.request.GET['next']
-        context['github_oauth_url'] = 'https://github.com/login/oauth/authorize?client_id=' + \
-        settings.GITHUB_CLIENT_ID + '&state=' + self.request.COOKIES['csrftoken']
+        context['github_oauth_url'] = 'https://github.com/login/oauth/authorize?client_id={}&state={}' \
+        .format(settings.GITHUB_CLIENT_ID, self.request.COOKIES['csrftoken'])
         return context
 
 class OAuthView(View):
@@ -40,7 +40,7 @@ class OAuthView(View):
     def get(self, request, *args, **kwargs):
         access_token = self.get_access_token(request)
         user_info = self.get_user_info(access_token)
-        #在子类中实现authenticate()方法
+        # 在子类中实现authenticate()方法
         return self.authenticate(user_info)
 
     def get_access_token(self, request):
@@ -55,7 +55,7 @@ class OAuthView(View):
             'client_secret': self.client_secret,
             'code': request.GET['code']
         }
-        r = requests.post(url, data, headers=headers, timeout=1)
+        r = requests.post(url, data, headers=headers, timeout=3)
         result = r.json()
         if 'access_token' in result:
             return result['access_token']
@@ -65,7 +65,7 @@ class OAuthView(View):
     def get_user_info(self, access_token):
         '获取用户信息'
         url = self.user_api + access_token
-        r = requests.get(url, timeout=1)
+        r = requests.get(url, timeout=3)
         user_info = r.json()
         return user_info
 

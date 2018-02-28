@@ -1,16 +1,36 @@
-{% extends 'base.html' %} {% load blog_tags %}
+{% extends 'base.html' %} {% load blog_tags %} {% load cache %}
+
+{% block title %}
+<title>分类 | Fossen的博客</title>
+{% endblock title %}
 
 {% block script %}
 <script src="/static/blog/js/article_list.js"></script>
 {% endblock script %}
 
-{% block main %}
+{% block main %} {% cache 1800 article_category cache_id %}
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
             <div class="white-board article-list">
-                {% for article in articles %}
-                {% with article_url=article.get_absolute_url %}
+                <ul class="category-nav" data-category-id="{{ category_id }}">
+                    {% count_total_articles as total %} {% get_article_categories as categories %}
+                    <li>
+                        <a href="{% url 'blog:category' 1 %}">
+                            全部文章
+                            <span>&nbsp;&nbsp;{{ total }}</span>
+                        </a>
+                    </li>
+                    {% for cate in categories %}
+                    <li>
+                        <a href="{% url 'blog:category' cate.id %}">
+                            {{ cate.name }}
+                            <span>&nbsp;&nbsp;{{ cate.counts }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% for article in articles %} {% with article_url=article.get_absolute_url %}
                 <article>
                     <div class="row">
                         {% if article.cover %}
@@ -57,19 +77,8 @@
                         {% endif %}
                     </div>
                 </article>
-                {% endwith %} {% empty %}
-                <article>
-                    <div class="row">
-                        <div class="col-lg-12 empty flex-center">
-                            <div class="title">未找到相关的文章，试一试别的关键词？</div>
-                            <form method="get" action="/article/search/">
-                                <input name="q" type="text" required placeholder="Search..." />
-                            </form>
-                        </div>
-                    </div>
-                </article>
-                {% endfor %}
-                {% if is_paginated %}
+                {% endwith %}
+                {% endfor %} {% if is_paginated %}
                 <div class="f-pagination">
                     {% if first %}
                     <a href="?page=1">1</a>
@@ -92,4 +101,4 @@
         </div>
     </div>
 </div>
-{% endblock main %}
+{% endcache %} {% endblock main %}

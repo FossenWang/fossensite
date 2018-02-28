@@ -1,4 +1,4 @@
-import os, subprocess
+import os, subprocess, traceback
 from django import setup
 from django.core.mail import send_mail
 
@@ -21,19 +21,24 @@ def main():
             results[-1].check_returncode()
 
         results.append(run('apachectl restart'))
-        results[-1].check_returncode()
-        results.append(run('chown -R fossen:root /usr/fossen/website/fossensite'))
-        results[-1].check_returncode()
+        if results[-1].returncode:
+            error_result = results[-1]
+            results.append(run('apachectl status'))
+            if 'Active: active (running)' not in results[-1].stdout:
+                results.append(run('git reset --hard HEAD^'))
+                results.append(run('apachectl restart'))
+            error_result.check_returncode()
 
-    except Exception as e:
-        message = '部署过程中发生了错误！\n' + str(e) + '\n'
+    except Exception:
+        message = '部署过程中发生了错误！\n\n' + traceback.format_exc() + '\n'
     else:
         message = '部署完成\n'
 
+    results.append(run('chown -R fossen:root /usr/fossen/website/fossensite'))
     message += '\n——————详情——————\n'
     for r in results:
-        message += '命令：' + str(r.args) + '\t返回码:' + str(r.returncode) \
-        + '\n输出：' + str(r.stdout) + '\n错误：' + str(r.stderr) + '\n——————————————\n'
+        message += '命令：{}    | 返回码:{}\n输出：{}\n错误：{}\n——————————————\n' \
+        .format(str(r.args), str(r.returncode), str(r.stdout), str(r.stderr))
     send_mail(
         'www.fossen.cn自动部署结果',
         message[:-1],

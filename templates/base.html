@@ -1,4 +1,4 @@
-{% load staticfiles %} {% load blog_tags %}
+{% load staticfiles %} {% load blog_tags %} {% load cache %}
 <!DOCTYPE html>
 <html lang="zh">
 
@@ -37,12 +37,14 @@
                             <li>
                                 <a href="{% url 'blog:category' 1 %}">文章</a>
                             </li>
+                            {% cache 3600 top_menu %}
                             {% get_article_category_names as acates %}
                             {% for cate in acates %}
                             <li>
                                 <a href="{% url 'blog:category' cate.id %}">{{ cate.name }}</a>
                             </li>
                             {% endfor %}
+                            {% endcache %}
                         </ul>
                         <div class="tools">
                             <i class="fa fa-search fa-lg"></i>
