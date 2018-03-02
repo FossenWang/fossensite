@@ -1,12 +1,13 @@
 import traceback, random, time
 
-from cronjob import setup_django, run, format_results, send_email
+from cronjob import prepare, setup_django, run, format_results, send_email
+
 
 def main():
     time.sleep(random.random() * 3600)
-    setup_django()
+    prepare()
     result = run('/usr/fossen/website/certbot-auto renew')
-    if 'Cert not yet due for renewal' in result.stdout:
+    if 'Cert not yet due for renewal' in result.stderr:
         return 0
 
     try:
@@ -16,6 +17,7 @@ def main():
     else:
         message = 'SSL证书已续期\n'
 
+    setup_django()
     send_email('www.fossen.cn | 续期SSL证书', message + format_results([result]))
 
 main()

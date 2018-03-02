@@ -1,18 +1,17 @@
 import traceback
-import os, sys
-from django import setup
-from cronjob import setup_django, run, format_results, send_email
+
+from cronjob import prepare, setup_django, run, format_results, send_email
 
 
 def main():
-    setup_django()
+    prepare()
     results = []
     try:
         results.append(run('git pull'))
         results[-1].check_returncode()
         if results[-1].stdout == 'Already up-to-date.\n':
             #no need to continue
-             return 0
+            return 0
 
         results.append(run('python3 manage.py makemigrations'))
         results[-1].check_returncode()
@@ -36,6 +35,7 @@ def main():
 
     results.append(run('chown -R fossen:root /usr/fossen/website/fossensite'))
 
+    setup_django()
     send_email('www.fossen.cn | 自动部署结果', message + format_results(results))
 
 main()

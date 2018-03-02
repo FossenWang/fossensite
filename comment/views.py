@@ -5,10 +5,18 @@ from django.http import HttpResponseBadRequest, HttpResponseNotAllowed
 from django.urls import reverse, NoReverseMatch
 from django.db.models import Prefetch
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 
 from .models import ArticleComment, ArticleCommentReply
 from .forms import ArticleCommentForm, ArticleCommentReplyForm
 
+
+class Mygenerator():
+    def __init__(self, generator):
+        self.generator = generator
+    def next(self):
+        return next(self.generator)
 
 class ArticleCommentView(ListView):
     '文章评论列表'
@@ -31,16 +39,14 @@ class ArticleCommentView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['article_id'] = self.kwargs['article_id']
         if self.request.user.is_authenticated and context["page_obj"].number == 1:
             context['form'] = ArticleCommentForm({'article': self.kwargs['article_id']})
-        else:
-            context['article_id'] = self.kwargs['article_id']
 
-        comments = context['comment_list']
         first_num = context["paginator"].count - \
             self.paginate_by * (context["page_obj"].number - 1)
-        last_num = first_num - comments.count()
-        context['comment_list'] = zip(range(first_num, last_num, -1), comments)
+        last_num = first_num - self.paginate_by
+        context['numbers'] = Mygenerator(iter(range(first_num, last_num, -1)))
         return context
 
 class EditArticleCommentMixin():
@@ -65,7 +71,19 @@ class EditArticleCommentMixin():
         self.object = form.save(commit=False)
         self.object.user = self.request.user
         self.object.save()
+        self.clean_caches()
         return super().form_valid(form)
+
+    def delete(self, *args, **kwargs):
+        self.clean_caches()
+        return super().delete(*args, **kwargs)
+
+    def clean_caches(self):
+        article_id = self.request.POST['article']
+        cache.delete(make_template_fragment_key('article_comment_count', [article_id]))
+        pages = ArticleComment.objects.filter(article_id=article_id).count()//10 + 1
+        for i in range(1, pages+1):
+            cache.delete(make_template_fragment_key('article_comment', [article_id, i]))
 
 class CreateArticleCommentView(LoginRequiredMixin, EditArticleCommentMixin, BaseCreateView):
     '创建一条新的文章评论'

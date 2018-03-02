@@ -2,9 +2,12 @@ import os, sys, subprocess
 from django import setup
 from django.core.mail import send_mail
 
-def setup_django():
+
+def prepare():
     os.chdir('/usr/fossen/website/fossensite')
     sys.path.append(os.getcwd())
+
+def setup_django():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fossensite.settings")
     setup()
 
@@ -14,7 +17,7 @@ def run(args):
 def format_results(results):
     message = '\n——————详情——————\n'
     for r in results:
-        message += '命令：{}    | 返回码:{}\n输出：{}\n错误：{}\n——————————————\n' \
+        message += '命令：{}    | code:{}\nstdout：{}\nstderr：{}\n——————————————\n' \
         .format(str(r.args), str(r.returncode), str(r.stdout), str(r.stderr))
     return message[:-1]
 

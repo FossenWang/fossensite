@@ -20,7 +20,7 @@ class ArticleComment(BaseComment):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='comments', verbose_name='评论文章')
 
     class Meta:
-        ordering = ['time']
+        ordering = ['-time']
         verbose_name = '文章评论'
         verbose_name_plural = '文章评论'
 

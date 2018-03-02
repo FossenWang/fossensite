@@ -1,9 +1,10 @@
 import traceback
 
-from cronjob import setup_django, run, format_results, send_email
+from cronjob import prepare, setup_django, run, format_results, send_email
+
 
 def main():
-    setup_django()
+    prepare()
     results = []
 
     results.append(run('python3 manage.py clearsessions'))
@@ -11,7 +12,7 @@ def main():
 
     results.append(run('ls /var/log/letsencrypt/'))
     for log in results[-1].stdout.split('\n'):
-        if log != 'letsencrypt.log':
+        if log != 'letsencrypt.log' and log:
             results.append(run('rm /var/log/letsencrypt/' + log))
 
     results.append(run('ls /var/log/httpd/'))
@@ -32,6 +33,7 @@ def main():
     else:
         message = '垃圾文件已清理干净\n'
 
+    setup_django()
     send_email('www.fossen.cn | 清理垃圾文件', message + format_results(results))
 
 main()

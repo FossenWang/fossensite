@@ -2,6 +2,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils import timezone
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 
 class Category(models.Model):
     name = models.CharField('分类', max_length=16)
@@ -53,7 +56,12 @@ class Article(models.Model):
 
     def increase_views(self):
         self.views += 1
-        self.save(update_fields=['views'])
+        super().save(update_fields=['views'])
+
+    def save(self, *args, **kwargs):
+        cache.delete(make_template_fragment_key('article_detail', [self.id]))
+        cache.delete(make_template_fragment_key('article_detail_title', [self.id]))
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-pub_date']

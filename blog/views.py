@@ -107,7 +107,6 @@ class CategoryView(ArticleListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category_id'] = self.kwargs['category_id']
-        context['cache_id'] = self.kwargs['category_id'] + '-' + str(context['page_obj'].number)
         return context
 
 class TopicView(ArticleListView):
@@ -120,7 +119,6 @@ class TopicView(ArticleListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['topic_id'] = self.kwargs['topic_id']
-        context['cache_id'] = self.kwargs['topic_id'] + '-' + str(context['page_obj'].number)
         return context
 
 class SearchArticleView(ArticleListView):
@@ -144,7 +142,6 @@ class SearchArticleView(ArticleListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['q'] = self.request.GET['q']
-        context['cache_id'] = self.request.GET['q'] + '-' + str(context['page_obj'].number)
         return context
 
 class ArticleDetailView(DetailView):

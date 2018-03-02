@@ -1,5 +1,8 @@
+{% load cache %}
 {% if page_obj.number == 1 %}
+{% cache 604800 article_comment_count article_id %}
 <div class="title">{{ paginator.count }}条评论</div>
+{% endcache %}
 {% if user.is_authenticated %}
 <div id="delete-comment-dialog" title="删除评论">
     <form action="" method="post">
@@ -39,8 +42,9 @@ $("#delete-comment-dialog span").click(function() {
 {% endif %}
 {% endif %}
 
+{% cache 604800 article_comment article_id page_obj.number %}
 <ul class="comment-list" data-page="{{ page_obj.number }}" data-next="{{ page_obj.has_next }}">
-    {% for i, comment in comment_list %}
+    {% for comment in comment_list %}
     <li class="comment-item">
         <a class="avatar" href="#">
             {% with avatar=comment.user.profile.avatar %} {% if avatar %}
@@ -49,7 +53,7 @@ $("#delete-comment-dialog span").click(function() {
             {% endif %} {% endwith %}
         </a>
         <a class="username" href="#">{{ comment.user.username }}</a>
-        <span style="float: right;">#{{ i }}</span>
+        <span style="float: right;">#{{ numbers.next }}</span>
         <div class="content">{{ comment.content }}</div>
         <span>{{ comment.time }}&emsp;</span>
         <span class="reply-this" data-comment-id="{{ comment.id }}" data-user-id="{{ comment.user.id }}">
@@ -78,3 +82,4 @@ $("#delete-comment-dialog span").click(function() {
     </li>
     {% empty %} 暂无评论 {% endfor %}
 </ul>
+{% endcache %}
