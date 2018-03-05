@@ -23,6 +23,5 @@ urlpatterns = [
     re_path(r'^$', HomeView.as_view(), name='home'),
     re_path(r'^article/', include('blog.urls')),
     re_path(r'^admin/', admin.site.urls),
-    #re_path(r'^registration/', include('django.contrib.auth.urls')),
     re_path(r'^account/', include('account.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

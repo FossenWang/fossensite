@@ -1,7 +1,7 @@
 '评论应用模型'
 from django.db import models
 from django.contrib.auth.models import User
-from blog.views import Article
+from blog.models import Article
 
 class BaseComment(models.Model):
     '基础评论模型'

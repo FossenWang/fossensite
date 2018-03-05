@@ -4,6 +4,4 @@ fossensite/settings.py
 media/
 caches/
 static/admin/
-blog/migrations/
-account/migrations/
-comment/migrations/
+*/migrations/

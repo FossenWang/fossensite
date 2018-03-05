@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseBadRequest, HttpResponseNotAllowed
 from django.urls import reverse, NoReverseMatch
 from django.db.models import Prefetch
-from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.exceptions import ImproperlyConfigured
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 
@@ -40,7 +40,7 @@ class ArticleCommentView(ListView):
         context = super().get_context_data(**kwargs)
 
         context['article_id'] = self.kwargs['article_id']
-        if self.request.user.is_authenticated and context["page_obj"].number == 1:
+        if context["page_obj"].number == 1 and self.request.user.is_authenticated:
             context['form'] = ArticleCommentForm({'article': self.kwargs['article_id']})
 
         first_num = context["paginator"].count - \
@@ -80,7 +80,6 @@ class EditArticleCommentMixin():
 
     def clean_caches(self):
         article_id = self.request.POST['article']
-        cache.delete(make_template_fragment_key('article_comment_count', [article_id]))
         pages = ArticleComment.objects.filter(article_id=article_id).count()//10 + 1
         for i in range(1, pages+1):
             cache.delete(make_template_fragment_key('article_comment', [article_id, i]))

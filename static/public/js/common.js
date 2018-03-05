@@ -34,6 +34,18 @@ $(function () {
     });
 });
 
+//字符串格式化
+String.prototype.format = function() {
+    var array = this.split("{}");
+    var n = (array.length<arguments.length)?array.length-1:arguments.length;
+    var result = [];
+    for (var i=0;i<n;i++){
+        result.push(array[i]);
+        result.push(arguments[i]);
+    }
+    return result.join("");
+}
+
 //查询当前窗口大小
 function mediaQuery(){
     if (window.innerWidth > 992){

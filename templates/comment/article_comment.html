@@ -1,8 +1,8 @@
 {% load cache %}
+
 {% if page_obj.number == 1 %}
-{% cache 604800 article_comment_count article_id %}
 <div class="title">{{ paginator.count }}条评论</div>
-{% endcache %}
+
 {% if user.is_authenticated %}
 <div id="delete-comment-dialog" title="删除评论">
     <form action="" method="post">
@@ -16,29 +16,30 @@
 </div>
 
 <form id="comment-form" action="{% url 'blog:create_article_comment' %}" method="post" data-login-user="{{ user.id }}">
-{% csrf_token %}
-{% for field in form %}
-{{ field }}
-{% endfor %}
-<div class="submit">
-    <input type="submit" class="button" value="评论">
-</div>
+    {% csrf_token %}
+    {% for field in form %}
+    {{ field }}
+    {% endfor %}
+    <div class="submit">
+        <input type="submit" class="button" value="评论">
+    </div>
 </form>
 
 <script>
-$("#id_content").attr("placeholder", "写下你的评论...");
-$("#delete-comment-dialog").dialog({
-    autoOpen: false,
-    resizable: false,
-    modal: true,
-});
-$("#delete-comment-dialog span").click(function() {
-    $("#delete-comment-dialog").dialog( "close" );
-});
+    $("#id_content").attr("placeholder", "写下你的评论...");
+    $("#delete-comment-dialog").dialog({
+        autoOpen: false,
+        resizable: false,
+        modal: true,
+    });
+    $("#delete-comment-dialog span").click(function () {
+        $("#delete-comment-dialog").dialog("close");
+    });
 </script>
-
 {% else %}
-<div class="need-login"><a href="{% url 'account:login' %}?next={% url 'blog:detail' article_id %}">登录后即可评论</a></div>
+<div class="need-login">
+    <a href="{% url 'account:login' %}?next={% url 'blog:detail' article_id %}">登录后即可评论</a>
+</div>
 {% endif %}
 {% endif %}
 
