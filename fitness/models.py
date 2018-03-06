@@ -43,7 +43,7 @@ class Exercise(models.Model):
     number = models.PositiveIntegerField('次序', default=0)
     equipment = models.ForeignKey(Equipment, default=1, on_delete=models.SET_DEFAULT, verbose_name='器材')
     muscle = models.ForeignKey(MuscleGroup, default=1, on_delete=models.SET_DEFAULT, verbose_name='锻炼部位')
-
+    # measurement:volunm,reps,duration
     def get_absolute_url(self):
         return reverse('fitness:exercise', kwargs={'pk': self.pk})
 
@@ -51,7 +51,7 @@ class Exercise(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['number']
+        ordering = ['muscle_id', 'id']
         verbose_name = '动作'
         verbose_name_plural = '动作'
 
@@ -69,6 +69,7 @@ class ProgramType(BaseTypeModel):
 
 class Program(models.Model):
     name = models.CharField('方案名', max_length=48)
+    cover = models.ImageField(upload_to='fitness/program/cover', blank=True, null=True, verbose_name='封面图')
     description = models.TextField('方案说明', blank=True)
     cycle = models.PositiveIntegerField('周期', default=7)
     ptype = models.ForeignKey(ProgramType, default=1, on_delete=models.SET_DEFAULT, verbose_name='方案类型')

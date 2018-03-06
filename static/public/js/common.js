@@ -37,12 +37,13 @@ $(function () {
 //字符串格式化
 String.prototype.format = function() {
     var array = this.split("{}");
-    var n = (array.length<arguments.length)?array.length-1:arguments.length;
+    var n = array.length;
     var result = [];
-    for (var i=0;i<n;i++){
+    for (var i=0;i<n-1;i++){
         result.push(array[i]);
         result.push(arguments[i]);
     }
+    result.push(array[n-1])
     return result.join("");
 }
 

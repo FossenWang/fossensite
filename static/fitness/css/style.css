@@ -30,15 +30,15 @@ blockquote>p { margin: 0; }
 /* -------------------------------------Header------------------------------ */
 /* ------------------------------------------------------------------------- */
 
-header { background-color: white; box-shadow: 0 1px 3px #ccc; }
-
+header { background-color: #417690; color: white; box-shadow: 0 1px 3px #ccc; }
+header a:hover { color: #c4dce8; }
 /*菜单*/
-.logo { font-size: 1.75rem; margin: auto 2rem; }
+.logo { font-size: 1.75rem; color: white; margin: auto 2rem; }
 .menu-toggle { display: none; }
 #menu li { position: relative; white-space: nowrap; }
 #menu>li { padding: 0.5rem 0; margin: 0 1rem; }
-#menu a { color: #17375E; }
-#menu li:hover>a { color: #0070C0; }
+#menu a { color: white; }
+#menu li:hover>a { color: #c4dce8; }
 #menu li:hover>ul { opacity: 1; visibility: visible; top: 2.5rem; }
 #menu ul {
     top: 2rem;
@@ -80,8 +80,8 @@ header { background-color: white; box-shadow: 0 1px 3px #ccc; }
 }
 #search input:focus { margin-left: 1rem; padding: 0.25rem 1rem; width: 12rem; border-color: #17375E; }
 
-#userbar a { margin-left: 1rem; }
-#userbar a:hover { color: #0070C0; }
+#userbar a { margin-left: 1rem; color: white; }
+#userbar a:hover { color: #c4dce8; }
 
 /* ------------------------------------------------------------------------- */
 /* -------------------------------------main-------------------------------- */
@@ -109,45 +109,47 @@ main { margin: 10px 0; }
 
 .breadcrumb-nav { padding: 10px 15px; border-bottom: 1px solid lightgray; }
 
-/*文章列表*/
-.article-list .list-title { padding: 10px 15px; }
-.article-list article { word-break: break-all; padding: 10px 15px; border-top: 1px solid lightgray; }
-.article-list .info { margin: auto 0; padding-left: 10px; }
-.article-list .title { font-size: 1.25rem; }
-.article-list .meta { font-size: 0.875rem; color: gray; word-break: keep-all; }
-.article-list .meta a { color: gray; }
-.article-list .meta a:hover { color: #17375E; }
-.article-list .cover { height: 190px; text-align: center; padding-top: 5px; padding-bottom: 5px;}
-.article-list .cover>div { border-radius: 5px; width: 100%; height: 100%; display: flex; align-items: center; }
-.article-list .abstract { color: #333; padding: 5px 0;}
-.article-list .f-pagination { margin: 20px 0; text-align: center; }
-.article-list .f-pagination a {
+/*训练列表*/
+.program-list article { word-break: break-all; padding: 10px 15px; border-top: 1px solid lightgray; }
+.program-list .info { margin: auto 0; padding-left: 10px; }
+.program-list .name { font-size: 1.25rem; }
+.program-list .meta { font-size: 0.875rem; color: gray; word-break: keep-all; }
+.program-list .meta a { color: gray; }
+.program-list .meta a:hover { color: #17375E; }
+.program-list .cover { height: 190px; text-align: center; padding-top: 5px; padding-bottom: 5px;}
+.program-list .cover>div { border-radius: 5px; width: 100%; height: 100%; display: flex; align-items: center; }
+.program-list .description { color: #333; padding: 5px 0;}
+.program-list .f-pagination { margin: 20px 0; text-align: center; }
+.program-list .f-pagination a {
     display: inline-block; margin: 0 3px; line-height: 38px; width: 40px;
     text-align: center; border: 1px solid #ccc; border-radius: 4px;
     transition: all .2s ease-in-out; -webkit-transition: all .2s ease-in-out;
 }
-.article-list .f-pagination a:hover { color: #17375E; border: 1px solid #17375E; }
-.article-list .f-pagination .current-page { color: white; background-color: #17375E; }
-.article-list .f-pagination .current-page:hover { color: white; border-color: #17375E; }
-.article-list .f-pagination span { display: inline-block; font-size: 1.25rem; line-height: 2.5rem; padding: 0 0.5rem; }
-.article-list .empty { margin: 120px 0; padding-left: 10px; }
-.article-list .empty form { margin: 20px 0 10px; }
-.article-list .empty input { width: 18rem; padding: 0 0.25rem; }
+.program-list .f-pagination a:hover { color: #17375E; border: 1px solid #17375E; }
+.program-list .f-pagination .current-page { color: white; background-color: #17375E; }
+.program-list .f-pagination .current-page:hover { color: white; border-color: #17375E; }
+.program-list .f-pagination span { display: inline-block; font-size: 1.25rem; line-height: 2.5rem; padding: 0 0.5rem; }
 
-/*文章详情*/
-.article-detail article { word-wrap: break-word; padding: 10px 15px; }
-.article-detail .cover { margin-top: 10px; }
-.article-detail .title { font-size: 1.5rem; margin: 1.5rem 0;}
-.article-detail .meta { font-size: 0.875rem; color: gray; margin-bottom: 1.25rem; }
-.article-detail .meta a { color: gray; }
-.article-detail .meta a:hover { color: #0070C0; }
-.article-detail .content { color: #333; }
-.article-detail .content a { color: #0070C0; }
-.article-detail .content a:hover { text-decoration: underline; }
-.article-detail .content ul { list-style: disc; padding-left: 2rem; margin-bottom: 1rem; }
-.article-detail .content h5 { margin-top: 1.5rem; margin-bottom: 1rem; }
-.article-detail .content code { word-wrap: normal; background-color: #f6f8fa; }
-.article-detail .content img { margin: 5px; }
+
+/*训练详情*/
+.program-detail { word-wrap: break-word; padding: 10px 15px; }
+.program-detail .cover { margin-top: 10px; }
+.program-detail .name { font-size: 1.5rem; margin: 1.5rem 0;}
+.program-detail .meta { font-size: 0.875rem; color: gray; margin-bottom: 1.25rem; }
+.program-detail .meta a { color: gray; }
+.program-detail .meta a:hover { color: #0070C0; }
+.program-detail .description { color: #333; white-space: pre-wrap; margin-bottom: 1.25rem; }
+.training .day .name { text-align: center; font-size: 1.25rem; margin: 0 0 1rem 0;}
+.training .sets { text-align: center; margin: 0 0 0.8rem 0;}
+
+
+/*修改训练方案*/
+.program-form { padding: 10px 15px; }
+.program-form label { margin-right: 0.5rem; }
+.program-form input[type=text] { padding: 3px 6px; width: 20rem; }
+.program-form textarea { display: block; width: 100%; padding: 5px 10px; }
+.program-form .training input { text-align: center; }
+.program-form .training .day .name input { margin-left: 0.5rem; max-width: 8rem; }
 
 /*评论部分*/
 #comment { padding: 15px; }

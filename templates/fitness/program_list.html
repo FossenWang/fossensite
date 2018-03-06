@@ -1,0 +1,76 @@
+{% extends 'fitness/base.html' %} {% block title %}
+<title>训练方案 | Fitness</title>
+{% endblock title %} {% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="white-board program-list">
+                <ul class="category-nav">
+                    <li><a>所有方案</a></li>
+                    <li><a>增肌训练</a></li>
+                    <li><a>力量训练</a></li>
+                    <li><a>减脂训练</a></li>
+                </ul>
+                {% for program in program_list %} {% with program_url=program.get_absolute_url %}
+                <article>
+                    <div class="row">
+                        {% if program.cover %}
+                        <div class="col-lg-4 cover">
+                            <div class="zoom-container flex-center">
+                                <a href="{{ program_url }}">
+                                    <img src="{{ program.cover.url }}">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 info">
+                            <div class="name">
+                                <a href="{{ program_url }}">{{ program.name }}</a>
+                            </div>
+                            <div class="meta">
+                                <a href="{% url 'fitness:program_list' program.ptype.id %}">{{ program.ptype }}</a>
+                                &emsp;周期: {{ program.cycle }} 天&emsp;创建者: {{ program.creator }}
+                            </div>
+                            <div class="description">
+                                简介:&emsp;{{ program.description|truncatechars:100 }}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-lg-12 info">
+                            <div class="name">
+                                <a href="{{ program_url }}">{{ program.name }}</a>
+                            </div>
+                            <div class="meta">
+                                <a href="{% url 'fitness:program_list' program.ptype.id %}">{{ program.ptype }}</a>
+                                &emsp;周期: {{ program.cycle }} 天&emsp;创建者: {{ program.creator }}
+                            </div>
+                            <div class="description">
+                                简介:&emsp;{{ program.description|truncatechars:150 }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endwith %} {% endfor %} {% if is_paginated %}
+                <div class="f-pagination">
+                    {% if first %}
+                    <a href="?page=1">1</a>
+                    {% endif %} {% if left %} {% if left_has_more %}
+                    <span>...</span>
+                    {% endif %} {% for i in left %}
+                    <a href="?page={{ i }}">{{ i }}</a>
+                    {% endfor %} {% endif %}
+                    <a class="current-page" href="?page={{ page_obj.number }}">{{ page_obj.number }}</a>
+                    {% if right %} {% for i in right %}
+                    <a href="?page={{ i }}">{{ i }}</a>
+                    {% endfor %} {% if right_has_more %}
+                    <span>···</span>
+                    {% endif %} {% endif %} {% if last %}
+                    <a href="?page={{ paginator.num_pages }}">{{ paginator.num_pages }}</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main %}
