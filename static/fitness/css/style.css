@@ -4,11 +4,11 @@
 html { font-size: 16px; }
 
 body {
-    color: #17375E; background-color:#f4f5f7; 
+    color: #212121; background-color:#f4f5f7; 
     font-family: 'Microsoft YaHei', '华文细黑', Arial, Georgia, Sans-serif;
 }
 
-a { color: #17375E; text-decoration: none; }
+a { color: #212121; text-decoration: none; }
 a:hover { color: #0070C0; text-decoration: none; }
 i { cursor: pointer; }
 img { max-width: 100%; height: auto; border-radius: 5px; }
@@ -30,15 +30,15 @@ blockquote>p { margin: 0; }
 /* -------------------------------------Header------------------------------ */
 /* ------------------------------------------------------------------------- */
 
-header { background-color: #417690; color: white; box-shadow: 0 1px 3px #ccc; }
-header a:hover { color: #c4dce8; }
+header { background-color: #707070; color: white; box-shadow: 0 1px 3px #ccc; }
+header a:hover { color: #efefef; }
 /*菜单*/
 .logo { font-size: 1.75rem; color: white; margin: auto 2rem; }
 .menu-toggle { display: none; }
 #menu li { position: relative; white-space: nowrap; }
 #menu>li { padding: 0.5rem 0; margin: 0 1rem; }
 #menu a { color: white; }
-#menu li:hover>a { color: #c4dce8; }
+#menu li:hover>a { color: #efefef; }
 #menu li:hover>ul { opacity: 1; visibility: visible; top: 2.5rem; }
 #menu ul {
     top: 2rem;
@@ -51,7 +51,7 @@ header a:hover { color: #c4dce8; }
 #menu ul li { border-bottom: 1px solid lightgray; }
 #menu ul li:first-child { border-top-left-radius: 5px; border-top-right-radius: 5px; }
 #menu ul li:last-child { border-bottom: none; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px; }
-#menu ul li:hover { background-color: #17375E; }
+#menu ul li:hover { background-color: #212121; }
 #menu ul li:hover>a { color: white; }
 #menu ul li:first-child:before {
     content: ''; position: absolute; left: 1.25rem; top: -6px;
@@ -59,7 +59,7 @@ header a:hover { color: #c4dce8; }
     border-right: 6px solid transparent;
     border-bottom: 6px solid #ccc;
 }
-#menu ul li:first-child:hover:before { border-bottom-color: #17375E; }
+#menu ul li:first-child:hover:before { border-bottom-color: #212121; }
 #menu ul li:hover>ul { top: 0; }
 #menu ul ul { top: -0.5rem; left: 9rem; }
 #menu ul ul li:first-child:before {
@@ -68,7 +68,7 @@ header a:hover { color: #c4dce8; }
     border-top: 6px solid transparent;
     border-right: 6px solid #fff;
 }
-#menu ul ul li:first-child:hover:before { border-right-color: #17375E; }
+#menu ul ul li:first-child:hover:before { border-right-color: #212121; }
 
 /*顶部工具栏*/
 .navbar .tools { display: flex; align-items:center; justify-content: flex-end; width: 100%; }
@@ -78,10 +78,10 @@ header a:hover { color: #c4dce8; }
     border-radius: 1rem; border: 1px solid transparent;
     transition: all 0.2s ease-in-out; -webkit-transition: all 0.2s ease-in-out;
 }
-#search input:focus { margin-left: 1rem; padding: 0.25rem 1rem; width: 12rem; border-color: #17375E; }
+#search input:focus { margin-left: 1rem; padding: 0.25rem 1rem; width: 12rem; border-color: #212121; }
 
 #userbar a { margin-left: 1rem; color: white; }
-#userbar a:hover { color: #c4dce8; }
+#userbar a:hover { color: #efefef; }
 
 /* ------------------------------------------------------------------------- */
 /* -------------------------------------main-------------------------------- */
@@ -101,12 +101,6 @@ main { margin: 10px 0; }
 .category-nav span { font-size: 0.8rem; color: gray;}
 .category-nav .on { border-bottom: 1px solid #17375E; }
 
-.topics-nav { margin: 0; padding: 10px 15px; }
-.topics-nav a { display: inline-block; padding: 5px 10px; border-radius: 5px; }
-.topics-nav .on { background-color: #17375E; color: white;}
-
-.search-result { padding: 10px; }
-
 .breadcrumb-nav { padding: 10px 15px; border-bottom: 1px solid lightgray; }
 
 /*训练列表*/
@@ -115,7 +109,7 @@ main { margin: 10px 0; }
 .program-list .name { font-size: 1.25rem; }
 .program-list .meta { font-size: 0.875rem; color: gray; word-break: keep-all; }
 .program-list .meta a { color: gray; }
-.program-list .meta a:hover { color: #17375E; }
+.program-list .meta a:hover { color: #0070C0; }
 .program-list .cover { height: 190px; text-align: center; padding-top: 5px; padding-bottom: 5px;}
 .program-list .cover>div { border-radius: 5px; width: 100%; height: 100%; display: flex; align-items: center; }
 .program-list .description { color: #333; padding: 5px 0;}
@@ -141,15 +135,16 @@ main { margin: 10px 0; }
 .program-detail .description { color: #333; white-space: pre-wrap; margin-bottom: 1.25rem; }
 .training .day .name { text-align: center; font-size: 1.25rem; margin: 0 0 1rem 0;}
 .training .sets { text-align: center; margin: 0 0 0.8rem 0;}
-
+.training .sets .number { background-color: #0077c2; color: white; padding: 0.5rem; min-width: 1.75rem; }
 
 /*修改训练方案*/
-.program-form { padding: 10px 15px; }
-.program-form label { margin-right: 0.5rem; }
-.program-form input[type=text] { padding: 3px 6px; width: 20rem; }
-.program-form textarea { display: block; width: 100%; padding: 5px 10px; }
-.program-form .training input { text-align: center; }
-.program-form .training .day .name input { margin-left: 0.5rem; max-width: 8rem; }
+#program-form { padding: 10px 15px; }
+#program-form label { margin-right: 0.5rem; }
+#program-form input[type=text] { padding: 3px 6px; }
+#program-form textarea { display: block; width: 100%; padding: 5px 10px; }
+#program-form .training input { text-align: center; }
+#program-form .training .day { margin-bottom: 1rem; }
+#program-form .training .day .name input { margin-left: 0.5rem; max-width: 8rem; }
 
 /*评论部分*/
 #comment { padding: 15px; }
@@ -243,14 +238,15 @@ footer {
     .menu-show { opacity: 1 !important; visibility: visible !important; top: 3rem !important;}
     #menu li { margin: 0; padding: 0; border-bottom: 1px solid lightgray;}
     #menu li:last-child { border-bottom: none; }
-    #menu a { padding: 0.3rem 1.5rem; display: block; }
+    #menu li:hover>a { color: #0070C0; }
+    #menu a { padding: 0.3rem 1.5rem; display: block; color: #212121; }
     #menu ul { display: none; }
 
     #search input {
         font-size: 1rem;
         width: 100%; z-index: 1; margin: 0; padding: 0.25rem 1rem;
         position: absolute; left: 0; top: 3rem;
-        opacity: 0; visibility: hidden; border: 1px solid #17375E;
+        opacity: 0; visibility: hidden; border: 1px solid #212121;
     }
     #search input:focus { width: 100%; margin: 0; }
     .search-show { opacity: 1 !important; visibility: visible !important; }
@@ -263,6 +259,8 @@ footer {
         position: absolute; right: 0; top: 2.5rem; z-index: 1;
     }
     .userbar-show { opacity: 1 !important; visibility: visible !important; top: 3rem !important;}
+    #userbar a { color: #212121; }
+    #userbar a:hover { color: #0070C0; }
 
     /* ------------------------------------Main------------------------------- */
     #comment .delete-this { opacity: 1; }

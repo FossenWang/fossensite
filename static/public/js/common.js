@@ -8,7 +8,7 @@ $(function () {
     mediaQuery();
     $(window).resize(mediaQuery);
 
-    // 设置浮动内容
+    /*/ 设置浮动内容
     $(window).scroll(function () {
         var bodyTop = 0,
             sideTop = $('.top-header').eq(0).height() + 10;
@@ -31,7 +31,8 @@ $(function () {
                 'top': '0px',
             });
         }
-    });
+    });*/
+    //$('.dropdown-toggle').dropdown();
 });
 
 //字符串格式化
@@ -59,7 +60,7 @@ function mediaQuery(){
 //桌面端设置
 function largeDevice(){
     //清空事件
-    $(document).unbind("click");
+    $(document).unbind("click", hideUnits);
     $(".menu-toggle, #search input, .fa-user, #userbar").unbind("click");
     //设置桌面端的搜索按钮
     $(".fa-search").on("click",function (e) {
@@ -71,7 +72,7 @@ function largeDevice(){
 //移动端设置
 function smallDevice(){
     //清空事件
-    $(document).unbind("click");
+    $(document).unbind("click", hideUnits);
     $(".menu-toggle, .fa-search, #search input, .fa-user, #userbar").unbind("click");
 
     //设置移动端的菜单按钮
@@ -100,9 +101,11 @@ function smallDevice(){
     });
 
     //点击页面其他地方隐藏部件
-    $(document).on("click",function(){
-        $('#menu').removeClass("menu-show");
-        $("#search input").removeClass("search-show");
-        $("#userbar").removeClass("userbar-show")
-    });
+    $(document).on("click", hideUnits);
+}
+//隐藏部件
+function hideUnits(){
+    $('#menu').removeClass("menu-show");
+    $("#search input").removeClass("search-show");
+    $("#userbar").removeClass("userbar-show")
 }

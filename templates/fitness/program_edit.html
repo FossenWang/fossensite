@@ -20,10 +20,10 @@
                         {{ program.ptype }}
                     </a>
                 </div>
-                <form class="program-form" action="" method="post">
+                <form id="program-form" action="" method="post">
                     {% csrf_token %}
                     {{ form.as_p }}
-                    <div class="training"></div>
+                    <div class="training flex-center"></div>
                     <div class="submit">
                         <input type="submit" class="button" value="保存">
                     </div>
