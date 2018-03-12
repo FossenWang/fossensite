@@ -12,8 +12,8 @@ function formatTrainingToField(){
         var training_sets = td["sets"];
         var s_ts = "";
         for (j in training_sets){
-            var ts = training_sets[i];
-            var rest = formatRest(ts["rest"]);
+            s_ts += formatSets(training_sets[j]);
+            /*var rest = formatRest(ts["rest"]);
             s_ts +=('<div class="sets" data-type="{}"><span class="number badge">{}</span>'
             + ' <span class="exercises" data-id="{}" data-enumber="{}">动作占位</span>'
             + ' <input type="number" min=1 max=100 name="minreps" value="{}">'
@@ -21,7 +21,7 @@ function formatTrainingToField(){
             + ' RM × <input type="number" min=1 max=100 name="sets" value="{}"> 组'
             + '&emsp;休息: <input type="number" min=0 max=59 name="restmin" value="{}"> min'
             + ' <input type="number" min=0 max=59 name="restsec" value="{}"> s</div>')
-            .format(ts['type'], ts["number"], ts['exercises'], ts['enumber'], ts["minreps"], ts["maxreps"], ts["sets"], rest[0], rest[1]);
+            .format(ts['type'], ts["number"], ts['exercises'], ts['enumber'], ts["minreps"], ts["maxreps"], ts["sets"], rest[0], rest[1]);*/
         }
         result += ('<div class="day flex-center"><div class="name">第 <span>{}</span> 天 <input value="{}"></div>'
         + '{}<button type="button" class="btn btn-secondary add-sets">添加动作</button></div>')
@@ -65,6 +65,19 @@ function trainingToJSON(){
     $("#id_training").val(training);
     console.log(training);
     $(".training").html("");
+}
+
+//将trainingsets转化为HTML表单
+function formatSets(ts){
+    var rest = formatRest(ts["rest"]);
+    return ('<div class="sets" data-type="{}"><span class="number badge">{}</span>'
+    + ' <span class="exercises" data-id="{}" data-enumber="{}">动作占位</span>'
+    + ' <input type="number" min=1 max=100 name="minreps" value="{}">'
+    + ' ~ <input type="number" min=1 max=100 name="maxreps" value="{}">'
+    + ' RM × <input type="number" min=1 max=100 name="sets" value="{}"> 组'
+    + '&emsp;休息: <input type="number" min=0 max=59 name="restmin" value="{}"> min'
+    + ' <input type="number" min=0 max=59 name="restsec" value="{}"> s</div>')
+    .format(ts['type'], ts["number"], ts['exercises'], ts['enumber'], ts["minreps"], ts["maxreps"], ts["sets"], rest[0], rest[1]);  
 }
 
 //将秒数转为[分,秒]

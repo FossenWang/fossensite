@@ -44,9 +44,6 @@
                                 <a href="{% url 'blog:category' cate.id %}">{{ cate.name }}</a>
                             </li>
                             {% endfor %}
-                            <li>
-                                <a href="{% url 'fitness:program_list' 0 %}">健身</a>
-                            </li>
                         </ul>
                         {% endcache %}
                         <div class="tools">

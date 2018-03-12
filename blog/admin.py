@@ -9,6 +9,9 @@ class ViewOnSiteAdmin(admin.ModelAdmin):
         return format_html('<a href="{}">在站点查看</a>', obj.get_absolute_url())
     html_url.short_description = 'url'
 
+class TopicAdmin(ViewOnSiteAdmin):
+    list_display = ('__str__', 'number', 'html_url')
+
 class ArticleAdmin(ViewOnSiteAdmin):
     readonly_fields = ('author',)
 
@@ -38,5 +41,5 @@ admin.site.site_header = 'Fossen 管理'
 admin.site.site_title = 'Fossen 站点管理员'
 
 admin.site.register(Article, admin_class=ArticleAdmin)
-admin.site.register(Topic, admin_class=ViewOnSiteAdmin)
+admin.site.register(Topic, admin_class=TopicAdmin)
 admin.site.register([Category])

@@ -15,7 +15,7 @@ function formatTraining(){
             var ts = training_sets[i];
             var rest = formatRest(ts["rest"]);
             var s_rest = rest[0]+"min "+rest[1]+"s";
-            s_ts +=('<div class="sets">#{} <span class="exercises" data-id="{}" data-enumber="{}">动作占位</span>'
+            s_ts +=('<div class="sets"><span class="number badge">{}</span> <span class="exercises" data-id="{}" data-enumber="{}">动作占位</span>'
             +'&emsp;{}~{} RM × {}组&emsp;休息: {}</div>')
             .format(ts["number"], ts["exercises"], ts["enumber"], ts["minreps"], ts["maxreps"], ts["sets"], s_rest);
         }
