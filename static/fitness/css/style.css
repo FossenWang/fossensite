@@ -133,6 +133,8 @@ main { margin: 10px 0; }
 .program-detail .meta a { color: gray; }
 .program-detail .meta a:hover { color: #0070C0; }
 .program-detail .description { color: #333; white-space: pre-wrap; margin-bottom: 1.25rem; }
+.training { margin: 2rem 0; padding-top:2rem; border-top: 1px solid lightgray;}
+.training .day { border-bottom: 1px solid lightgray; padding-bottom: 2rem; margin-bottom: 2rem; }
 .training .day .name { text-align: center; font-size: 1.25rem; margin: 0 0 1rem 0;}
 .training .sets { text-align: center; margin: 0 0 0.8rem 0;}
 .training .sets .number { background-color: #0077c2; color: white; padding: 0.5rem; min-width: 1.75rem; }
@@ -143,8 +145,10 @@ main { margin: 10px 0; }
 #program-form input[type=text] { padding: 3px 6px; }
 #program-form textarea { display: block; width: 100%; padding: 5px 10px; }
 #program-form .training input { text-align: center; }
-#program-form .training .day { margin-bottom: 1rem; }
+#program-form .training .day { padding-bottom: 2rem; margin-bottom: 2rem; width: 100%; border-bottom: 1px solid lightgray; }
 #program-form .training .day .name input { margin-left: 0.5rem; max-width: 8rem; }
+#program-form .training .delete-sets, #program-form .training .delete-day
+ { width: 24px; height: 24px; padding: 0; }
 
 /*评论部分*/
 #comment { padding: 15px; }
