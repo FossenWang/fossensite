@@ -24,5 +24,5 @@ urlpatterns = [
     re_path(r'^article/', include('blog.urls')),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^account/', include('account.urls')),
-    #re_path(r'^fitness/', include('fitness.urls')),
+    re_path(r'^fitness/', include('fitness.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

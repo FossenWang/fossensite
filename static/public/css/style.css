@@ -5,7 +5,7 @@ html { font-size: 16px; }
 
 body {
     color: #17375E; background-color:#f4f5f7; 
-    font-family: 'Microsoft YaHei', '华文细黑', Arial, Georgia, Sans-serif;
+    font-family: "Roboto", Helvetica, "Lucida Sans", 'Microsoft YaHei', Georgia, Arial, Sans-serif;
 }
 
 a { color: #17375E; text-decoration: none; }
@@ -118,7 +118,7 @@ main { margin: 10px 0; }
 .article-list .meta a { color: gray; }
 .article-list .meta a:hover { color: #17375E; }
 .article-list .cover { height: 190px; text-align: center; padding-top: 5px; padding-bottom: 5px;}
-.article-list .cover>div { border-radius: 5px; width: 100%; height: 100%; display: flex; align-items: center; }
+.article-list .cover>div { border-radius: 5px; width: 100%; height: 100%; }
 .article-list .abstract { color: #333; padding: 5px 0;}
 .article-list .f-pagination { margin: 20px 0; text-align: center; }
 .article-list .f-pagination a {

@@ -1,6 +1,7 @@
 $(function () {
     formatTraining();
     selectDropdownItem();
+    getExerciseList(formatExercises);
 });
 
 //将json格式的训练内容格式化为HTML
@@ -40,6 +41,10 @@ function formatRest(second){
 //将(分,秒)转为秒
 function toSecond(min, sec){
     return String(parseInt(min)*60+parseInt(sec))
+}
+
+function formatExercises(data){
+    console.log(data);
 }
 
 function selectDropdownItem(){

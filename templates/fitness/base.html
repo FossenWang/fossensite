@@ -39,6 +39,10 @@
                             </li>
                             <li>
                                 <a href="{% url 'fitness:program_list' 0 %}">健身</a>
+                                <ul>
+                                    <li><a href="{% url 'fitness:program_list' 0 %}">训练方案</a></li>
+                                    <li><a href="{% url 'fitness:exercise_list' %}">动作库</a></li>
+                                </ul>
                             </li>
                         </ul>
                         <div class="tools">

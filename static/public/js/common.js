@@ -109,3 +109,30 @@ function hideUnits(){
     $("#search input").removeClass("search-show");
     $("#userbar").removeClass("userbar-show")
 }
+
+//获取动作列表
+function getExerciseList(afterGetData){
+    if(typeof(Storage)!=undefined){
+        //localStorage.removeItem('exercise_list_data');
+        if (localStorage.exercise_list_data!=undefined){
+            var data = JSON.parse(localStorage.exercise_list_data);
+            var now = new Date();
+            var save_date = new Date(data.save_date);
+            console.log((now-save_date)/1000/60/60);
+            //判断是否过期
+            if ((now-save_date)/1000/60/60 < 24){
+                afterGetData(data);
+                return;
+            }
+        }
+        $.getJSON('/fitness/exercise-list/json/', function(data){
+            data.save_date = new Date();
+            localStorage.exercise_list_data = JSON.stringify(data);
+            afterGetData(data);
+        });
+    }else {
+        $.getJSON('/fitness/exercise-list/json/', function(data){
+            afterGetData(data);
+        });
+    }
+}

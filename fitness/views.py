@@ -1,6 +1,11 @@
+import json
+
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
+from django.views.generic.base import View
+from django.http import JsonResponse
+from django.views.decorators.cache import cache_page
 
 from .models import Equipment, MuscleGroup, Exercise, ProgramType, Program
 from .forms import ProgramForm
@@ -65,6 +70,12 @@ class PageListView(ListView):
 
         return data
 
+
+class ExerciseJSONView(View):
+    '发送Json格式的动作库'
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'exercise_list':list(Exercise.objects.values())}, **kwargs)
+exercise_json_view = cache_page(60 * 15)(ExerciseJSONView.as_view())
 
 class ExerciseListView(PageListView):
     '动作列表'

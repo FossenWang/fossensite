@@ -8,13 +8,13 @@ $(function () {
     var windowHeight = $(window).height();
     if ((bodyHeight - windowHeight) < 100) {
         //页面高度比浏览器高度小100时加载一次评论
-        loadCommentWhenScollToBottom();
+        loadCommentWhenScrollToBottom();
     }
-    $(window).scroll(loadCommentWhenScollToBottom);
+    $(window).scroll(loadCommentWhenScrollToBottom);
 });
 
 //滚动到页面底部时加载评论
-function loadCommentWhenScollToBottom() {
+function loadCommentWhenScrollToBottom() {
     var docHeight = $(document).height();
     var scrollBottom = $(window).scrollTop() + $(window).height();
     if (docHeight - scrollBottom < 100) {
