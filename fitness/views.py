@@ -74,8 +74,17 @@ class PageListView(ListView):
 class ExerciseJSONView(View):
     '发送Json格式的动作库'
     def get(self, request, *args, **kwargs):
-        return JsonResponse({'exercise_list':list(Exercise.objects.values())}, **kwargs)
+        return JsonResponse(self.get_context_data(), **kwargs)
+
+    def get_context_data(self):
+        context = {
+            'exercise_list':list(Exercise.objects.values()),
+            'muscle_group':list(MuscleGroup.objects.values()),
+            'equipment':list(Equipment.objects.values())
+            }
+        return context
 exercise_json_view = cache_page(60 * 15)(ExerciseJSONView.as_view())
+
 
 class ExerciseListView(PageListView):
     '动作列表'

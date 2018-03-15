@@ -19,7 +19,7 @@ class Equipment(BaseTypeModel):
         return reverse('fitness:equipment', kwargs={'pk': self.pk})
 
     class Meta:
-        ordering = ['number']
+        ordering = ['number','id']
         verbose_name = '器材'
         verbose_name_plural = '器材'
 
@@ -30,7 +30,7 @@ class MuscleGroup(BaseTypeModel):
         return reverse('fitness:muscle_group', kwargs={'pk': self.pk})
 
     class Meta:
-        ordering = ['number']
+        ordering = ['number','id']
         verbose_name = '锻炼部位'
         verbose_name_plural = '锻炼部位'
 
@@ -51,7 +51,7 @@ class Exercise(models.Model):
         return self.name
 
     class Meta:
-        ordering = ['muscle_id', 'id']
+        ordering = ['muscle_id','equipment_id','id']
         verbose_name = '动作'
         verbose_name_plural = '动作'
 
@@ -62,7 +62,7 @@ class ProgramType(BaseTypeModel):
         return reverse('fitness:program_type', kwargs={'pk': self.pk})
 
     class Meta:
-        ordering = ['number']
+        ordering = ['number','id']
         verbose_name = '方案类型'
         verbose_name_plural = '方案类型'
 

@@ -1,3 +1,6 @@
+//定义全局变量
+var exercise_list;//存储动作列表
+
 $(function () {
     //判断有无touchend事件
     if(typeof(document.ontouchend)!="undefined"){
@@ -109,29 +112,32 @@ function hideUnits(){
     $("#search input").removeClass("search-show");
     $("#userbar").removeClass("userbar-show")
 }
-
 //获取动作列表
 function getExerciseList(afterGetData){
-    if(typeof(Storage)!=undefined){
-        //localStorage.removeItem('exercise_list_data');
+    console.log(JSON.parse(localStorage.exercise_list_data));
+    localStorage.removeItem('exercise_list_data');
+    if (exercise_list!=undefined){
+        afterGetData(exercise_list);
+    }else if(typeof(Storage)!=undefined){
         if (localStorage.exercise_list_data!=undefined){
-            var data = JSON.parse(localStorage.exercise_list_data);
+            exercise_list = JSON.parse(localStorage.exercise_list_data);
             var now = new Date();
-            var save_date = new Date(data.save_date);
-            console.log((now-save_date)/1000/60/60);
+            var save_date = new Date(exercise_list.save_date);
             //判断是否过期
             if ((now-save_date)/1000/60/60 < 24){
-                afterGetData(data);
+                afterGetData(exercise_list);
                 return;
             }
         }
-        $.getJSON('/fitness/exercise-list/json/', function(data){
+        $.getJSON('/fitness/exercise-list/json/',function(data){
             data.save_date = new Date();
             localStorage.exercise_list_data = JSON.stringify(data);
+            exercise_list = data;
             afterGetData(data);
         });
     }else {
         $.getJSON('/fitness/exercise-list/json/', function(data){
+            exercise_list = data;
             afterGetData(data);
         });
     }
