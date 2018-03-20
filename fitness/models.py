@@ -83,5 +83,6 @@ class Program(models.Model):
         return self.name
 
     class Meta:
+        ordering = ['id']
         verbose_name = '训练方案'
         verbose_name_plural = '训练方案'
