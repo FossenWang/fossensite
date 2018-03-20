@@ -75,19 +75,19 @@
                 {% endfor %} {% if is_paginated %}
                 <div class="f-pagination">
                     {% if first %}
-                    <a href="?page=1">1</a>
+                    <a href="?q={{ q }}&amp;page=1">1</a>
                     {% endif %} {% if left %} {% if left_has_more %}
                     <span>...</span>
                     {% endif %} {% for i in left %}
-                    <a href="?page={{ i }}">{{ i }}</a>
+                    <a href="?q={{ q }}&amp;page={{ i }}">{{ i }}</a>
                     {% endfor %} {% endif %}
-                    <a class="current-page" href="?page={{ page_obj.number }}">{{ page_obj.number }}</a>
+                    <a class="current-page" href="?q={{ q }}&amp;page={{ page_obj.number }}">{{ page_obj.number }}</a>
                     {% if right %} {% for i in right %}
-                    <a href="?page={{ i }}">{{ i }}</a>
+                    <a href="?q={{ q }}&amp;page={{ i }}">{{ i }}</a>
                     {% endfor %} {% if right_has_more %}
                     <span>···</span>
                     {% endif %} {% endif %} {% if last %}
-                    <a href="?page={{ paginator.num_pages }}">{{ paginator.num_pages }}</a>
+                    <a href="?q={{ q }}&amp;page={{ paginator.num_pages }}">{{ paginator.num_pages }}</a>
                     {% endif %}
                 </div>
                 {% endif %}
