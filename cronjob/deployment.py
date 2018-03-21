@@ -7,7 +7,7 @@ def main():
     prepare()
     results = []
     try:
-        results.append(run('git pull'))
+        results.append(run('git pull origin master:master'))
         results[-1].check_returncode()
         if results[-1].stdout == 'Already up-to-date.\n':
             #no need to continue
