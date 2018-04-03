@@ -1,7 +1,7 @@
 from django.views.generic.list import ListView
 from django.views.generic.edit import BaseCreateView, BaseDeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponseBadRequest, HttpResponseNotAllowed
+from django.http import HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseRedirect
 from django.urls import reverse, NoReverseMatch
 from django.db.models import Prefetch
 from django.core.exceptions import ImproperlyConfigured
@@ -72,7 +72,7 @@ class EditArticleCommentMixin():
         self.object.user = self.request.user
         self.object.save()
         self.clean_caches()
-        return super().form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
     def delete(self, *args, **kwargs):
         self.clean_caches()

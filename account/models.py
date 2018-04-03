@@ -3,15 +3,29 @@
 '''
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Profile(models.Model):
     '用户资料'
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name='用户')
     avatar = models.ImageField(upload_to='account/avatar', max_length=200, null=True, blank=True, verbose_name='头像')
     github_id = models.PositiveIntegerField('GitHub id', unique=True, null=True, blank=True)
+    new_notice = models.BooleanField('新的通知', default=False)
+    read_notice = models.DateTimeField('已读通知', auto_now_add=True)
 
     def __str__(self):
         return self.user.username
+
+    def get_new_notice(self):
+        if not self.new_notice:
+            self.new_notice = True
+            self.save()
+
+    def have_read_notice(self):
+        if self.new_notice:
+            self.new_notice = False
+            self.read_notice = timezone.now()
+            self.save()
 
     class Meta:
         verbose_name = '用户资料'
