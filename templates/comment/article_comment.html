@@ -47,13 +47,13 @@
 <ul class="comment-list" data-page="{{ page_obj.number }}" data-next="{{ page_obj.has_next }}">
     {% for comment in comment_list %}
     <li class="comment-item">
-        <a class="avatar" href="#">
+        <a class="avatar">
             {% with avatar=comment.user.profile.avatar %} {% if avatar %}
             <img src="{{ avatar.name }} " atl="avator"> {% else %}
             <i class="fa fa-user fa-2x"></i>
             {% endif %} {% endwith %}
         </a>
-        <a class="username" href="#">{{ comment.user.username }}</a>
+        <a class="username">{{ comment.user.username }}</a>
         <span style="float: right;">#{{ numbers.next }}</span>
         <div class="content">{{ comment.content }}</div>
         <span>{{ comment.time }}&emsp;</span>
@@ -62,16 +62,16 @@
         <ul class="reply-list">
             {% for reply in comment.replies.all %}
             <li class="reply-item">
-                <a class="avatar" href="#">
+                <a class="avatar">
                     {% with avatar=reply.user.profile.avatar %} {% if avatar %}
                     <img src="{{ avatar.name }} " atl="avator"> {% else %}
                     <i class="fa fa-user fa-2x"></i>
                     {% endif %} {% endwith %}
                 </a>
-                <a class="username" href="#">{{ reply.user.username }}</a>
+                <a class="username">{{ reply.user.username }}</a>
                 {% if reply.reply.id %}
                 <span> 回复 </span>
-                <a class="username" href="#">{{ reply.reply.user.username }}</a>
+                <a class="username">{{ reply.reply.user.username }}</a>
                 {% endif %}
                 <div class="content">{{ reply.content }}</div>
                 <span>{{ reply.time }}&emsp;</span>

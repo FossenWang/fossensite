@@ -14,7 +14,7 @@ class Profile(models.Model):
     read_notice = models.DateTimeField('已读通知', auto_now_add=True)
 
     def __str__(self):
-        return self.user.username
+        return str(self.pk)
 
     def get_new_notice(self):
         if not self.new_notice:

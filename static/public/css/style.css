@@ -80,8 +80,9 @@ header { background-color: white; box-shadow: 0 1px 3px #ccc; }
 }
 #search input:focus { margin-left: 1rem; padding: 0.25rem 1rem; width: 12rem; border-color: #17375E; }
 
-#userbar a { margin-left: 1rem; }
+#userbar a { margin-left: 1rem; position: relative; }
 #userbar a:hover { color: #0070C0; }
+#userbar .notice { position: absolute; color: #f1403c; font-size: 0.5rem; margin-left: 0; right: -4px; top: -5px;}
 
 /* ------------------------------------------------------------------------- */
 /* -------------------------------------main-------------------------------- */
@@ -120,16 +121,6 @@ main { margin: 10px 0; }
 .article-list .cover { height: 190px; text-align: center; padding-top: 5px; padding-bottom: 5px;}
 .article-list .cover>div { border-radius: 5px; width: 100%; height: 100%; }
 .article-list .abstract { color: #333; padding: 5px 0;}
-.article-list .f-pagination { margin: 20px 0; text-align: center; }
-.article-list .f-pagination a {
-    display: inline-block; margin: 0 3px; line-height: 38px; width: 40px;
-    text-align: center; border: 1px solid #ccc; border-radius: 4px;
-    transition: all .2s ease-in-out; -webkit-transition: all .2s ease-in-out;
-}
-.article-list .f-pagination a:hover { color: #17375E; border: 1px solid #17375E; }
-.article-list .f-pagination .current-page { color: white; background-color: #17375E; }
-.article-list .f-pagination .current-page:hover { color: white; border-color: #17375E; }
-.article-list .f-pagination span { display: inline-block; font-size: 1.25rem; line-height: 2.5rem; padding: 0 0.5rem; }
 .article-list .empty { margin: 120px 0; padding-left: 10px; }
 .article-list .empty form { margin: 20px 0 10px; }
 .article-list .empty input { width: 18rem; padding: 0 0.25rem; }
@@ -149,6 +140,19 @@ main { margin: 10px 0; }
 .article-detail .content code { word-wrap: normal; background-color: #f6f8fa; }
 .article-detail .content img { margin: 5px; }
 
+/*分页*/
+.f-pagination { margin: 20px 0; text-align: center; }
+.f-pagination a {
+    display: inline-block; margin: 0 3px; line-height: 38px; width: 40px;
+    text-align: center; border: 1px solid #ccc; border-radius: 4px;
+    transition: all .2s ease-in-out; -webkit-transition: all .2s ease-in-out;
+}
+.f-pagination a:hover { color: #17375E; border: 1px solid #17375E; }
+.f-pagination .current-page { color: white; background-color: #17375E; }
+.f-pagination .current-page:hover { color: white; border-color: #17375E; }
+.f-pagination span { display: inline-block; font-size: 1.25rem; line-height: 2.5rem; padding: 0 0.5rem; }
+
+
 /*评论部分*/
 #comment { padding: 15px; }
 #comment .title { margin: 0; padding: 15px 0; font-size: 1.2rem; border-top: 1px solid lightgray; }
@@ -162,8 +166,8 @@ main { margin: 10px 0; }
 #comment .comment-item { padding: 15px 0 0 50px; border-top: 1px solid lightgray; }
 #comment .avatar {
     width: 32px; height: 32px;
-    position: absolute; left: 30px;
-    text-align: center; color: white;
+    position: absolute; left: 30px; cursor: pointer;
+    text-align: center; color: white !important;
     background-color: #eee; border-radius: 4px;
 }
 #comment .content { padding: 10px 0 0; white-space: pre-wrap; }
@@ -207,6 +211,20 @@ main { margin: 10px 0; }
 #create-user-form .title { font-size: 1.2rem; margin-bottom: 20px; }
 #create-user-form .field label { width: 5rem; }
 #create-user-form .help { color: gray; font-size: 0.8rem; margin-bottom: 20px; }
+
+/*通知页面*/
+.notice-list .title {  padding: 10px 15px; border-bottom: 1px solid lightgray; }
+.notice-list .notice-item { padding: 15px 0 0 60px; position: relative; }
+.notice-list .avatar {
+    width: 32px; height: 32px;
+    position: absolute; left: 10px; top: 22px; cursor: pointer;
+    text-align: center; color: white !important;
+    background-color: #eee; border-radius: 4px;
+}
+.notice-list .content { padding: 0.5rem 0 0; white-space: pre-wrap; color: #333; }
+.notice-list span { color: #333; }
+.notice-list time { font-size: 0.875rem; color: gray; }
+
 
 /* ------------------------------------------------------------------------- */
 /* -------------------------------------Footer------------------------------ */

@@ -6,6 +6,8 @@ from . import views
 app_name = 'account'
 
 urlpatterns = [
+    path('notifications/', views.UserHomeView.as_view(), name='home'),
+    path('comment_notices/', views.CommentNoticesView.as_view(), name='commment_notices'),
     #re_path(r'^profile/$', views.ProfileDetailView.as_view(), name='profile'),
     path('login/password/', LoginView.as_view(), name='login_password'),
     path('logout/', LogoutView.as_view(), name='logout'),

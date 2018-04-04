@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% load blog_tags %} {% load cache %}
 
 {% block title %}
-{% cache 3600 article_detail_title pk %}
+{% cache 86400 article_detail_title pk %}
 <title>{{ article.title }} | Fossen的博客</title>
 {% endcache %}
 {% endblock title %}
@@ -18,7 +18,7 @@
 {% endblock script %}
 
 {% block main %}
-{% cache 3600 article_detail pk %}
+{% cache 86400 article_detail pk %}
 <div class="container">
     <div class="row">
         <div class="col-lg-8">
