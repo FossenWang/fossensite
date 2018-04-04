@@ -30,6 +30,8 @@
                     <br><time>{{ notice.time }}&emsp;</time>
                     <div class="content">{{ notice.content }}</div>
                 </div>
+                {% empty %}
+                <div class="notice-item"><span>暂时没有通知</span></div>
                 {% endfor %}
                 {% if is_paginated %}
                 <div class="f-pagination">

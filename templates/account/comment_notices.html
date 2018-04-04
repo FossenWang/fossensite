@@ -30,6 +30,9 @@
                     <div class="content">{{ notice.content }}</div>
                 </div>
                 {% endfor %}
+                {% empty %}
+                <div class="notice-item"><span>暂时没有评论</span></div>
+                {% endfor %}
                 {% if is_paginated %}
                 <div class="f-pagination">
                     {% if first %}

@@ -7,7 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
-from django.middleware.csrf import get_token
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 
 from fossensite import settings
 from .models import Profile
@@ -118,7 +119,7 @@ class ProfileDetailView(DetailView):
     template_name = 'account/profile.html'
     context_object_name = 'profile'
 
-
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class OAuthLoginView(TemplateView):
     '第三方登录视图'
     template_name = 'account/login.html'
@@ -127,10 +128,8 @@ class OAuthLoginView(TemplateView):
         context = super().get_context_data(**kwargs)
         if 'next' in self.request.GET:
             self.request.session['next'] = self.request.GET['next']
-        print(self.request.COOKIES)
         context['github_oauth_url'] = 'https://github.com/login/oauth/authorize?client_id={}&state={}' \
-        .format(settings.GITHUB_CLIENT_ID, get_token(self.request))
-        print(self.request.COOKIES)
+        .format(settings.GITHUB_CLIENT_ID, self.request.META['CSRF_COOKIE'])
         return context
 
 
