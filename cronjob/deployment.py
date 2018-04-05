@@ -9,13 +9,13 @@ def main():
     try:
         results.append(run('git pull origin master:master'))
         results[-1].check_returncode()
-        if results[-1].stdout == 'Already up-to-date.\n':
+        if 'Already up-to-date.' in results[-1].stdout:
             #no need to continue
-            return 0
+            return results[-1].stdout
 
         results.append(run('python3 manage.py makemigrations'))
         results[-1].check_returncode()
-        if results[-1].stdout != 'No changes detected\n':
+        if 'No changes detected' not in results[-1].stdout:
             results.append(run('python3 manage.py migrate'))
             results[-1].check_returncode()
 
@@ -36,6 +36,9 @@ def main():
     results.append(run('chown -R fossen:root /usr/fossen/website/fossensite'))
 
     setup_django()
-    send_email('www.fossen.cn | 自动部署结果', message + format_results(results))
+    message += format_results(results)
+    send_email('www.fossen.cn | 自动部署结果', message)
+    return message
 
-main()
+if __name__ == "__main__":
+    print(main())

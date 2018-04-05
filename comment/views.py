@@ -40,8 +40,12 @@ class ArticleCommentView(ListView):
         context = super().get_context_data(**kwargs)
 
         context['article_id'] = self.kwargs['article_id']
+
         if context["page_obj"].number == 1 and self.request.user.is_authenticated:
             context['form'] = ArticleCommentForm({'article': self.kwargs['article_id']})
+            q1 = ArticleComment.objects.filter(article_id=context['article_id']).values('id')
+            q2 = ArticleCommentReply.objects.filter(comment__article_id=context['article_id']).values('id')
+            context['sum'] = q1.union(q2).count()
 
         first_num = context["paginator"].count - \
             self.paginate_by * (context["page_obj"].number - 1)

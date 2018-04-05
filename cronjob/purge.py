@@ -34,6 +34,9 @@ def main():
         message = '垃圾文件已清理干净\n'
 
     setup_django()
-    send_email('www.fossen.cn | 清理垃圾文件', message + format_results(results))
+    message += format_results(results)
+    send_email('www.fossen.cn | 清理垃圾文件', message)
+    return message
 
-main()
+if __name__ == "__main__":
+    print(main())

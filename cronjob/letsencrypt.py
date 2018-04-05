@@ -9,7 +9,7 @@ def main():
     results = []
     results.append(run('/usr/fossen/website/certbot-auto --no-self-upgrade renew'))
     if 'Cert not yet due for renewal' in results[-1].stderr:
-        return 0
+        return results[-1].stdout + results[-1].stderr
 
     try:
         for r in results:
@@ -20,6 +20,9 @@ def main():
         message = 'SSL证书已续期\n'
 
     setup_django()
-    send_email('www.fossen.cn | 续期SSL证书', message + format_results(results))
+    message += format_results(results)
+    send_email('www.fossen.cn | 续期SSL证书', message)
+    return message
 
-main()
+if __name__ == "__main__":
+    print(main())

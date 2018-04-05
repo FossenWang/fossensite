@@ -1,7 +1,7 @@
 {% load cache %}
 
 {% if page_obj.number == 1 %}
-<div class="title">{{ paginator.count }}条评论</div>
+<div class="title">{{ sum }}条评论</div>
 
 {% if user.is_authenticated %}
 <div id="delete-comment-dialog" title="删除评论">
