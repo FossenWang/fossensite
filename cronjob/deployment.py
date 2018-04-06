@@ -7,11 +7,11 @@ def main():
     prepare()
     results = []
     try:
-        results.append(run('git pull origin master:master'))
+        results.append(run('git pull origin master'))
         results[-1].check_returncode()
         if 'Already up-to-date.' in results[-1].stdout:
             #no need to continue
-            return results[-1].stdout
+            return (results[-1].stdout + results[-1].stderr)
 
         results.append(run('python3 manage.py makemigrations'))
         results[-1].check_returncode()
