@@ -8,7 +8,7 @@
 <script src="/static/blog/js/article_list.js"></script>
 {% endblock script %}
 
-{% block main %} {% cache 3600 article_category category_id page_obj.number %}
+{% block main %} {% cache 86400 article_category category_id page_obj.number %}
 <div class="container">
     <div class="row">
         <div class="col-lg-12">

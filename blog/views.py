@@ -152,8 +152,10 @@ class ArticleDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ArticleDetailView, self).get_context_data(**kwargs)
+        # 不用article.pk是因为这样会导致一次数据库查询
+        # 设置缓存就是为了避查询数据库
         context['pk'] = self.kwargs['pk']
-        #每处理一次get请求就增加一次阅读量
+        # 每处理一次get请求就增加一次阅读量
         self.object.increase_views()
         return context
 

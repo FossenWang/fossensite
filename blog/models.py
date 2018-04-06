@@ -58,8 +58,17 @@ class Article(models.Model):
         super().save(update_fields=['views'])
 
     def save(self, *args, **kwargs):
+        # 保存前清空相关缓存
+        cache.delete(make_template_fragment_key('home'))
         cache.delete(make_template_fragment_key('article_detail', [self.id]))
         cache.delete(make_template_fragment_key('article_detail_title', [self.id]))
+        c_pages = self.category.article_set.count()//10 + 1
+        for i in range(1, c_pages+1):
+            cache.delete(make_template_fragment_key('article_category', [self.category.id, i]))
+        for topic in self.topics.all():
+            t_pages = topic.article_set.count()//10 + 1
+            for i in range(1, t_pages+1):
+                cache.delete(make_template_fragment_key('article_topic', [topic.id, i]))
         super().save(*args, **kwargs)
 
     class Meta:

@@ -111,13 +111,14 @@ class CommentNoticesView(UserPassesTestMixin, PageListView):
         return super().get_queryset() \
         .select_related('user', 'user__profile', 'article') \
         .only('content', 'time', 'user__username', 'user__profile__avatar', 'article__title')
-    
+
 
 class ProfileDetailView(DetailView):
     '用户资料视图'
     model = Profile
     template_name = 'account/profile.html'
     context_object_name = 'profile'
+
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class OAuthLoginView(TemplateView):

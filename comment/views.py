@@ -43,9 +43,14 @@ class ArticleCommentView(ListView):
 
         if context["page_obj"].number == 1 and self.request.user.is_authenticated:
             context['form'] = ArticleCommentForm({'article': self.kwargs['article_id']})
-            q1 = ArticleComment.objects.filter(article_id=context['article_id']).values('id')
-            q2 = ArticleCommentReply.objects.filter(comment__article_id=context['article_id']).values('id')
-            context['sum'] = q1.union(q2).count()
+
+            sum_cache = 'article_%s_comment_sum' % context['article_id']
+            context['sum'] = cache.get(sum_cache)
+            if not context['sum']:
+                q1 = ArticleComment.objects.filter(article_id=context['article_id']).values('id')
+                q2 = ArticleCommentReply.objects.filter(comment__article_id=context['article_id']).values('id')
+                context['sum'] = q1.union(q2).count()
+                cache.set(sum_cache, context['sum'], 604800)
 
         first_num = context["paginator"].count - \
             self.paginate_by * (context["page_obj"].number - 1)
@@ -84,6 +89,7 @@ class EditArticleCommentMixin():
 
     def clean_caches(self):
         article_id = self.request.POST['article']
+        cache.delete('article_%s_comment_sum' % article_id)
         pages = ArticleComment.objects.filter(article_id=article_id).count()//10 + 1
         for i in range(1, pages+1):
             cache.delete(make_template_fragment_key('article_comment', [article_id, i]))
