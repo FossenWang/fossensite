@@ -1,4 +1,3 @@
-from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView, TemplateView
 from django.core.exceptions import PermissionDenied
 from django.core.files.storage import default_storage
@@ -149,6 +148,8 @@ class ArticleDetailView(DetailView):
     model = Article
     template_name = 'blog/article_detail.html'
     context_object_name = 'article'
+    def get_queryset(self):
+        return super().get_queryset().only('views')
 
     def get_context_data(self, **kwargs):
         context = super(ArticleDetailView, self).get_context_data(**kwargs)

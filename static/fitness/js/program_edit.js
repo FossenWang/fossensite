@@ -45,15 +45,15 @@ function initializeExercise(data) {
     e_modal_body.find('button').click(function () {
         //点击要选择的动作
         var id = $(this).attr("data-id");
-        console.log(seleted_e_ids);
+        //console.log(seleted_e_ids);
         if ($(this).hasClass('active')) {
-            console.log(seleted_e_ids.indexOf(id));
+            //console.log(seleted_e_ids.indexOf(id));
             seleted_e_ids.splice(seleted_e_ids.indexOf(id), 1);
         } else {
             seleted_e_ids.push(id);
         }
         $(this).toggleClass('active');
-        console.log(seleted_e_ids);
+        //console.log(seleted_e_ids);
     });
     $('#exercises-modal .modal-footer .confirm').click(confirmSelectedExercises);
 }
@@ -64,7 +64,7 @@ function clickOnExercises() {
     editing_exercises = $(this);
     var ed_ids = editing_exercises.attr('data-ids');
     if (ed_ids!=""){seleted_e_ids = ed_ids.split(",");}
-    console.log(editing_exercises.attr('data-idsadad'),seleted_e_ids);
+    //console.log(editing_exercises.attr('data-idsadad'),seleted_e_ids);
     for (i in seleted_e_ids) {
         e_modal_body.find("[data-id={}]".format(seleted_e_ids[i])).addClass("active");
     }

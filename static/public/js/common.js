@@ -106,15 +106,17 @@ function smallDevice(){
     //点击页面其他地方隐藏部件
     $(document).on("click", hideUnits);
 }
+
 //隐藏部件
 function hideUnits(){
     $('#menu').removeClass("menu-show");
     $("#search input").removeClass("search-show");
     $("#userbar").removeClass("userbar-show")
 }
+
 //获取动作列表
 function getExerciseList(afterGetData){
-    console.log(JSON.parse(localStorage.exercise_list_data));
+    //console.log(JSON.parse(localStorage.exercise_list_data));
     localStorage.removeItem('exercise_list_data');
     if (exercise_list!=undefined){
         afterGetData(exercise_list);

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    {% block title %} {% endblock title %}
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <meta name="description" content="Fossen's blog">
+    <meta name="author" content="Fossen">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% block css %} {% endblock css %}
+    <link href="/static/foodmap/css/style.css" rel="stylesheet">
+
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.js"></script>
+    <script charset="utf-8" src="https://map.qq.com/api/js?v=2.exp&Key=CVRBZ-U5HWP-U52DB-VN4SW-TJNGH-ZUBNS"></script>
+    {% block script %} {% endblock script %}
+</head>
+
+<body>
+    <main>
+        {% block main %} {% endblock main %}
+    </main>
+</body>
+
+</html>
