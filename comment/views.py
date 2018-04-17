@@ -41,8 +41,9 @@ class ArticleCommentView(ListView):
 
         context['article_id'] = self.kwargs['article_id']
 
-        if context["page_obj"].number == 1 and self.request.user.is_authenticated:
-            context['form'] = ArticleCommentForm({'article': self.kwargs['article_id']})
+        if context["page_obj"].number == 1:
+            if self.request.user.is_authenticated:
+                context['form'] = ArticleCommentForm({'article': self.kwargs['article_id']})
 
             sum_cache = 'article_%s_comment_sum' % context['article_id']
             context['sum'] = cache.get(sum_cache)
