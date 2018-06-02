@@ -111,6 +111,16 @@
                     {% endfor %}
                 </div>
             </div>
+            <div class="white-board widget">
+                <h6 class="widget-title">友情链接</h6>
+                <div class="topic-widget">
+                    {% for link in links %}
+                    <a href="{{ link.url }}" target="_blank">
+                        {{ link.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 </div>

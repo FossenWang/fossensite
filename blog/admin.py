@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import Category, Topic, Article
+from .models import Category, Topic, Article, Link
 
 class ViewOnSiteAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'html_url')
@@ -42,4 +42,4 @@ admin.site.site_title = 'Fossen 站点管理员'
 
 admin.site.register(Article, admin_class=ArticleAdmin)
 admin.site.register(Topic, admin_class=TopicAdmin)
-admin.site.register([Category])
+admin.site.register([Category, Link])

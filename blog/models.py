@@ -75,3 +75,15 @@ class Article(models.Model):
         ordering = ['-pub_date']
         verbose_name = '文章'
         verbose_name_plural = '文章'
+
+class Link(models.Model):
+    '友情链接'
+    name = models.CharField('网站名', max_length=100)
+    url = models.CharField('网址', max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = '友情链接'
+        verbose_name_plural = '友情链接'

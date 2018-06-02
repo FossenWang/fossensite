@@ -1,7 +1,8 @@
-
+*__pycache__
 *.pyc
 fossensite/settings.py
 media/
 caches/
 static/admin/
 */migrations/
+command.txt

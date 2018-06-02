@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth.models import User
 
-from .models import Article, Category, Topic
+from .models import Article, Category, Topic, Link
 
 class HomeView(TemplateView):
     '首页视图'
@@ -19,6 +19,7 @@ class HomeView(TemplateView):
         context['articles'] = Article.objects.filter(pub_date__lt=timezone.now())[:10] \
         .defer('author', 'category__number').select_related('category').prefetch_related('topics')
         context['fossen'] = User.objects.values('last_name', 'profile__avatar').get(id=2)
+        context['links'] = Link.objects.all()
         return context
 
 class ArticleListView(ListView):
