@@ -1,6 +1,8 @@
-import traceback, random, time
+import random
+import time
+import traceback
 
-from cronjob import prepare, setup_django, run, format_results, send_email
+from tools import format_results, prepare, run, send_email, setup_django
 
 
 def main():

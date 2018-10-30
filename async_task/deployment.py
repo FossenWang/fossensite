@@ -1,6 +1,6 @@
 import traceback
 
-from cronjob import prepare, setup_django, run, format_results, send_email
+from tools import prepare, setup_django, run, format_results, send_email
 
 
 def main():
@@ -11,7 +11,7 @@ def main():
         results[-1].check_returncode()
         if 'Already up-to-date.' in results[-1].stdout:
             #no need to continue
-            return (results[-1].stdout + results[-1].stderr)
+            return results[-1].stdout + results[-1].stderr
 
         results.append(run('python3 manage.py makemigrations'))
         results[-1].check_returncode()
