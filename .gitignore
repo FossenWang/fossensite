@@ -4,5 +4,4 @@ fossensite/settings.py
 media/
 caches/
 static/admin/
-*/migrations/
 command.txt
