@@ -1,6 +1,6 @@
 *__pycache__
 *.pyc
-fossensite/settings.py
+fossensite/privacy.py
 media/
 caches/
 static/admin/
