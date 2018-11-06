@@ -30,6 +30,12 @@ class DevConfig:
             'ATOMIC_REQUESTS': True,
         }
     }
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.sqlite3',
+    #         'NAME': '../fossen.db',
+    #     }
+    # }
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -52,13 +58,6 @@ class DevConfig:
             },
         },
     }
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.sqlite3',
-    #         'NAME': '../fossen.db',
-    #     }
-    # }
-
 
 class ProConfig:
     DEBUG = False

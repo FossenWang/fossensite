@@ -10,4 +10,4 @@ CMD [ "/bin/bash", "run.sh" ]
 # cd /home/fossen/Fossensite/fossensite
 # sudo docker build -t fossensite .
 # sudo docker run -d --network host --restart=always --name fossensite -v /home/fossen/Fossensite:/home/fossen/Fossensite fossensite
-# sudo docker run -d --network host -v /home/fossen/test:/home/fossen/Fossensite fossensite
+# sudo docker restart fossensite
