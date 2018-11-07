@@ -18,7 +18,7 @@ from . import privacy
 
 class DevConfig:
     DEBUG = True
-    ALLOWED_HOSTS = ['127.0.0.1']
+    ALLOWED_HOSTS = ['47.100.166.183', 'www.fossen.cn', '127.0.0.1']
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -30,34 +30,35 @@ class DevConfig:
             'ATOMIC_REQUESTS': True,
         }
     }
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.sqlite3',
-    #         'NAME': '../fossen.db',
-    #     }
-    # }
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'simple': {
-                'format': '[%(asctime)s] %(message)s'
-            },
-        },
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                'class': 'logging.StreamHandler',
-                'formatter': 'simple'
-            },
-        },
-        'loggers': {
-            'django': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-            },
-        },
+    TEST_DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '../fossen.db',
+        }
     }
+    # LOGGING = {
+    #     'version': 1,
+    #     'disable_existing_loggers': False,
+    #     'formatters': {
+    #         'simple': {
+    #             'format': '[%(asctime)s] %(message)s'
+    #         },
+    #     },
+    #     'handlers': {
+    #         'console': {
+    #             'level': 'DEBUG',
+    #             'class': 'logging.StreamHandler',
+    #             'formatter': 'simple'
+    #         },
+    #     },
+    #     'loggers': {
+    #         'django': {
+    #             'handlers': ['console'],
+    #             'level': 'DEBUG',
+    #         },
+    #     },
+    # }
+
 
 class ProConfig:
     DEBUG = False
@@ -73,7 +74,6 @@ class ProConfig:
             'ATOMIC_REQUESTS': True,
         }
     }
-    LOGGING = None
 
 
 if privacy.ENV == 'dev':
@@ -186,9 +186,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
 
 MEDIA_URL = '/media/'
 
@@ -205,7 +207,8 @@ CACHES = {
 }
 
 
-LOGGING = env.LOGGING
+if getattr(env, 'LOGGING', None):
+    LOGGING = env.LOGGING
 
 
 # Authorization

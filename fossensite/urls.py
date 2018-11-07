@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import re_path, include, path
 from django.conf.urls.static import static
+from django.views.decorators.csrf import csrf_exempt
+
 from blog.views import HomeView
 from async_task.views import DeploymentWebhook
 
@@ -26,5 +28,11 @@ urlpatterns = [
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^account/', include('account.urls')),
     #re_path(r'^fitness/', include('fitness.urls')),
-    path('deploy', DeploymentWebhook.as_view(), name='deploy')
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('deploy', csrf_exempt(DeploymentWebhook.as_view()), name='deploy')
+]
+
+
+if settings.DEBUG:
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
+    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

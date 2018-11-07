@@ -2,7 +2,12 @@
 import os
 import sys
 
+from fossensite import settings
+
 if __name__ == "__main__":
+    args = sys.argv
+    if len(args) > 1 and sys.argv[1] == 'test':
+        settings.DATABASES = settings.DevConfig.TEST_DATABASES
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "fossensite.settings")
     try:
         from django.core.management import execute_from_command_line
