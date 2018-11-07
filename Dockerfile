@@ -11,3 +11,4 @@ CMD [ "/bin/bash", "run.sh" ]
 # sudo docker build -t fossensite .
 # sudo docker run -d --network host --restart=always --name fossensite -v /home/fossen/Fossensite:/home/fossen/Fossensite fossensite
 # sudo docker restart fossensite
+# test
