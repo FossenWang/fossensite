@@ -2,19 +2,19 @@ import random
 import time
 import traceback
 
-from tools import format_results, prepare, run, send_email, setup_django
+from tools import prepare, send_email, setup_django, SubprocessManager
 
 
 def main():
     time.sleep(random.random() * 3600)
     prepare()
-    results = []
-    results.append(run('/usr/fossen/website/certbot-auto --no-self-upgrade renew'))
-    if 'Cert not yet due for renewal' in results[-1].stderr:
-        return results[-1].stdout + results[-1].stderr
+    sp = SubprocessManager()
+    sp.run('/home/fossen/certbot-auto --no-self-upgrade renew')
+    if 'Cert not yet due for renewal' in sp.results[-1].stderr:
+        return sp.format_results()
 
     try:
-        for r in results:
+        for r in sp.results:
             r.check_returncode()
     except Exception:
         message = '续期SSL证书时发生了错误！\n\n' + traceback.format_exc() + '\n'
@@ -22,7 +22,7 @@ def main():
         message = 'SSL证书已续期\n'
 
     setup_django()
-    message += format_results(results)
+    message += sp.format_results()
     send_email('www.fossen.cn | 续期SSL证书', message)
     return message
 

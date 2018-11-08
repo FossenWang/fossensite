@@ -1,31 +1,31 @@
 import traceback
 
-from tools import prepare, setup_django, run, format_results, send_email
+from tools import project_root, prepare, setup_django, send_email, SubprocessManager
 
 
 def main():
     prepare()
-    results = []
+    sp = SubprocessManager()
     try:
-        results.append(run('git pull origin master'))
+        sp.run('git checkout master')
+        sp.run('git pull origin master')
+        results = sp.results
         results[-1].check_returncode()
         if 'Already up-to-date.' in results[-1].stdout:
             #no need to continue
-            return results[-1].stdout + results[-1].stderr
+            return sp.format_results()
 
-        results.append(run('python3 manage.py makemigrations'))
-        results[-1].check_returncode()
-        if 'No changes detected' not in results[-1].stdout:
-            results.append(run('python3 manage.py migrate'))
-            results[-1].check_returncode()
-
-        results.append(run('apachectl restart'))
+        sp.run('docker restart fossensite')
         if results[-1].returncode:
             error_result = results[-1]
-            results.append(run('apachectl status'))
-            if 'Active: active (running)' not in results[-1].stdout:
-                results.append(run('git reset --hard HEAD^'))
-                results.append(run('apachectl restart'))
+            sp.run('docker inspect -f {{.State.Status}} fossensite')
+
+            if 'running' not in results[-1].stdout:
+                sp.run('git reset --hard HEAD^')
+                sp.run('docker restart fossensite')
+                sp.run('docker inspect -f {{.State.Status}} fossensite')
+
+            # raise error
             error_result.check_returncode()
 
     except Exception:
@@ -33,12 +33,13 @@ def main():
     else:
         message = '部署完成\n'
 
-    results.append(run('chown -R fossen:root /usr/fossen/website/fossensite'))
+    sp.run(f'chown -R 1000:1000 {project_root}')
 
     setup_django()
-    message += format_results(results)
+    message += sp.format_results()
     send_email('www.fossen.cn | 自动部署结果', message)
     return message
+
 
 if __name__ == "__main__":
     print(main())

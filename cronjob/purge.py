@@ -1,42 +1,42 @@
 import traceback
 
-from tools import prepare, setup_django, run, format_results, send_email
+from tools import prepare, setup_django, send_email, SubprocessManager, project_root
 
 
 def main():
     prepare()
-    results = []
+    sp = SubprocessManager()
+    results = sp.results
 
-    results.append(run('python3 manage.py clearsessions'))
-    results.append(run('rm /usr/fossen/website/fossensite/caches/*'))
+    sp.run('python3 manage.py clearsessions')
+    sp.run(f'rm {project_root}/fossensite/caches/*')
 
-    results.append(run('ls /var/log/letsencrypt/'))
+    sp.run('ls /var/log/letsencrypt/')
     for log in results[-1].stdout.split('\n'):
         if log != 'letsencrypt.log' and log:
-            results.append(run('rm /var/log/letsencrypt/' + log))
+            sp.run('rm /var/log/letsencrypt/' + log)
 
-    results.append(run('ls /var/log/httpd/'))
+    sp.run('ls /var/log/')
     for log in results[-1].stdout.split('\n'):
         if '-20' in log:
-            results.append(run('rm /var/log/httpd/' + log))
-
-    results.append(run('ls /var/log/'))
-    for log in results[-1].stdout.split('\n'):
-        if '-20' in log:
-            results.append(run('rm /var/log/' + log))
+            sp.run('rm /var/log/' + log)
 
     try:
         for result in results:
             result.check_returncode()
     except Exception:
         message = '清理垃圾文件时发生了错误！\n\n' + traceback.format_exc() + '\n'
+        error = True
     else:
         message = '垃圾文件已清理干净\n'
+        error = False
 
     setup_django()
-    message += format_results(results)
-    send_email('www.fossen.cn | 清理垃圾文件', message)
+    message += sp.format_results()
+    if error:
+        send_email('www.fossen.cn | 清理垃圾文件', message)
     return message
+
 
 if __name__ == "__main__":
     print(main())
