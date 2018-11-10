@@ -16,9 +16,8 @@ def is_json(request):
     )
 
 
-@lru_cache()
-def request_json(request, force=False, raise_error=True):
-    if not (force or request.is_json()):
+def get_json(request, force=False, raise_error=True):
+    if not (force or request.is_json):
         return None
 
     try:
@@ -31,8 +30,10 @@ def request_json(request, force=False, raise_error=True):
     return result
 
 
-HttpRequest.json = property(lambda self: request_json(self, force=True, raise_error=False))
-HttpRequest.is_json = is_json
+def bind_json_to_request():
+    HttpRequest.get_json = get_json
+    HttpRequest.json = property(lambda self: get_json(self, raise_error=False))
+    HttpRequest.is_json = property(is_json)
 
 
 class JSONMixin:
@@ -45,40 +46,6 @@ class JSONMixin:
         Returns a JSON response.
         """
         return JsonResponse(data, safe=safe, **response_kwargs)
-
-    @lru_cache()
-    def json(self, force=False, raise_error=True):
-        """Parse and return the data as JSON. If the mimetype does not
-        indicate JSON (:mimetype:`application/json`, see
-        :meth:`is_json`), this returns ``None`` unless ``force`` is
-        true. If parsing fails, :meth:`on_json_loading_failed` is called
-        and its return value is used as the return value.
-        :param force: Ignore the mimetype and always try to parse JSON.
-        :param raise_error: Set True to raise error or set False to return ``None``
-            instead.
-        """
-        request = self.request
-        if not (force or self.is_json()):
-            return None
-
-        try:
-            result = json.loads(request.body)
-        except Exception as e:
-            if not raise_error:
-                result = None
-            else:
-                raise e
-        return result
-
-    def is_json(self):
-        """Check if the mimetype indicates JSON data, either
-        :mimetype:`application/json` or :mimetype:`application/*+json`.
-        """
-        ct = self.request.content_type
-        return (
-            ct == 'application/json'
-            or (ct.startswith('application/')) and ct.endswith('+json')
-        )
 
     # def get_data(self):
     #     """
