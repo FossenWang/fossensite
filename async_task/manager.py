@@ -16,17 +16,13 @@ def deploy_task():
     return 0
 
 
-manager = TaskManager(address=('127.0.0.1', 5000), authkey=b'fossen')
+manager = TaskManager(address=('127.0.0.1', 8001), authkey=b'fossen')
 
 manager.register('deploy', callable=deploy_task)
 manager.register('test', callable=task_test)
 
-# if __name__ == "__main__":
-#     manager.register('deploy', callable=deployment.main)
-#     manager.register('test', callable=task_test)
-#     server = manager.get_server()
-#     server.serve_forever()
-# else:
-#     manager.register('deploy')
-#     manager.register('test')
-#     # manager.connect()
+
+def serve_forever():
+    server = manager.get_server()
+    print(f'Starting server at {manager.address[0]}:{manager.address[1]}')
+    server.serve_forever()

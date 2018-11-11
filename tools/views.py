@@ -47,11 +47,15 @@ class JSONMixin:
         """
         return JsonResponse(data, safe=safe, **response_kwargs)
 
-    # def get_data(self):
-    #     """
-    #     Returns an object that will be serialized as JSON by json.dumps().
-    #     """
-    #     raise NotImplementedError('You need to implement this method.')
+    def get_data(self):
+        """
+        Returns an object that will be serialized as JSON by json.dumps().
+        """
+        if getattr(self.request, 'is_json', None):
+            data = getattr(self.request, 'json', None)
+        else:
+            data = self.request.POST
+        return data
 
 
 class JSONView(JSONMixin, View):

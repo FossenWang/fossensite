@@ -1,5 +1,5 @@
-from async_task.manager import manager
+from async_task.manager import serve_forever
 
-server = manager.get_server()
-print('start serve')
-server.serve_forever()
+
+if __name__ == "__main__":
+    serve_forever()

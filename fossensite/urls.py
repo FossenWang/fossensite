@@ -17,18 +17,16 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import re_path, include, path
 from django.conf.urls.static import static
-from django.views.decorators.csrf import csrf_exempt
 
 from blog.views import HomeView
-from async_task.views import DeploymentWebhook
+from async_task.views import deploy_view
 
 urlpatterns = [
     re_path(r'^$', HomeView.as_view(), name='home'),
     re_path(r'^article/', include('blog.urls')),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^account/', include('account.urls')),
-    #re_path(r'^fitness/', include('fitness.urls')),
-    path('deploy', csrf_exempt(DeploymentWebhook.as_view()), name='deploy')
+    path('deploy', deploy_view, name='deploy')
 ]
 
 

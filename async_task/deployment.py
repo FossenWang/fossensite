@@ -11,7 +11,7 @@ def main():
         sp.run('git pull origin master')
         results = sp.results
         results[-1].check_returncode()
-        if 'Already up-to-date.' in results[-1].stdout:
+        if 'Already up' in results[-1].stdout:
             #no need to continue
             return sp.format_results()
 
@@ -28,12 +28,12 @@ def main():
             # raise error
             error_result.check_returncode()
 
+        sp.run(f'chown -R 1000:1000 {project_root}')
+
     except Exception:
         message = '部署过程中发生了错误！\n\n' + traceback.format_exc() + '\n'
     else:
         message = '部署完成\n'
-
-    sp.run(f'chown -R 1000:1000 {project_root}')
 
     setup_django()
     message += sp.format_results()

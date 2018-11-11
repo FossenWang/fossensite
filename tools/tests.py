@@ -1,9 +1,7 @@
 import json
 
 from django.test import TestCase
-from django.http import HttpRequest, HttpResponse
-
-from pprint import pprint
+from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 
 from .views import JSONView
 
@@ -52,3 +50,9 @@ class ToolsTestCase(TestCase):
         rsp = json_view(request)
         self.assertTrue(isinstance(rsp, HttpResponse))
         self.assertDictEqual(json.loads(rsp.content), {'test': 123, 'a': 'a'})
+
+        class Test2View(JSONView):
+            def get(self, request):
+                return HttpResponseNotFound()
+
+        self.assertIsInstance(Test2View.as_view()(request), HttpResponseNotFound)
