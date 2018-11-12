@@ -2,12 +2,12 @@ import random
 import time
 import traceback
 
-from tools import prepare, send_email, setup_django, SubprocessManager
+
+from tools import send_email, setup_django, SubprocessManager
 
 
 def main():
     time.sleep(random.random() * 3600)
-    prepare()
     sp = SubprocessManager()
     sp.run('/home/fossen/certbot-auto --no-self-upgrade renew')
     if 'Cert not yet due for renewal' in sp.results[-1].stderr:

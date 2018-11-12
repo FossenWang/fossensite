@@ -1,10 +1,10 @@
 import traceback
 
-from tools import prepare, setup_django, send_email, SubprocessManager, project_root
+
+from tools import setup_django, send_email, SubprocessManager, project_root
 
 
 def main():
-    prepare()
     sp = SubprocessManager()
     results = sp.results
 

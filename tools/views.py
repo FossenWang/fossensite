@@ -1,5 +1,4 @@
 import json
-from functools import lru_cache
 
 from django.views import View
 from django.http import HttpRequest, HttpResponse, JsonResponse
