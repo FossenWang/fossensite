@@ -1,10 +1,9 @@
 import traceback
 
-from tools import project_root, prepare, setup_django, send_email, SubprocessManager
+from tools import project_root, setup_django, send_email, SubprocessManager
 
 
 def main():
-    prepare()
     sp = SubprocessManager()
     try:
         sp.run('git checkout master')
@@ -13,7 +12,9 @@ def main():
         results[-1].check_returncode()
         if 'Already up' in results[-1].stdout:
             #no need to continue
-            return sp.format_results()
+            message = sp.format_results()
+            print(message)
+            return message
 
         sp.run('docker restart fossensite')
         if results[-1].returncode:
@@ -37,6 +38,7 @@ def main():
 
     setup_django()
     message += sp.format_results()
+    print(message)
     send_email('www.fossen.cn | 自动部署结果', message)
     return message
 
