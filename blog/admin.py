@@ -17,22 +17,22 @@ class ArticleAdmin(ViewOnSiteAdmin):
 
     class Media:
         css = {'all':(
-            'blog/css/simditor.css',
-            'blog/css/simditor-html.css',
-            'blog/css/simditor-markdown.css',
+            'simditor/simditor.css',
+            'simditor/simditor-html.css',
+            'simditor/simditor-markdown.css',
             )}
         js = (
             'https://cdn.bootcss.com/jquery/3.2.1/jquery.js',
             'https://cdn.bootcss.com/js-beautify/1.7.5/beautify-html.js',
             'https://cdn.bootcss.com/marked/0.3.12/marked.js',
             'https://cdn.bootcss.com/to-markdown/3.1.1/to-markdown.js',
-            'blog/js/simditor/module.js',
-            'blog/js/simditor/uploader.js',
-            'blog/js/simditor/hotkeys.js',
-            'blog/js/simditor/simditor.js',
-            'blog/js/simditor/simditor-html.js',
-            'blog/js/simditor/simditor-autosave.js',
-            'blog/js/simditor/simditor-markdown.js',
+            'simditor/module.js',
+            'simditor/uploader.js',
+            'simditor/hotkeys.js',
+            'simditor/simditor.js',
+            'simditor/simditor-html.js',
+            'simditor/simditor-autosave.js',
+            'simditor/simditor-markdown.js',
             'blog/js/rich_text.js',
         )
 

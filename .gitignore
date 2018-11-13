@@ -1,7 +1,8 @@
 *__pycache__
 *.pyc
 fossensite/privacy.py
-media/
-caches/
-static/admin/
-command.txt
+/media
+/caches
+node_modules
+simditor
+/fossensite-react
