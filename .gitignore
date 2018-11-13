@@ -4,5 +4,6 @@ fossensite/privacy.py
 /media
 /caches
 node_modules
-simditor
+static/simditor
+static/admin
 /fossensite-react
