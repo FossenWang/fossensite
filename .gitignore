@@ -6,4 +6,9 @@ fossensite/privacy.py
 node_modules
 static/simditor
 static/admin
-/fossensite-react
+/fossensite-react/src/default
+/fossensite-react/README.md
+/fossensite-react/package-lock.json
+/fossensite-react/src/serviceWorker.js
+/fossensite-react/public/favicon.ico
+/fossensite-react/public/manifest.json
