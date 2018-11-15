@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import AppBar from '@material-ui/core/AppBar';
+import Typography from '@material-ui/core/Typography';
+
 import './header.css';
 
 class Header extends Component {
@@ -16,10 +19,10 @@ class Header extends Component {
                     <a href="/">首页</a>
                   </li>
                   <li>
-                    <a href="#">文章</a>
+                    <a href="/">文章</a>
                   </li>
                   <li>
-                    <a href="#"></a>
+                    <a href="/">技术</a>
                   </li>
                 </ul>
                 <div class="tools">
@@ -29,17 +32,20 @@ class Header extends Component {
                   </form>
                   <i class="fa fa-user fa-lg"></i>
                   <div id="userbar">
-                    <a href="#">
+                    <a href="/">
                       <i class="fa fa-circle notice"></i>
                     </a>
-                    <a href="#">注销</a>
-                    <a href="#">登录</a>
+                    <a href="/">注销</a>
+                    <a href="/">登录</a>
                   </div>
                 </div>
               </nav>
             </div>
           </div>
         </div>
+        <AppBar>
+          <Typography>appbar</Typography>
+        </AppBar>
       </header>
     );
   }

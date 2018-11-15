@@ -1,17 +1,20 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { MuiThemeProvider } from '@material-ui/core/styles';
+
 import './index.css';
 import Header from './public/header'
+import SimpleWhiteTheme from './theme/simple_white'
 
-// import App from './default/App';
-// import * as serviceWorker from './serviceWorker';
 
-// ReactDOM.render(<App />, document.getElementById('root'));
+class Main extends Component {
+  render() {
+    return (
+      <main>网页的主体</main>
+    );
+  }
+}
 
-// // If you want your app to work offline and load faster, you can change
-// // unregister() to register() below. Note this comes with some pitfalls.
-// // Learn more about service workers: http://bit.ly/CRA-PWA
-// serviceWorker.unregister();
 
 class Footer extends Component {
   render() {
@@ -30,15 +33,18 @@ class Footer extends Component {
   }
 }
 
+
 class Body extends Component {
   render() {
     return (
-      <div>
+      <MuiThemeProvider theme={SimpleWhiteTheme}>
         <Header />
+        <Main />
         <Footer />
-      </div>
+      </MuiThemeProvider>
     );
   }
 }
+
 
 ReactDOM.render(<Body />, document.getElementsByTagName('body')[0]);
