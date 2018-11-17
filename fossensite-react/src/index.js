@@ -3,8 +3,11 @@ import ReactDOM from 'react-dom';
 import { MuiThemeProvider, withStyles } from '@material-ui/core/styles';
 
 // import './index.css';
-import Header from './public/header'
-import SimpleWhiteTheme from './theme/simple_white'
+import Topbar from './topbar/topbar'
+import simple_white_theme from './theme/simple_white'
+
+
+var theme = simple_white_theme
 
 
 class Main extends Component {
@@ -34,21 +37,36 @@ class Footer extends Component {
 }
 
 
-let body_style = {
-  root: {
-    // backgroundColor: 'red',
-    background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-  },
-}
+const body_style = theme => ({
+  '@global': {
+    html: {
+      fontSize: 16,
+    },
+    body: {
+      color: theme.palette.text.primary,
+      background: theme.palette.background.default,
+      fontFamily: '"Roboto", Helvetica, "Lucida Sans", "Microsoft YaHei", Georgia, Arial, Sans-serif',
+    },
+    a: {
+      color: theme.palette.text.primary,
+      textDecoration: 'none',
+      '&:hover': {
+        color: theme.palette.text.secondary,
+        textDecoration: 'none',
+      }
+    },
+    i: { cursor: 'pointer' },
+  }
+})
 
 
 class Body extends Component {
   render() {
     return (
-      <MuiThemeProvider theme={SimpleWhiteTheme}>
-          <Header />
-          <Main />
-          <Footer />
+      <MuiThemeProvider theme={theme}>
+        <Topbar />
+        <Main />
+        <Footer />
       </MuiThemeProvider>
     );
   }

@@ -1,18 +1,20 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 import common from '@material-ui/core/colors/common';
-// import blue from '@material-ui/core/colors/blue';
+
 
 var dark_blue = '#17375E'
+var light_blue = '#0070C0'
 var light_grey = '#f4f5f7'
 
-const SimpleWhiteTheme = createMuiTheme({
+
+const simple_white_theme = createMuiTheme({
   palette: {
     primary: {
       main: common.white
     },
     text: {
       primary: dark_blue,
-      secondary: dark_blue,
+      secondary: light_blue,
     },
     background: {
       paper: common.black,
@@ -27,4 +29,4 @@ const SimpleWhiteTheme = createMuiTheme({
 });
 
 
-export default SimpleWhiteTheme
+export default simple_white_theme
