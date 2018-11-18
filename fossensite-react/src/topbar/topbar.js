@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 
 import { withStyles } from '@material-ui/core/styles';
-import { AppBar } from '@material-ui/core';
+import { AppBar, Hidden } from '@material-ui/core';
 // import Typography from '@material-ui/core/Typography';
 
 
-import { LgUpHidden, CenterGrid } from '../common/components';
+import { CenterGrid, FrameGrid } from '../common/components';
 import NavList from './navlist'
+import TopToolbar from './toolbar'
 
 
 const topbar_style = {
@@ -20,17 +21,18 @@ class Topbar extends Component {
   render() {
     return (
       <AppBar classes={this.props.classes}>
-        <CenterGrid container>
-          <div style={{ margin: '8px 16px' }}>
-            <LgUpHidden>
+        <FrameGrid container>
+          <CenterGrid container style={{ margin: '0 16px', flexFlow: 'row nowrap' }}>
+            <Hidden mdUp implementation={'css'}>
               <i className="fa fa-bars fa-lg" />
-            </LgUpHidden>
+            </Hidden>
             <a href={'/'} style={{ margin: 'auto 2rem', fontSize: '1.75rem' }}>
               Fossen
             </a>
             <NavList />
-          </div>
-        </CenterGrid>
+            <TopToolbar />
+          </CenterGrid>
+        </FrameGrid>
       </AppBar>
     );
   }

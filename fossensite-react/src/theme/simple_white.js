@@ -1,5 +1,5 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import common from '@material-ui/core/colors/common';
+import { common } from '@material-ui/core/colors';
 
 
 var dark_blue = '#17375E'
@@ -10,7 +10,9 @@ var light_grey = '#f4f5f7'
 const simple_white_theme = createMuiTheme({
   palette: {
     primary: {
-      main: common.white
+      light: common.white,
+      main: common.white,
+      contrastText: dark_blue,
     },
     text: {
       primary: dark_blue,
@@ -22,7 +24,7 @@ const simple_white_theme = createMuiTheme({
     }
   },
   typography: {
-    htmlFontSize: 16,
+    // htmlFontSize: 16,
     fontSize: 16,
     fontFamily: '"Roboto", Helvetica, "Lucida Sans", "Microsoft YaHei", Georgia, Arial, Sans-serif',
   }

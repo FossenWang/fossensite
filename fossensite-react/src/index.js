@@ -60,6 +60,9 @@ const body_style = theme => ({
 })
 
 
+Main = withStyles(body_style)(Main)
+
+
 class Body extends Component {
   render() {
     return (
@@ -72,6 +75,5 @@ class Body extends Component {
   }
 }
 
-Body = withStyles(body_style)(Body)
 
 ReactDOM.render(<Body />, document.getElementById('root'));
