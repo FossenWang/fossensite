@@ -26,6 +26,9 @@ const simple_white_theme = createMuiTheme({
   typography: {
     // htmlFontSize: 16,
     fontSize: 16,
+    pxToRem: (px)=>{
+      return (px / 16) + 'rem'
+    },
     fontFamily: '"Roboto", Helvetica, "Lucida Sans", "Microsoft YaHei", Georgia, Arial, Sans-serif',
   }
 });
