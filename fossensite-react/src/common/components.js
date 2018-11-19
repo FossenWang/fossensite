@@ -29,18 +29,7 @@ const frame_style = {
 }
 
 
-class CenterGrid extends Component {
-  static defaultProps = {
-    alignItems: 'center',
-  }
-
-  render() {
-    return <Grid {...this.props} />
-  }
-}
+const FrameGrid = withStyles(frame_style)(Grid)
 
 
-const FrameGrid = withStyles(frame_style)(CenterGrid)
-
-
-export { CssHidden, CenterGrid, FrameGrid }
+export { CssHidden, FrameGrid }

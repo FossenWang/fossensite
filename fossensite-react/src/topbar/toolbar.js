@@ -1,19 +1,18 @@
 import React, { Component } from 'react';
 
-import { withStyles, Toolbar, InputBase, InputAdornment } from '@material-ui/core';
-import { CenterGrid } from '../common/components';
+import { withStyles, Toolbar, InputBase, InputAdornment, Grid } from '@material-ui/core';
 
 
-const search_style = theme => ({
+const searchStyle = theme => ({
   root: {
     borderRadius: 16,
     padding: '0 8px',
-    marginRight: 16,
+    marginRight: '1rem',
     transition: 'all 0.2s ease-in-out',
     borderStyle: 'solid',
     borderWidth: 1.25,
     borderColor: theme.palette.text.disabled,
-    width: '5rem',
+    maxWidth: '5rem',
 
     '&:hover': {
       borderColor: theme.palette.text.secondary,
@@ -25,7 +24,7 @@ const search_style = theme => ({
     }
   },
   inputOnFocus: {
-    width: '12rem',
+    maxWidth: '12rem',
     borderColor: theme.palette.text.primary,
     '& input': {
       fontSize: '1rem',
@@ -45,10 +44,10 @@ class Search extends Component {
     this.blurInput = this.blurInput.bind(this)
   }
   focusInput() {
-    this.setState({focused: true})
+    this.setState({ focused: true })
   }
   blurInput() {
-    this.setState({focused: false})
+    this.setState({ focused: false })
   }
   render() {
     let classNames = this.props.classes.root
@@ -75,18 +74,57 @@ class Search extends Component {
   }
 }
 
-Search = withStyles(search_style)(Search)
+Search = withStyles(searchStyle)(Search)
+
+
+const userBarStyle = theme => ({
+  root: {
+    '& i, a': {
+      marginRight: '1rem',
+    },
+  }
+})
+
+class UserBar extends Component {
+  get_user() {
+    return {
+      name: 'Fossen',
+      githubUrl: 'https://github.com/FossenWang',
+    }
+  }
+
+  render() {
+    let user = this.get_user()
+    let user_link, login;
+    if (user.name !== undefined) {
+      user_link = <a href={user.githubUrl} target={'_blank'} >{user.name}</a>
+      login = <a href="/">注销</a>
+    } else {
+      user_link = null
+      login = <a href="/">登录</a>
+    }
+    return (
+      <div className={this.props.classes.root}>
+      <i className="fa fa-user fa-lg"></i>
+      {user_link}
+      {login}
+      </div>
+    )
+  }
+}
+
+UserBar = withStyles(userBarStyle)(UserBar)
 
 
 class TopToolbar extends Component {
   render() {
     return (
-      <CenterGrid container justify={'flex-end'}>
+      <Grid container alignItems={'center'} justify={'flex-end'}>
         <Toolbar>
           <Search />
-          <i className="fa fa-user fa-lg"></i>
+          <UserBar />
         </Toolbar>
-      </CenterGrid>
+      </Grid>
     )
   }
 }

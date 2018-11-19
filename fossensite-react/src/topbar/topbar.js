@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 
-import { withStyles } from '@material-ui/core/styles';
-import { AppBar, Hidden } from '@material-ui/core';
-// import Typography from '@material-ui/core/Typography';
+import { withStyles, AppBar, Hidden, Grid } from '@material-ui/core';
 
-
-import { CenterGrid, FrameGrid } from '../common/components';
+import { FrameGrid } from '../common/components';
 import NavList from './navlist'
 import TopToolbar from './toolbar'
 
@@ -22,7 +19,7 @@ class Topbar extends Component {
     return (
       <AppBar classes={this.props.classes}>
         <FrameGrid container>
-          <CenterGrid container style={{ margin: '0 16px', flexFlow: 'row nowrap' }}>
+          <Grid container alignItems={'center'} style={{ margin: '0 16px', flexFlow: 'row nowrap' }}>
             <Hidden mdUp implementation={'css'}>
               <i className="fa fa-bars fa-lg" />
             </Hidden>
@@ -31,7 +28,7 @@ class Topbar extends Component {
             </a>
             <NavList />
             <TopToolbar />
-          </CenterGrid>
+          </Grid>
         </FrameGrid>
       </AppBar>
     );
