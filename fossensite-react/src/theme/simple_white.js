@@ -19,7 +19,7 @@ const simple_white_theme = createMuiTheme({
       secondary: light_blue,
     },
     background: {
-      paper: common.black,
+      paper: common.white,
       default: light_grey,
     }
   },

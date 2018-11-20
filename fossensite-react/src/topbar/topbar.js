@@ -17,7 +17,7 @@ const topbar_style = {
 class Topbar extends Component {
   render() {
     return (
-      <AppBar classes={this.props.classes}>
+      <AppBar classes={this.props.classes} position={'relative'}>
         <FrameGrid container>
           <Grid container alignItems={'center'} style={{ margin: '0 16px', flexFlow: 'row nowrap' }}>
             <Hidden mdUp implementation={'css'}>

@@ -1,6 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
-import { withStyles, Toolbar, InputBase, InputAdornment, Grid } from '@material-ui/core';
+import {
+  withStyles, Toolbar, InputBase,
+  InputAdornment, Grid
+} from '@material-ui/core';
 
 
 const searchStyle = theme => ({
@@ -11,7 +14,7 @@ const searchStyle = theme => ({
     transition: 'all 0.2s ease-in-out',
     borderStyle: 'solid',
     borderWidth: 1.25,
-    borderColor: theme.palette.text.disabled,
+    borderColor: theme.palette.text.hint,
     maxWidth: '5rem',
 
     '&:hover': {
@@ -95,19 +98,21 @@ class UserBar extends Component {
 
   render() {
     let user = this.get_user()
-    let user_link, login;
+    let parts;
     if (user.name !== undefined) {
-      user_link = <a href={user.githubUrl} target={'_blank'} >{user.name}</a>
-      login = <a href="/">注销</a>
+      parts = <Fragment>
+        <a href={user.githubUrl} target={'_blank'} >{user.name}</a>
+        <a href="/">注销</a>
+      </Fragment>
     } else {
-      user_link = null
-      login = <a href="/">登录</a>
+      parts = <Fragment>
+        <a href="/">登录</a>
+      </Fragment>
     }
     return (
       <div className={this.props.classes.root}>
-      <i className="fa fa-user fa-lg"></i>
-      {user_link}
-      {login}
+        <i className="fa fa-user fa-lg"></i>
+        {parts}
       </div>
     )
   }
