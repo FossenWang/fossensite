@@ -12,7 +12,7 @@ const simple_white_theme = createMuiTheme({
     primary: {
       light: common.white,
       main: common.white,
-      contrastText: dark_blue,
+      contrastText: '#333',
     },
     text: {
       primary: dark_blue,

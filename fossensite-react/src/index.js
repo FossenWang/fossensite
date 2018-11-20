@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { MuiThemeProvider, withStyles } from '@material-ui/core';
+import { MuiThemeProvider } from '@material-ui/core';
 
 import simple_white_theme from './theme/simple_white'
 import Topbar from './topbar/topbar'

@@ -7,11 +7,12 @@ import NavList from './navlist'
 import TopToolbar from './toolbar'
 
 
-const topbar_style = {
+const topbar_style = (theme) => ({
   root: {
     display: 'block',
+    color: theme.palette.text.primary
   },
-}
+})
 
 
 class Topbar extends Component {

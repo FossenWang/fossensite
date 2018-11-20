@@ -2,15 +2,13 @@ import React, { Component } from 'react';
 import { withStyles, Paper, Grid } from '@material-ui/core';
 
 import { FrameGrid } from '../common/components'
+import ArticleList from './article_list'
 
 
 const mainStyle = theme => ({
   root: {
     marginTop: 16,
     marginBottom: 16,
-  },
-  paper: {
-    width: '100%'
   },
   '@global': {
     html: {
@@ -41,7 +39,7 @@ class Main extends Component {
     return (
       <FrameGrid container spacing={8} component={'main'} alignItems={'center'} className={classes.root}>
         <Grid item md={8}>
-          <Paper className={classes.paper}>文章列表</Paper>
+          <ArticleList />
         </Grid>
         <Grid item md={4}>
           <Paper className={classes.paper}>侧边栏</Paper>
