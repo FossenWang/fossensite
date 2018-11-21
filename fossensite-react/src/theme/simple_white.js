@@ -2,9 +2,10 @@ import { createMuiTheme } from '@material-ui/core/styles';
 import { common } from '@material-ui/core/colors';
 
 
-var dark_blue = '#17375E'
-var light_blue = '#0070C0'
-var light_grey = '#f4f5f7'
+var darkBlue = '#17375E'
+var lightBlue = '#0070C0'
+var lightGrey = '#f4f5f7'
+var darkGrey = '#333'
 
 
 const simple_white_theme = createMuiTheme({
@@ -12,19 +13,18 @@ const simple_white_theme = createMuiTheme({
     primary: {
       light: common.white,
       main: common.white,
-      contrastText: '#333',
+      contrastText: darkGrey,
     },
     text: {
-      primary: dark_blue,
-      secondary: light_blue,
+      primary: darkBlue,
+      secondary: lightBlue,
     },
     background: {
       paper: common.white,
-      default: light_grey,
+      default: lightGrey,
     }
   },
   typography: {
-    // htmlFontSize: 16,
     fontSize: 16,
     pxToRem: (px)=>{
       return (px / 16) + 'rem'
