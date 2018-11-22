@@ -69,7 +69,6 @@ class Pagination extends Component {
     pageInfo.morePrev = pageInfo.page > 3 ? true : false
     pageInfo.nextPage = pageInfo.page < (pageInfo.lastPage - 1) ? (pageInfo.page + 1) : null
     pageInfo.moreNext = pageInfo.page < (pageInfo.lastPage - 2) ? true : false
-    console.log(pageInfo)
     return (
       <div className={classes.pagination}>
         {pageInfo.page !== 1 && <a href={'/'}>1</a>}
@@ -88,8 +87,6 @@ Pagination = withStyles(paginationStyle)(Pagination)
 
 
 function dateFormator(date) {
-  // let date = new Date()
-  // console.log(date)
   return `${date.getFullYear()}年
   ${date.getMonth() + 1}月
   ${date.getDate()}日

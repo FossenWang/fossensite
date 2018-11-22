@@ -10,7 +10,8 @@ const articleListStyle = theme => ({
   },
   paper: {
     width: '100%',
-    paddingBottom: '8px',
+    paddingBottom: 8,
+    marginBottom: 8,
   },
 })
 
@@ -97,8 +98,7 @@ class ArticleList extends Component {
       },
     ]
     for (let i = 1; i < 5; i++) {
-      let copy = {}
-      Object.assign(copy, articleList[0])
+      let copy = Object.assign({}, articleList[0])
       articleList.push(copy)
       articleList[i].id = i
     }

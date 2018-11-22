@@ -1,35 +1,21 @@
 import React, { Component } from 'react';
-import { withStyles, Paper, Grid } from '@material-ui/core';
+import { withStyles, Grid } from '@material-ui/core';
 
 import { FrameGrid } from '../common/components'
 import ArticleList from './article_list'
+import SideBar from './side_bar'
 
 
 const mainStyle = theme => ({
   root: {
     marginTop: 16,
     marginBottom: 16,
+    '&>div': {
+      // margin: '0 8px',
+      padding: '0 8px',
+    }
   },
-  '@global': {
-    html: {
-      fontSize: 16,
-    },
-    body: {
-      margin: 0,
-      color: theme.palette.text.primary,
-      background: theme.palette.background.default,
-      fontFamily: '"Roboto", Helvetica, "Lucida Sans", "Microsoft YaHei", Georgia, Arial, Sans-serif',
-    },
-    a: {
-      color: theme.palette.text.primary,
-      textDecoration: 'none',
-      '&:hover': {
-        color: theme.palette.text.secondary,
-        textDecoration: 'none',
-      }
-    },
-    i: { cursor: 'pointer' },
-  }
+  '@global': theme.global,
 })
 
 
@@ -37,12 +23,12 @@ class Main extends Component {
   render() {
     let { classes } = this.props
     return (
-      <FrameGrid container spacing={8} component={'main'} alignItems={'center'} className={classes.root}>
+      <FrameGrid container component={'main'} className={classes.root}>
         <Grid item md={8}>
           <ArticleList />
         </Grid>
         <Grid item md={4}>
-          <Paper className={classes.paper}>侧边栏</Paper>
+          <SideBar />
         </Grid>
       </FrameGrid>
     );
