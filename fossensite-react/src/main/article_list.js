@@ -9,7 +9,6 @@ const articleListStyle = theme => ({
     padding: '16px 24px',
   },
   paper: {
-    width: '100%',
     paddingBottom: 8,
     marginBottom: 8,
   },
@@ -88,6 +87,7 @@ class ArticleList extends Component {
     let articleList = [
       {
         id: 0,
+        cover: 'https://www.fossen.cn/media/blog/cover/003-00_f5IFLQI.png',
         title: '标题',
         content: '内容',
         time: new Date(),

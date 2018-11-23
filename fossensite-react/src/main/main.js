@@ -4,6 +4,7 @@ import { withStyles, Grid } from '@material-ui/core';
 import { FrameGrid } from '../common/components'
 import ArticleList from './article_list'
 import SideBar from './side_bar'
+import ArticleDetail from './article_detail'
 
 
 const mainStyle = theme => ({
@@ -25,7 +26,8 @@ class Main extends Component {
     return (
       <FrameGrid container component={'main'} className={classes.root}>
         <Grid item md={8}>
-          <ArticleList />
+          {/* <ArticleList /> */}
+          <ArticleDetail />
         </Grid>
         <Grid item md={4}>
           <SideBar />

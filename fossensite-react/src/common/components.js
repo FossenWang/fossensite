@@ -87,10 +87,10 @@ Pagination = withStyles(paginationStyle)(Pagination)
 
 
 function dateFormator(date) {
-  return `${date.getFullYear()}年
-  ${date.getMonth() + 1}月
-  ${date.getDate()}日
-   ${date.getHours()}:${date.getMinutes()}`
+  return `${date.getFullYear()}年`
+  + `${date.getMonth() + 1}月`
+  + `${date.getDate()}日`
+  + ` ${date.getHours()}:${date.getMinutes()}`
 }
 
 
