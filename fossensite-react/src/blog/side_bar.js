@@ -92,7 +92,7 @@ class LinkChips extends Component {
   render() {
     let { classes } = this.props
     let chips = this.props.list.map((item, index) => {
-      return <a href={item.url} target={this.props.target?this.props.target:null}>{item.value}</a>
+      return <a key={index} href={item.url} target={this.props.target?this.props.target:null}>{item.value}</a>
     })
     return (<div className={classes.root}>{chips}</div>)
   }

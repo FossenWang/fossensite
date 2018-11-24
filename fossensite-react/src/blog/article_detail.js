@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { withStyles, Paper } from '@material-ui/core';
+import { Link } from "react-router-dom";
+import { withStyles, Paper, Fade } from '@material-ui/core';
 
 import { dateFormator } from '../common/components'
 
@@ -57,12 +58,14 @@ const articleDetailStyle = theme => ({
 
 class ArticleDetail extends Component {
   render() {
-    let { classes } = this.props
+    let { classes, match } = this.props
     let article = this.getArticle()
+    console.log(match)
     return (
+      <Fade in>
       <Paper className={classes.paper}>
         <div className={classes.breadcrumb}>
-          <a href="/">首页</a> &gt; <a href="/article/category/2/">{article.cate}</a>
+          <Link to="/">首页</Link> &gt; <a href="/article/category/2/">{article.cate}</a>
         </div>
         <article className={classes.article}>
           {article.cover ?
@@ -78,6 +81,7 @@ class ArticleDetail extends Component {
           <div className={classes.content} dangerouslySetInnerHTML={{__html: article.content}}></div>
         </article>
       </Paper>
+      </Fade>
     )
   }
   getArticle() {

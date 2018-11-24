@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { withStyles, Grid, Paper } from '@material-ui/core';
+import { Link } from "react-router-dom";
+import { withStyles, Grid, Paper, Fade } from '@material-ui/core';
 
 import { Pagination, dateFormator } from '../common/components'
 
@@ -41,21 +42,24 @@ class ArticleListItem extends Component {
   render() {
     let { classes, article } = this.props
     return (
-    <Grid component={'article'}
-      item className={classes.article}>
-      <div className={classes.title}>
-        <a href={article.url}>{article.title}</a>
-      </div>
-      <div className={classes.content}>
-        {article.content}
-        <a href={article.url}>&emsp;阅读全文 &gt;</a>
-      </div>
-      <div className={classes.info}>
-        {dateFormator(article.time)}
-        &emsp;{article.views} 阅读&emsp;
+      <Grid component={'article'}
+        item className={classes.article}>
+        <div className={classes.title}>
+          {/* <a href={article.url}>{article.title}</a> */}
+          <Link to={article.url}>{article.title}</Link>
+        </div>
+        <div className={classes.content}>
+          {article.content}
+          {/* <a href={article.url}>&emsp;阅读全文 &gt;</a> */}
+          <Link to={article.url}>&emsp;阅读全文 &gt;</Link>
+        </div>
+        <div className={classes.info}>
+          {dateFormator(article.time)}
+          &emsp;{article.views} 阅读&emsp;
         分类: {article.cate}&emsp;话题: {article.topic}
-      </div>
-    </Grid>)
+        </div>
+      </Grid>
+    )
   }
 }
 
@@ -72,15 +76,17 @@ class ArticleList extends Component {
       )
     })
     return (
-      <Paper className={classes.paper}>
-        <div className={classes.listTitle}>
-          最新文章
+      <Fade in>
+        <Paper className={classes.paper}>
+          <div className={classes.listTitle}>
+            最新文章
         </div>
-        <Grid container>
-          {items}
-        </Grid>
-        <Pagination page={1} pageSize={10} total={99} />
-      </Paper>
+          <Grid container>
+            {items}
+          </Grid>
+          <Pagination page={1} pageSize={10} total={99} />
+        </Paper>
+      </Fade>
     )
   }
   getArticleList() {
@@ -94,7 +100,7 @@ class ArticleList extends Component {
         views: 1,
         cate: '技术',
         topic: 'React',
-        url: '/',
+        url: '/article/0/',
       },
     ]
     for (let i = 1; i < 5; i++) {

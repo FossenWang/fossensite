@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { List, ListItem, Hidden } from '@material-ui/core';
 
 
-var cates = ['技术', '随笔']
-
 
 class NavItem extends Component {
   static defaultProps = {}
@@ -18,8 +16,8 @@ class NavItem extends Component {
 
 
 class NavList extends Component {
-  render() {
-    cates = ['首页', '文章'].concat(cates)
+  render() {  
+    let cates = ['首页', '文章', '技术', '随笔']
     let items = cates.map(
       (value, index) => {
         return <NavItem key={index}>{value}</NavItem>
