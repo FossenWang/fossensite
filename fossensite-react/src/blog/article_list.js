@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from "react-router-dom";
 import { withStyles, Grid, Paper, Fade } from '@material-ui/core';
 
-import { Pagination, dateFormator } from '../common/components'
+import { Pagination, formatDate } from '../common/components'
+import { articleManager } from '../resource/manager'
 
 
 const articleListStyle = theme => ({
@@ -34,6 +35,9 @@ const articleListItemStyle = theme => ({
     fontSize: '0.875rem',
     color: 'gray',
     wordBreak: 'keep-all',
+    '& a': {
+      color: 'gray',
+    },
   }
 })
 
@@ -41,25 +45,37 @@ const articleListItemStyle = theme => ({
 class ArticleListItem extends Component {
   render() {
     let { classes, article } = this.props
+    let url = '/article/' + article.id + '/'
     return (
       <Grid component={'article'}
         item className={classes.article}>
         <div className={classes.title}>
-          {/* <a href={article.url}>{article.title}</a> */}
-          <Link to={article.url}>{article.title}</Link>
+          <Link to={url}>{article.title}</Link>
         </div>
         <div className={classes.content}>
-          {article.content}
-          {/* <a href={article.url}>&emsp;阅读全文 &gt;</a> */}
-          <Link to={article.url}>&emsp;阅读全文 &gt;</Link>
+          {article.content.replace(/<\/?[^>]*>/g, '').substr(0, 150)}&nbsp;...&emsp;
+          <Link to={url}>阅读全文 &gt;</Link>
         </div>
         <div className={classes.info}>
-          {dateFormator(article.time)}
-          &emsp;{article.views} 阅读&emsp;
-        分类: {article.cate}&emsp;话题: {article.topic}
+          {formatDate(article.pub_date)}&emsp;
+          {article.views} 阅读&emsp;
+          分类: {this.formatCategory(article.category)}&emsp;
+          话题: {this.formatTopics(article.topics)}
         </div>
       </Grid>
     )
+  }
+  formatCategory(category) {
+    return <Link to={`/article/category/${category.id}/`}>{category.name}</Link>
+  }
+  formatTopics(topics) {
+    return topics.map((t) => (
+      <Fragment key={t.id}>
+        <Link to={`/article/topic/${t.id}/`}>
+          {t.name}
+        </Link>&nbsp;&nbsp;
+      </Fragment>
+    ))
   }
 }
 
@@ -67,10 +83,28 @@ ArticleListItem = withStyles(articleListItemStyle)(ArticleListItem)
 
 
 class ArticleList extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { articleList: {} }
+    this.getArticleList()
+  }
   render() {
     let { classes } = this.props
-    let articleList = this.getArticleList()
-    let items = articleList.map((article, index) => {
+    let { articleList } = this.state
+    if (articleList.data === undefined) {
+      return (
+        <Fade in>
+          <Paper className={classes.paper}>
+            <Grid container justify={'center'}>
+              {'加载中...'}
+            </Grid>
+          </Paper>
+        </Fade>
+      )
+    }
+    let pageInfo = articleList.pageInfo
+    window.a = articleList
+    let items = articleList.data.map((article, index) => {
       return (
         <ArticleListItem key={article.id} article={article} />
       )
@@ -84,30 +118,15 @@ class ArticleList extends Component {
           <Grid container>
             {items}
           </Grid>
-          <Pagination page={1} pageSize={10} total={99} />
+          <Pagination page={pageInfo.page} pageSize={pageInfo.pageSize} total={pageInfo.total} />
         </Paper>
       </Fade>
     )
   }
-  getArticleList() {
-    let articleList = [
-      {
-        id: 0,
-        cover: 'https://www.fossen.cn/media/blog/cover/003-00_f5IFLQI.png',
-        title: '标题',
-        content: '内容',
-        time: new Date(),
-        views: 1,
-        cate: '技术',
-        topic: 'React',
-        url: '/article/0/',
-      },
-    ]
-    for (let i = 1; i < 5; i++) {
-      let copy = Object.assign({}, articleList[0])
-      articleList.push(copy)
-      articleList[i].id = i
-    }
+  getArticleList = async (page) => {
+    let articleList = await articleManager.getListData(page)
+    console.log('articleList', articleList)
+    this.setState({ articleList: articleList })
     return articleList
   }
 }

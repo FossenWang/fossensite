@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { withStyles, Paper, Fade } from '@material-ui/core';
 
-import { dateFormator } from '../common/components'
+import { formatDate } from '../common/components'
 
 
 const articleDetailStyle = theme => ({
@@ -74,7 +74,7 @@ class ArticleDetail extends Component {
             </div> : null}
           <h1 className={classes.title}>{article.title}</h1>
           <div className={classes.info}>
-            {dateFormator(article.time)}
+            {formatDate(article.time)}
             &emsp;{article.views} 阅读&emsp;
             分类: {article.cate}&emsp;话题: {article.topic}
           </div>

@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import re_path, path
 from comment.views import ArticleCommentView, CreateArticleCommentView, \
 CreateArticleCommentReplyView, DeleteArticleCommentView, DeleteArticleCommentReplyView
 from . import views
@@ -6,6 +6,7 @@ from . import views
 app_name = 'blog'
 
 urlpatterns = [
+    path('', views.ArticleList.as_view(), name='article_list'),
     re_path(r'^(?P<pk>[0-9]+)/$', views.ArticleDetailView.as_view(), name='detail'),
     re_path(r'^category/(?P<category_id>[0-9]+)/$', views.CategoryView.as_view(), name='category'),
     re_path(r'^topic/(?P<topic_id>[0-9]+)/$', views.TopicView.as_view(), name='topic'),

@@ -1,5 +1,5 @@
-from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView, TemplateView
+from django.views.generic.list import MultipleObjectMixin
 from django.core.exceptions import PermissionDenied
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
@@ -8,7 +8,9 @@ from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth.models import User
 
-from .models import Article, Category, Topic, Link
+from .models import Article, Link
+from tools.views import TemplateJSONView
+
 
 class HomeView(TemplateView):
     '首页视图'
@@ -21,6 +23,61 @@ class HomeView(TemplateView):
         context['fossen'] = User.objects.values('last_name', 'profile__avatar').get(id=2)
         context['links'] = Link.objects.all()
         return context
+
+
+class ArticleList(MultipleObjectMixin, TemplateJSONView):
+    '文章列表视图'
+    model = Article
+    template_name = 'index.html'
+    context_object_name = 'articles'
+    paginate_by = 10
+    allow_empty = False
+
+    def get_queryset(self):
+        return super().get_queryset() \
+        .filter(pub_date__lt=timezone.now()) \
+        .defer('author', 'category__number') \
+        .select_related('category') \
+        .prefetch_related('topics')
+
+    def serialize(self):
+        context = self.get_context_data()
+        articles = []
+        for article in context['articles']:
+            item = {
+                'id': article.id,
+                'cover': article.cover.url if article.cover else None,
+                'title': article.title,
+                'content': article.content,
+                'views': article.views,
+                'pub_date': article.pub_date.isoformat(),
+                'category': {
+                    'id': article.category.id,
+                    'name': article.category.name,
+                    },
+                'topics': [{
+                    'id': t.id,
+                    'name': t.name,
+                } for t in article.topics.all()],
+            }
+            articles.append(item)
+        page_info = {
+            'page': context['page_obj'].number,
+            'pageSize': context['paginator'].per_page,
+            'total': context['paginator'].count,
+            'lastPage': context['paginator'].num_pages,
+        }
+        data = {
+            'data': articles,
+            'pageInfo': page_info,
+        }
+        return data
+
+    def get(self, request):
+        self.object_list = self.get_queryset()
+        data = self.serialize()
+        return data
+
 
 class ArticleListView(ListView):
     '文章列表视图'

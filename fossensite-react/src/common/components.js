@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment'
 
 import { withStyles, Grid } from '@material-ui/core';
 
@@ -86,12 +87,12 @@ class Pagination extends Component {
 Pagination = withStyles(paginationStyle)(Pagination)
 
 
-function dateFormator(date) {
-  return `${date.getFullYear()}年`
-  + `${date.getMonth() + 1}月`
-  + `${date.getDate()}日`
-  + ` ${date.getHours()}:${date.getMinutes()}`
+function formatDate(date) {
+  if (typeof(date) == 'string') {
+    date = new Date(date)
+  }
+  return moment(date).format('YYYY年M月D日 HH:mm')
 }
 
 
-export { Pagination, FrameGrid, dateFormator }
+export { Pagination, FrameGrid, formatDate }

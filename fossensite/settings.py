@@ -22,7 +22,7 @@ class DevConfig:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': privacy.PSQL_NAME,
+            'NAME': privacy.PSQL_TEST_NAME,
             'USER': privacy.PSQL_USER,
             'PASSWORD': privacy.PSQL_PASSWORD,
             'HOST': privacy.PSQL_HOST,
@@ -107,6 +107,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'blog',
     'account',
     'comment',
@@ -114,6 +115,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -231,3 +233,10 @@ EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = privacy.EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = privacy.EMAIL_HOST_PASSWORD
+
+
+# CORS
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = (
+    'localhost:3000',
+)

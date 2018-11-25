@@ -1,6 +1,7 @@
 import json
 
 from django.views import View
+from django.views.generic.base import TemplateResponseMixin
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
 
@@ -58,11 +59,28 @@ class JSONMixin:
 
 
 class JSONView(JSONMixin, View):
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args, **kwargs):
         try:
+            print(request.is_ajax())
             response = super().dispatch(request, *args, **kwargs)
             if not isinstance(response, HttpResponse):
                 response = self.render_to_json_response(response)
+        except Exception as e:
+            raise e
+        return response
+
+
+class TemplateJSONView(JSONMixin, TemplateResponseMixin, View):
+    def dispatch(self, request: HttpRequest, *args, **kwargs):
+        try:
+            response = super().dispatch(request, *args, **kwargs)
+            if not isinstance(response, HttpResponse):
+                if request.method == 'GET' and 'json' not in request.META.get('HTTP_ACCEPT', ''):
+                    # when request uses GET method and dosen't accept json response
+                    # response should be render to TemplateResponse
+                    response = self.render_to_response(response)
+                else:
+                    response = self.render_to_json_response(response)
         except Exception as e:
             raise e
         return response

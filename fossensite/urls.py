@@ -18,11 +18,12 @@ from django.conf import settings
 from django.urls import re_path, include, path
 from django.conf.urls.static import static
 
-from blog.views import HomeView
+from blog.views import HomeView, ArticleList
 from async_task.views import deploy_view
 
+
 urlpatterns = [
-    re_path(r'^$', HomeView.as_view(), name='home'),
+    path('', ArticleList.as_view(), name='home'),
     re_path(r'^article/', include('blog.urls')),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^account/', include('account.urls')),
