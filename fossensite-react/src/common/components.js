@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import { Link } from "react-router-dom";
 import moment from 'moment'
 
-import { withStyles, Grid } from '@material-ui/core';
+import { withStyles, Grid, Paper } from '@material-ui/core';
 
 
 const frameStyle = theme => ({
@@ -25,7 +26,8 @@ const paginationStyle = theme => ({
   pagination: {
     margin: '20px 0',
     textAlign: 'center',
-    '& a': {
+    '& a, div': {
+      cursor: 'pointer',
       display: 'inline-block',
       margin: '0 3px',
       lineHeight: '38px',
@@ -59,7 +61,10 @@ const paginationStyle = theme => ({
 
 class Pagination extends Component {
   render() {
-    let { classes } = this.props
+    let { classes, url } = this.props
+    if (!url) {
+      url = '/'
+    }
     let pageInfo = {
       page: this.props.page,
       pageSize: this.props.pageSize,
@@ -72,13 +77,17 @@ class Pagination extends Component {
     pageInfo.moreNext = pageInfo.page < (pageInfo.lastPage - 2) ? true : false
     return (
       <div className={classes.pagination}>
-        {pageInfo.page !== 1 && <a href={'/'}>1</a>}
+        {pageInfo.page !== 1 &&
+          <Link to={url}>1</Link>}
         {pageInfo.morePrev && <span>···</span>}
-        {pageInfo.prevPage !== null && <a href={'/'}>{pageInfo.prevPage}</a>}
-        <a href={'/'} className={classes.currentPage}>{pageInfo.page}</a>
-        {pageInfo.nextPage !== null && <a href={'/'}>{pageInfo.nextPage}</a>}
+        {pageInfo.prevPage !== null &&
+          <Link to={`${url}?page=${pageInfo.prevPage}`}>{pageInfo.prevPage}</Link>}
+        <div className={classes.currentPage}>{pageInfo.page}</div>
+        {pageInfo.nextPage !== null &&
+          <Link to={`${url}?page=${pageInfo.nextPage}`}>{pageInfo.nextPage}</Link>}
         {pageInfo.moreNext && <span>···</span>}
-        {pageInfo.page !== pageInfo.lastPage && <a href={'/'}>{pageInfo.lastPage}</a>}
+        {pageInfo.page !== pageInfo.lastPage &&
+          <Link to={`${url}?page=${pageInfo.lastPage}`}>{pageInfo.lastPage}</Link>}
       </div>)
   }
 }
@@ -87,12 +96,45 @@ class Pagination extends Component {
 Pagination = withStyles(paginationStyle)(Pagination)
 
 
+class NotFound extends Component {
+  static defaultProps = {
+    children: (
+      <span style={{fontSize: '1.5rem'}}>
+        <i className="fa fa-exclamation-circle" aria-hidden="true"></i>&emsp;
+        404&emsp;当前页面不存在
+      </span>
+    )
+  }
+  render() {
+    return (
+      <Paper>
+        <Grid container justify={'center'}>
+          <p style={{ padding: '2rem', margin: 0 }}>{this.props.children}</p>
+        </Grid>
+      </Paper>
+    )
+  }
+}
+
+
+class Loading extends Component {
+  render() {
+    return (
+      <NotFound>
+        <i className="fa fa-spinner fa-spin fa-3x"></i>
+        <br /><br />{'加载中...'}
+      </NotFound>
+    )
+  }
+}
+
+
 function formatDate(date) {
-  if (typeof(date) == 'string') {
+  if (typeof (date) == 'string') {
     date = new Date(date)
   }
   return moment(date).format('YYYY年M月D日 HH:mm')
 }
 
 
-export { Pagination, FrameGrid, formatDate }
+export { Pagination, FrameGrid, NotFound, Loading, formatDate }

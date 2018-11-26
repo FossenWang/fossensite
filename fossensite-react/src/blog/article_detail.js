@@ -58,29 +58,28 @@ const articleDetailStyle = theme => ({
 
 class ArticleDetail extends Component {
   render() {
-    let { classes, match } = this.props
+    let { classes } = this.props
     let article = this.getArticle()
-    console.log(match)
     return (
       <Fade in>
-      <Paper className={classes.paper}>
-        <div className={classes.breadcrumb}>
-          <Link to="/">首页</Link> &gt; <a href="/article/category/2/">{article.cate}</a>
-        </div>
-        <article className={classes.article}>
-          {article.cover ?
-            <div className={classes.cover}>
-              <img src={article.cover} alt='' />
-            </div> : null}
-          <h1 className={classes.title}>{article.title}</h1>
-          <div className={classes.info}>
-            {formatDate(article.time)}
-            &emsp;{article.views} 阅读&emsp;
-            分类: {article.cate}&emsp;话题: {article.topic}
+        <Paper className={classes.paper}>
+          <div className={classes.breadcrumb}>
+            <Link to="/">首页</Link> &gt; <Link to="/article/category/2/">{article.cate}</Link>
           </div>
-          <div className={classes.content} dangerouslySetInnerHTML={{__html: article.content}}></div>
-        </article>
-      </Paper>
+          <article className={classes.article}>
+            {article.cover ?
+              <div className={classes.cover}>
+                <img src={article.cover} alt='' />
+              </div> : null}
+            <h1 className={classes.title}>{article.title}</h1>
+            <div className={classes.info}>
+              {formatDate(article.time)}
+              &emsp;{article.views} 阅读&emsp;
+            分类: {article.cate}&emsp;话题: {article.topic}
+            </div>
+            <div className={classes.content} dangerouslySetInnerHTML={{ __html: article.content }}></div>
+          </article>
+        </Paper>
       </Fade>
     )
   }

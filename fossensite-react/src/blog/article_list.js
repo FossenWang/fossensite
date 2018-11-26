@@ -2,19 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { Link } from "react-router-dom";
 import { withStyles, Grid, Paper, Fade } from '@material-ui/core';
 
-import { Pagination, formatDate } from '../common/components'
+import { Pagination, NotFound, formatDate, Loading } from '../common/components'
 import { articleManager } from '../resource/manager'
-
-
-const articleListStyle = theme => ({
-  listTitle: {
-    padding: '16px 24px',
-  },
-  paper: {
-    paddingBottom: 8,
-    marginBottom: 8,
-  },
-})
 
 
 const articleListItemStyle = theme => ({
@@ -82,52 +71,125 @@ class ArticleListItem extends Component {
 ArticleListItem = withStyles(articleListItemStyle)(ArticleListItem)
 
 
+const articleListTittleStyle = theme => ({
+  listTitle: {
+    padding: '16px 24px',
+  },
+})
+
+class ArticleListTittle extends Component {
+  render() {
+    let title
+    let pathname = this.props.location.pathname
+    if (pathname.match('category')) {
+      title = (
+        <div className={this.props.classes.listTitle}>
+          <Link to="/">首页</Link> &gt; <Link to="/article/category/2/">{'分类'}</Link>
+        </div>
+      )
+    } else if (pathname.match('topic')) {
+      title = (
+        <div className={this.props.classes.listTitle}>
+          <Link to="/">首页</Link> &gt; <Link to="/article/topic/2/">{'话题'}</Link>
+        </div>
+      )
+    } else {
+      title = (
+        <div className={this.props.classes.listTitle}>
+          {'最新文章'}
+        </div>
+      )
+    }
+    return title
+  }
+}
+
+ArticleListTittle = withStyles(articleListTittleStyle)(ArticleListTittle)
+
+
+const articleListStyle = theme => ({
+  paper: {
+    paddingBottom: 8,
+    marginBottom: 8,
+  },
+})
+
+
 class ArticleList extends Component {
   constructor(props) {
     super(props)
-    this.state = { articleList: {} }
-    this.getArticleList()
+    let page = this.getCurrentPage()
+    this.state = { articleList: 'loading', pageInfo: { page: page }}
+    this.getArticleList(page)
   }
+
+  getCurrentPage() {
+    // 获取当前页码，非数字不匹配，默认为首页
+    let r = this.props.location.search.match('page=\\d+')
+    let page = (r ? parseInt(r[0].replace('page=', '')) : 1)
+    return page
+  }
+
+  async getArticleList(page) {
+    // 获取文章列表和分页信息，然后更改state
+    page = (page ? page : 1)
+    let articleList = await articleManager.getList(page)
+    let pageInfo = {
+      page: page,
+      pageSize: articleManager.pageInfo.pageSize,
+      total: articleManager.pageInfo.total,
+    }
+    this.setState({ articleList: articleList, pageInfo: pageInfo })
+  }
+
   render() {
     let { classes } = this.props
     let { articleList } = this.state
-    if (articleList.data === undefined) {
+    let pageInfo = this.state.pageInfo
+    let page = this.getCurrentPage()
+    let loading = false
+
+    // 重新渲染时需判断当前页面是否要更新
+    if (page !== pageInfo.page) {
+      loading = true
+      this.getArticleList(page)
+    }
+
+    // 获取文章列表出错时返回404
+    if (!articleList) {
+      return (<NotFound />)
+    }
+
+    // 获取数据时显示加载中
+    if (articleList === 'loading' || loading) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
       return (
-        <Fade in>
-          <Paper className={classes.paper}>
-            <Grid container justify={'center'}>
-              {'加载中...'}
-            </Grid>
-          </Paper>
-        </Fade>
+        <Loading />
       )
     }
-    let pageInfo = articleList.pageInfo
-    window.a = articleList
-    let items = articleList.data.map((article, index) => {
+
+    let items = articleList.map((article, index) => {
       return (
         <ArticleListItem key={article.id} article={article} />
       )
     })
+
     return (
       <Fade in>
         <Paper className={classes.paper}>
-          <div className={classes.listTitle}>
-            最新文章
-        </div>
+          <ArticleListTittle location={this.props.location} />
           <Grid container>
             {items}
           </Grid>
-          <Pagination page={pageInfo.page} pageSize={pageInfo.pageSize} total={pageInfo.total} />
+          <Pagination
+            url={this.props.location.pathname}
+            page={pageInfo.page}
+            pageSize={pageInfo.pageSize}
+            total={pageInfo.total}
+          />
         </Paper>
       </Fade>
     )
-  }
-  getArticleList = async (page) => {
-    let articleList = await articleManager.getListData(page)
-    console.log('articleList', articleList)
-    this.setState({ articleList: articleList })
-    return articleList
   }
 }
 

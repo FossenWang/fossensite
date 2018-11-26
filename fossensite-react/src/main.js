@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Route } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import { withStyles, Grid } from '@material-ui/core';
 
 
-import { FrameGrid } from './common/components'
+import { FrameGrid, NotFound } from './common/components'
 import ArticleList from './blog/article_list'
 import SideBar from './blog/side_bar'
 import ArticleDetail from './blog/article_detail'
@@ -28,10 +28,13 @@ class Main extends Component {
     return (
       <FrameGrid container component={'main'} className={classes.root}>
         <Grid item md={8}>
-          {/* <ArticleList /> */}
-          {/* <ArticleDetail /> */}
-          <Route exact path="/" component={ArticleList} />
-          <Route path="/article/:id/" component={ArticleDetail} />
+          <Switch>
+            <Route exact path="/" component={ArticleList} />
+            <Route exact path="/article/category/:id(\d+)/" component={ArticleList} />
+            <Route exact path="/article/topic/:id(\d+)/" component={ArticleList} />
+            <Route path="/article/:id(\d+)/" component={ArticleDetail} />
+            <NotFound />
+          </Switch>
         </Grid>
         <Grid item md={4}>
           <SideBar />
