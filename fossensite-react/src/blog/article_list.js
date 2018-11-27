@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { withStyles, Grid, Paper, Fade } from '@material-ui/core';
 
 import { Pagination, NotFound, formatDate, Loading } from '../common/components'
-import { articleManager } from '../resource/manager'
+import { articleManager, categoryManager, topicManager } from '../resource/manager'
 
 
 const articleListItemStyle = theme => ({
@@ -80,17 +80,17 @@ const articleListTittleStyle = theme => ({
 class ArticleListTittle extends Component {
   render() {
     let title
-    let pathname = this.props.location.pathname
-    if (pathname.match('category')) {
+    let url = this.props.match.url
+    if (url.match('category')) {
       title = (
         <div className={this.props.classes.listTitle}>
-          <Link to="/">首页</Link> &gt; <Link to="/article/category/2/">{'分类'}</Link>
+          <Link to="/">首页</Link><span> &gt; 分类：{this.props.cate.name}</span>
         </div>
       )
-    } else if (pathname.match('topic')) {
+    } else if (url.match('topic')) {
       title = (
         <div className={this.props.classes.listTitle}>
-          <Link to="/">首页</Link> &gt; <Link to="/article/topic/2/">{'话题'}</Link>
+          <Link to="/">首页</Link><span> &gt; 话题：{this.props.topic.name}</span>
         </div>
       )
     } else {
@@ -118,54 +118,83 @@ const articleListStyle = theme => ({
 class ArticleList extends Component {
   constructor(props) {
     super(props)
-    let page = this.getCurrentPage()
-    this.state = { articleList: 'loading', pageInfo: { page: page }}
-    this.getArticleList(page)
+    let { page, cate_id, topic_id } = this.getCurrentParams()
+    this.state = {
+      articleList: 'loading', pageInfo: { page: page },
+      cate_id: cate_id, cate: {},
+      topic_id: topic_id, topic: {},
+    }
+    this.getArticleList(page, cate_id, topic_id)
   }
 
-  getCurrentPage() {
-    // 获取当前页码，非数字不匹配，默认为首页
+  getCurrentParams() {
+    // 获取当前的url参数，包括页码，分类id，话题id，非数字不匹配，默认为首页
     let r = this.props.location.search.match('page=\\d+')
     let page = (r ? parseInt(r[0].replace('page=', '')) : 1)
-    return page
+    let { cate_id, topic_id } = this.props.match.params
+    if (cate_id) { cate_id = parseInt(cate_id) }
+    if (topic_id) { topic_id = parseInt(topic_id) }
+    return { page: page, cate_id: cate_id, topic_id: topic_id}
   }
 
-  async getArticleList(page) {
+  async getArticleList(page, cate_id, topic_id) {
     // 获取文章列表和分页信息，然后更改state
+    let key = {}, cate = {}, topic = {}
+    // 收集key用于获取文章列表
     page = (page ? page : 1)
-    let articleList = await articleManager.getList(page)
+    if (page) { key.page = page }
+    if (cate_id) {
+      key.cate_id = cate_id
+      // 异步获取当前分类
+      cate = await categoryManager.getItem(cate_id)
+    } else if (topic_id) {
+      key.topic_id = topic_id
+      // 异步获取当前话题
+      topic = await topicManager.getItem(topic_id)
+    }
+    key = JSON.stringify(key)
+    // 异步获取文章列表
+    let articleList = await articleManager.getList(key)
     let pageInfo = {
       page: page,
       pageSize: articleManager.pageInfo.pageSize,
       total: articleManager.pageInfo.total,
     }
-    this.setState({ articleList: articleList, pageInfo: pageInfo })
+    // 更新组件state
+    this.setState({
+      articleList: articleList, pageInfo: pageInfo,
+      cate_id: cate_id, cate: cate,
+      topic_id: topic_id, topic: topic,
+    })
+    window.state = this.state
   }
 
   render() {
     let { classes } = this.props
     let { articleList } = this.state
     let pageInfo = this.state.pageInfo
-    let page = this.getCurrentPage()
+    let { page, cate_id, topic_id } = this.getCurrentParams()
     let loading = false
 
-    // 重新渲染时需判断当前页面是否要更新
-    if (page !== pageInfo.page) {
+    // 切换页面时router会重用组件，不会调用construct方法
+    // 会调用render方法，故需判断当前页面是否要重新渲染
+    if ((page !== pageInfo.page) ||
+        (cate_id !== this.state.cate_id) ||
+        (topic_id !== this.state.topic_id)
+      ) {
       loading = true
-      this.getArticleList(page)
-    }
-
-    // 获取文章列表出错时返回404
-    if (!articleList) {
-      return (<NotFound />)
+      this.getArticleList(page, cate_id, topic_id)
     }
 
     // 获取数据时显示加载中
     if (articleList === 'loading' || loading) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
-      return (
-        <Loading />
-      )
+      return (<Loading />)
+    }
+
+    // 获取文章列表出错时返回404
+    if (!articleList) {
+      return (<NotFound />)
     }
 
     let items = articleList.map((article, index) => {
@@ -174,15 +203,21 @@ class ArticleList extends Component {
       )
     })
 
+    let url = this.props.location.pathname
+    if (!url.match('article')) {
+      url += 'article/'
+    }
+
     return (
       <Fade in>
         <Paper className={classes.paper}>
-          <ArticleListTittle location={this.props.location} />
+          <ArticleListTittle match={this.props.match}
+            cate={this.state.cate} topic={this.state.topic} />
           <Grid container>
             {items}
           </Grid>
           <Pagination
-            url={this.props.location.pathname}
+            url={url}
             page={pageInfo.page}
             pageSize={pageInfo.pageSize}
             total={pageInfo.total}

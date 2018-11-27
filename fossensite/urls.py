@@ -18,14 +18,13 @@ from django.conf import settings
 from django.urls import re_path, include, path
 from django.conf.urls.static import static
 
-from blog.views import HomeView, ArticleList
+from blog.views import HomeView
 from async_task.views import deploy_view
 
 
 urlpatterns = [
-    path('', ArticleList.as_view(), name='home'),
-    re_path(r'^article/', include('blog.urls')),
-    re_path(r'^admin/', admin.site.urls),
-    re_path(r'^account/', include('account.urls')),
+    path('', include('blog.urls')),
+    path('admin/', admin.site.urls),
+    path('account/', include('account.urls')),
     path('deploy', deploy_view, name='deploy')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

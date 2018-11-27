@@ -2,7 +2,9 @@ import json
 
 from django.views import View
 from django.views.generic.base import TemplateResponseMixin
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.views.generic.list import MultipleObjectMixin
+from django.http import HttpRequest, HttpResponse, JsonResponse, Http404
+
 
 
 def is_json(request):
@@ -59,18 +61,25 @@ class JSONMixin:
 
 
 class JSONView(JSONMixin, View):
+    def handle404(self, error):
+        return JsonResponse({'msg': str(error)}, status=404)
+
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         try:
-            print(request.is_ajax())
             response = super().dispatch(request, *args, **kwargs)
             if not isinstance(response, HttpResponse):
                 response = self.render_to_json_response(response)
+        except Http404 as e:
+            return self.handle404(e)
         except Exception as e:
             raise e
         return response
 
 
 class TemplateJSONView(JSONMixin, TemplateResponseMixin, View):
+    def handle404(self, error):
+        return JsonResponse({'msg': str(error)}, status=404)
+
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         try:
             response = super().dispatch(request, *args, **kwargs)
@@ -81,6 +90,33 @@ class TemplateJSONView(JSONMixin, TemplateResponseMixin, View):
                     response = self.render_to_response(response)
                 else:
                     response = self.render_to_json_response(response)
+        except Http404 as e:
+            return self.handle404(e)
         except Exception as e:
             raise e
         return response
+
+
+class ListView(MultipleObjectMixin, TemplateJSONView):
+    def get(self, request, **kwargs):
+        self.object_list = self.get_queryset()
+        self.context = self.get_context_data()
+        data = self.serialize()
+        if self.paginate_by and 'pageInfo' not in data:
+            data['pageInfo'] = self.get_page_info()
+        return data
+
+    def get_page_info(self):
+        context = self.context
+        if not self.paginate_by:
+            return None
+        page_info = {
+            'page': context['page_obj'].number,
+            'pageSize': context['paginator'].per_page,
+            'total': context['paginator'].count,
+            'lastPage': context['paginator'].num_pages,
+        }
+        return page_info
+
+    def serialize(self):
+        raise NotImplementedError

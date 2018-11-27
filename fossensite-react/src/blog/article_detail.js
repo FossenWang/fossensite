@@ -7,15 +7,16 @@ import { formatDate } from '../common/components'
 
 const articleDetailStyle = theme => ({
   paper: {
-    padding: '12px 10px',
     marginBottom: 8,
   },
   breadcrumb: {
-    padding: '10px 16px',
-    borderBottom: '1px solid lightgray',
+    padding: '16px 24px',
   },
   article: {
-    wordWrap: 'break-word', padding: '10px 15px'
+    borderTop: '1px solid lightgray',
+    wordWrap: 'break-word',
+    padding: '10px 15px',
+    margin: '0 10px',
   },
   cover: {
     marginTop: 10,

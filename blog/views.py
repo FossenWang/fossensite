@@ -1,47 +1,72 @@
-from django.views.generic import ListView, DetailView, TemplateView
-from django.views.generic.list import MultipleObjectMixin
+from django.views.generic import DetailView
 from django.core.exceptions import PermissionDenied
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 
-from .models import Article, Link
-from tools.views import TemplateJSONView
-
-
-class HomeView(TemplateView):
-    '首页视图'
-    template_name = 'blog/home.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['articles'] = Article.objects.filter(pub_date__lt=timezone.now())[:10] \
-        .defer('author', 'category__number').select_related('category').prefetch_related('topics')
-        context['fossen'] = User.objects.values('last_name', 'profile__avatar').get(id=2)
-        context['links'] = Link.objects.all()
-        return context
+from tools.views import ListView
+from .models import Article, Category, Topic
 
 
-class ArticleList(MultipleObjectMixin, TemplateJSONView):
+class CategoryListView(ListView):
+    model = Topic
+    template_name = 'index.html'
+    context_object_name = 'cates'
+
+    def get_queryset(self):
+        return Category.objects.filter(number__gt=0)
+
+    def serialize(self):
+        context = self.context
+        cates = []
+        for c in context['cates']:
+            cates.append({
+                'id': c.id,
+                'name': c.name,
+            })
+        return {'data': cates}
+
+
+class TopicListView(ListView):
+    model = Topic
+    template_name = 'index.html'
+    context_object_name = 'topics'
+
+    def get_queryset(self):
+        return Topic.objects.filter(number__gt=0)
+
+    def serialize(self):
+        context = self.context
+        topics = []
+        for c in context['topics']:
+            topics.append({
+                'id': c.id,
+                'name': c.name,
+            })
+        return {'data': topics}
+
+
+class ArticleListView(ListView):
     '文章列表视图'
     model = Article
     template_name = 'index.html'
     context_object_name = 'articles'
     paginate_by = 10
-    allow_empty = False
+    allow_empty = True
 
     def get_queryset(self):
         return super().get_queryset() \
         .filter(pub_date__lt=timezone.now()) \
-        .defer('author', 'category__number') \
+        .filter(category__number__gt=0) \
+        .defer('author') \
         .select_related('category') \
         .prefetch_related('topics')
 
     def serialize(self):
-        context = self.get_context_data()
+        context = self.context
         articles = []
         for article in context['articles']:
             item = {
@@ -61,129 +86,28 @@ class ArticleList(MultipleObjectMixin, TemplateJSONView):
                 } for t in article.topics.all()],
             }
             articles.append(item)
-        page_info = {
-            'page': context['page_obj'].number,
-            'pageSize': context['paginator'].per_page,
-            'total': context['paginator'].count,
-            'lastPage': context['paginator'].num_pages,
-        }
-        data = {
-            'data': articles,
-            'pageInfo': page_info,
-        }
-        return data
-
-    def get(self, request):
-        self.object_list = self.get_queryset()
-        data = self.serialize()
-        return data
+        return {'data': articles}
 
 
-class ArticleListView(ListView):
-    '文章列表视图'
-    model = Article
-    template_name = 'blog/article_list.html'
-    context_object_name = 'articles'
-    paginate_by = 10
-    allow_empty = False
+class HomeView(ArticleListView):
+    '首页视图'
+    pass
 
-    def get_queryset(self):
-        return super().get_queryset() \
-        .filter(pub_date__lt=timezone.now()) \
-        .defer('author', 'category__number') \
-        .select_related('category') \
-        .prefetch_related('topics')
 
-    def get_context_data(self, **kwargs):
-        '处理分页数据'
-        context = super().get_context_data(**kwargs)
-        paginator = context['paginator']
-        page = context['page_obj']
-        is_paginated = context['is_paginated']
-        pagination_data = self.pagination_data(paginator, page, is_paginated)
-        context.update(pagination_data)
-        return context
-
-    def pagination_data(self, paginator, page, is_paginated):
-        if not is_paginated:
-            return {}
-
-        left, right= [], []
-        left_has_more = False
-        right_has_more = False
-        first = False
-        last = False
-        page_number = page.number
-        total_pages = paginator.num_pages
-        page_range = paginator.page_range
-
-        if page_number == 1:
-            right = page_range[page_number:page_number + 2]
-            if right[-1] < total_pages - 1:
-                right_has_more = True
-            if right[-1] < total_pages:
-                last = True
-        elif page_number == total_pages:
-            left = page_range[(page_number - 3) if (page_number - 3) > 0 else 0:page_number - 1]
-            if left[0] > 2:
-                left_has_more = True
-            if left[0] > 1:
-                first = True
-        else:
-            left = page_range[(page_number - 3) if (page_number - 3) > 0 else 0:page_number - 1]
-            right = page_range[page_number:page_number + 2]
-            if right[-1] < total_pages - 1:
-                right_has_more = True
-            if right[-1] < total_pages:
-                last = True
-            if left[0] > 2:
-                left_has_more = True
-            if left[0] > 1:
-                first = True
-
-        data = {
-            'left': left,
-            'right': right,
-            'left_has_more': left_has_more,
-            'right_has_more': right_has_more,
-            'first': first,
-            'last': last,
-        }
-
-        return data
-
-class CategoryView(ArticleListView):
+class ArticleCategoryView(ArticleListView):
     '文章分类视图'
-    template_name = 'blog/article_category.html'
-
     def get_queryset(self):
-        if self.kwargs['category_id'] == '1':
-            return super().get_queryset()
-        else:
-            return super().get_queryset().filter(category=self.kwargs['category_id'])
+        return super().get_queryset().filter(category=self.kwargs['category_id'])
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['category_id'] = self.kwargs['category_id']
-        return context
 
-class TopicView(ArticleListView):
+class ArticleTopicView(ArticleListView):
     '文章话题视图'
-    template_name = 'blog/article_topic.html'
-
     def get_queryset(self):
         return super().get_queryset().filter(topics=self.kwargs['topic_id'])
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['topic_id'] = self.kwargs['topic_id']
-        return context
 
 class SearchArticleView(ArticleListView):
     '文章搜索视图'
-    allow_empty = True
-    template_name = 'blog/article_search.html'
-
     def get_queryset(self):
         q = self.request.GET['q']
         ql = len(q)
@@ -197,10 +121,6 @@ class SearchArticleView(ArticleListView):
             queryset = queryset.filter(Q(title__icontains=k) | Q(content__icontains=k))
         return queryset
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['q'] = self.request.GET['q']
-        return context
 
 class ArticleDetailView(DetailView):
     '文章详情视图'
