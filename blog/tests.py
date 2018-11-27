@@ -1,13 +1,14 @@
 from datetime import datetime
 from django.test import TestCase, Client
 
-from .models import Category, Topic, Article
+from .models import Article, Category, Topic, Link
 
 
 class BlogTestCase(TestCase):
     def setUp(self):
         Category.objects.create(name='cate1', number=1)
         self.t1 = Topic.objects.create(name='topic1', number=1)
+        Link.objects.create(name='link1', url='www.fossen.cn')
         self.c = Client(HTTP_ACCEPT='application/json')
 
     def test_article_list(self):
@@ -52,7 +53,7 @@ class BlogTestCase(TestCase):
         self.assertDictEqual(rsp.json()['pageInfo'], {
             'lastPage': 1, 'page': 1, 'pageSize': 10, 'total': 1})
 
-        # test cate & topic
+        # test cate & topic & link
         rsp = c.get('/category/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(set(rsp.json()['data'][0]), {
@@ -62,3 +63,8 @@ class BlogTestCase(TestCase):
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(set(rsp.json()['data'][0]), {
             'id', 'name'})
+
+        rsp = c.get('/link/')
+        self.assertEqual(rsp.status_code, 200)
+        self.assertEqual(set(rsp.json()['data'][0]), {
+            'id', 'name', 'url'})

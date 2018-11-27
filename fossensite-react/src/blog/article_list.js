@@ -84,13 +84,15 @@ class ArticleListTittle extends Component {
     if (url.match('category')) {
       title = (
         <div className={this.props.classes.listTitle}>
-          <Link to="/">首页</Link><span> &gt; 分类：{this.props.cate.name}</span>
+          <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
+            <span>分类：{this.props.cate.name}</span>
         </div>
       )
     } else if (url.match('topic')) {
       title = (
         <div className={this.props.classes.listTitle}>
-          <Link to="/">首页</Link><span> &gt; 话题：{this.props.topic.name}</span>
+          <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
+          <span>话题：{this.props.topic.name}</span>
         </div>
       )
     } else {
@@ -134,7 +136,7 @@ class ArticleList extends Component {
     let { cate_id, topic_id } = this.props.match.params
     if (cate_id) { cate_id = parseInt(cate_id) }
     if (topic_id) { topic_id = parseInt(topic_id) }
-    return { page: page, cate_id: cate_id, topic_id: topic_id}
+    return { page: page, cate_id: cate_id, topic_id: topic_id }
   }
 
   async getArticleList(page, cate_id, topic_id) {
@@ -179,9 +181,9 @@ class ArticleList extends Component {
     // 切换页面时router会重用组件，不会调用construct方法
     // 会调用render方法，故需判断当前页面是否要重新渲染
     if ((page !== pageInfo.page) ||
-        (cate_id !== this.state.cate_id) ||
-        (topic_id !== this.state.topic_id)
-      ) {
+      (cate_id !== this.state.cate_id) ||
+      (topic_id !== this.state.topic_id)
+    ) {
       loading = true
       this.getArticleList(page, cate_id, topic_id)
     }

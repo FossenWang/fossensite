@@ -8,7 +8,7 @@ from django.db.models import Q
 # from django.contrib.auth.models import User
 
 from tools.views import ListView
-from .models import Article, Category, Topic
+from .models import Article, Category, Topic, Link
 
 
 class CategoryListView(ListView):
@@ -22,10 +22,10 @@ class CategoryListView(ListView):
     def serialize(self):
         context = self.context
         cates = []
-        for c in context['cates']:
+        for i in context['cates']:
             cates.append({
-                'id': c.id,
-                'name': c.name,
+                'id': i.id,
+                'name': i.name,
             })
         return {'data': cates}
 
@@ -41,12 +41,29 @@ class TopicListView(ListView):
     def serialize(self):
         context = self.context
         topics = []
-        for c in context['topics']:
+        for i in context['topics']:
             topics.append({
-                'id': c.id,
-                'name': c.name,
+                'id': i.id,
+                'name': i.name,
             })
         return {'data': topics}
+
+
+class LinkListView(ListView):
+    model = Link
+    template_name = 'index.html'
+    context_object_name = 'links'
+
+    def serialize(self):
+        context = self.context
+        links = []
+        for i in context['links']:
+            links.append({
+                'id': i.id,
+                'name': i.name,
+                'url': i.url
+            })
+        return {'data': links}
 
 
 class ArticleListView(ListView):

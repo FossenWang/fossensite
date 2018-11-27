@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
+import { Link } from "react-router-dom";
 import { withStyles, Card } from '@material-ui/core';
 
+import { topicManager, linkManager } from '../resource/manager'
 
 
 const cardStyle = theme => ({
@@ -88,11 +90,17 @@ const linkChipsStyle = theme => ({
   }
 })
 
+
 class LinkChips extends Component {
   render() {
     let { classes } = this.props
     let chips = this.props.list.map((item, index) => {
-      return <a key={index} href={item.url} target={this.props.target?this.props.target:null}>{item.value}</a>
+      return (
+        <Link key={index} to={item.url}
+          target={this.props.target ? this.props.target : null}>
+          {item.value}
+        </Link>
+      )
     })
     return (<div className={classes.root}>{chips}</div>)
   }
@@ -104,9 +112,20 @@ LinkChips = withStyles(linkChipsStyle)(LinkChips)
 class TopicCard extends Component {
   constructor(props) {
     super(props)
-    this.state = {topicList: []}
-    this.getTopicList()
+    this.state = { topicList: [] }
+    this.setTopicList()
   }
+
+  async setTopicList() {
+    let topicList = await topicManager.getList()
+    topicList = topicList.map((item) => {
+      item.url = `/article/topic/${item.id}`
+      item.value = item.name
+      return item
+    })
+    this.setState({ topicList: topicList })
+  }
+
   render() {
     return (
       <TitleCard title={'话题'}>
@@ -114,47 +133,32 @@ class TopicCard extends Component {
       </TitleCard>
     )
   }
-  getTopicList = () => {
-    let topicList = [
-      {name: '想法', id: 1},
-      {name: 'Python', id: 2},
-      {name: 'Django', id: 3},
-      {name: '数据库', id: 4},
-    ]
-    topicList.forEach((value) => {
-      value.url = `/article/topic/${value.id}`
-      value.value = value.name
-    })
-    setTimeout(() => (this.setState({topicList: topicList})), 100)
-  }
 }
 
 
 class FriendLinkCard extends Component {
   constructor(props) {
     super(props)
-    this.state = {list: []}
+    this.state = { list: [] }
     this.getList()
   }
+
+  async getList() {
+    let list = await linkManager.getList()
+    list = list.map((item) => {
+      item.value = item.name
+      item.url = { pathname: item.url }
+      return item
+    })
+    this.setState({ list: list })
+  }
+
   render() {
     return (
       <TitleCard title={'友情链接'}>
         <LinkChips list={this.state.list} target={'_blank'}></LinkChips>
       </TitleCard>
     )
-  }
-  getList = () => {
-    let list = [
-      {name: '想法', id: 1},
-      {name: 'Python', id: 2},
-      {name: 'Django', id: 3},
-      {name: '数据库', id: 4},
-    ]
-    list.forEach((value) => {
-      value.url = `/article/topic/${value.id}`
-      value.value = value.name
-    })
-    setTimeout(() => (this.setState({list: list})), 100)
   }
 }
 

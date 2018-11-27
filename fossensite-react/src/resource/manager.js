@@ -5,14 +5,14 @@ var headers = {
 
 
 class Exception {
-  constructor(msg='Error') {
+  constructor(msg = 'Error') {
     this.msg = msg
   }
 }
 
 
 class NotImplementedError extends Exception {
-  constructor(msg='Not Implemented') {
+  constructor(msg = 'Not Implemented') {
     super(msg)
   }
 }
@@ -26,10 +26,9 @@ class ResourceManager {
     let item = this.data[id]
     if (item === undefined) {
       item = await this.getItemFromApi(id)
-      return item
-    } else {
-      return item
+      this.data[item.id] = item
     }
+    return Object.assign({}, item)
   }
 
   async getList(key) {
@@ -43,11 +42,12 @@ class ResourceManager {
 
   processListData(key) {
     let idList = this.idListMap[key]
-    let list
+    let list = []
     if (idList) {
       list = idList.map((id, index) => (
-        this.data[id]
+        Object.assign({}, this.data[id])
       ))
+      console.log(list)
       return list
     } else {
       return idList
@@ -58,7 +58,7 @@ class ResourceManager {
     let idList
     if (list) {
       idList = list.map((item, index) => {
-        this.data[item.id] = item
+        this.data[item.id] = Object.assign({}, item)
         return item.id
       })
     } else {
@@ -106,7 +106,7 @@ class ArticleManager extends ResourceManager {
       this.setPageInfo(rawData.pageInfo.pageSize, rawData.pageInfo.total)
       return rawData.data
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       return null
     }
   }
@@ -116,6 +116,7 @@ const articleManager = new ArticleManager()
 
 
 class CategoryManager extends ResourceManager {
+  // 文章分类
   baseApi = API_HOST + 'category/'
 
   async getListFromApi(key) {
@@ -137,10 +138,19 @@ const categoryManager = new CategoryManager()
 
 
 class TopicManager extends CategoryManager {
+  // 文章话题
   baseApi = API_HOST + 'topic/'
 }
 
 const topicManager = new TopicManager()
 
 
-export { articleManager, categoryManager, topicManager }
+class LinkManager extends CategoryManager {
+  // 友情链接
+  baseApi = API_HOST + 'link/'
+}
+
+const linkManager = new LinkManager()
+
+
+export { articleManager, categoryManager, topicManager, linkManager }

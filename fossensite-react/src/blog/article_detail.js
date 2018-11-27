@@ -65,7 +65,8 @@ class ArticleDetail extends Component {
       <Fade in>
         <Paper className={classes.paper}>
           <div className={classes.breadcrumb}>
-            <Link to="/">首页</Link> &gt; <Link to="/article/category/2/">{article.cate}</Link>
+            <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
+            <Link to="/article/category/2/">分类：{article.cate}</Link>
           </div>
           <article className={classes.article}>
             {article.cover ?
