@@ -23,7 +23,7 @@ class Footer extends Component {
       <Grid container component={'footer'} direction={'column'}
         alignItems={'center'} className={this.props.classes.root}>
         <div>© 2018 Fossen</div>
-        <a href="http://www.miitbeian.gov.cn/">鄂ICP备18003155号-1</a>
+        <a target={'_blank'} href="http://www.miitbeian.gov.cn/">鄂ICP备18003155号-1</a>
       </Grid>
     )
   }

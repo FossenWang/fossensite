@@ -2,9 +2,9 @@ import json
 
 from django.views import View
 from django.views.generic.base import TemplateResponseMixin
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 from django.http import HttpRequest, HttpResponse, JsonResponse, Http404
-
 
 
 def is_json(request):
@@ -77,6 +77,8 @@ class JSONView(JSONMixin, View):
 
 
 class TemplateJSONView(JSONMixin, TemplateResponseMixin, View):
+    json_only = False
+
     def handle404(self, error):
         return JsonResponse({'msg': str(error)}, status=404)
 
@@ -84,7 +86,8 @@ class TemplateJSONView(JSONMixin, TemplateResponseMixin, View):
         try:
             response = super().dispatch(request, *args, **kwargs)
             if not isinstance(response, HttpResponse):
-                if request.method == 'GET' and 'json' not in request.META.get('HTTP_ACCEPT', ''):
+                if not self.json_only and request.method == 'GET' \
+                   and 'json' not in request.META.get('HTTP_ACCEPT', ''):
                     # when request uses GET method and dosen't accept json response
                     # response should be render to TemplateResponse
                     response = self.render_to_response(response)
@@ -117,6 +120,17 @@ class ListView(MultipleObjectMixin, TemplateJSONView):
             'lastPage': context['paginator'].num_pages,
         }
         return page_info
+
+    def serialize(self):
+        raise NotImplementedError
+
+
+class DetailView(SingleObjectMixin, TemplateJSONView):
+    def get(self, request, **kwargs):
+        self.object = self.get_object()
+        self.context = self.get_context_data()
+        data = self.serialize()
+        return data
 
     def serialize(self):
         raise NotImplementedError

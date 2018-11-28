@@ -1,9 +1,11 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { withStyles, Grid, Paper, Fade } from '@material-ui/core';
 
-import { Pagination, NotFound, formatDate, Loading } from '../common/components'
+import { Pagination, NotFound, Loading, ZoomImg } from '../common/components'
 import { articleManager, categoryManager, topicManager } from '../resource/manager'
+
+import { ArticleInfo } from './article_detail'
 
 
 const articleListItemStyle = theme => ({
@@ -20,13 +22,11 @@ const articleListItemStyle = theme => ({
     color: theme.palette.primary.contrastText,
     padding: '8px 0',
   },
-  info: {
-    fontSize: '0.875rem',
-    color: 'gray',
-    wordBreak: 'keep-all',
-    '& a': {
-      color: 'gray',
-    },
+  cover: {
+    textAlign: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '4px 16px 4px 0',
   }
 })
 
@@ -35,36 +35,25 @@ class ArticleListItem extends Component {
   render() {
     let { classes, article } = this.props
     let url = '/article/' + article.id + '/'
+    let hasCover = Boolean(article.cover)
     return (
-      <Grid component={'article'}
-        item className={classes.article}>
-        <div className={classes.title}>
-          <Link to={url}>{article.title}</Link>
-        </div>
-        <div className={classes.content}>
-          {article.content.replace(/<\/?[^>]*>/g, '').substr(0, 150)}&nbsp;...&emsp;
+      <article className={classes.article}>
+      <Grid container>
+        {hasCover ? <Grid item md={4} className={classes.cover}>
+          <ZoomImg src={'https://www.fossen.cn' + article.cover} alt='' /></Grid> : null}
+        <Grid md={hasCover ? 8 : 12} item>
+          <div className={classes.title}>
+            <Link to={url}>{article.title}</Link>
+          </div>
+          <div className={classes.content}>
+            {article.content.replace(/<\/?[^>]*>/g, '').substr(0, 150)}&nbsp;...&emsp;
           <Link to={url}>阅读全文 &gt;</Link>
-        </div>
-        <div className={classes.info}>
-          {formatDate(article.pub_date)}&emsp;
-          {article.views} 阅读&emsp;
-          分类: {this.formatCategory(article.category)}&emsp;
-          话题: {this.formatTopics(article.topics)}
-        </div>
-      </Grid>
+          </div>
+          <ArticleInfo article={article} />
+          </Grid>
+        </Grid>
+      </article>
     )
-  }
-  formatCategory(category) {
-    return <Link to={`/article/category/${category.id}/`}>{category.name}</Link>
-  }
-  formatTopics(topics) {
-    return topics.map((t) => (
-      <Fragment key={t.id}>
-        <Link to={`/article/topic/${t.id}/`}>
-          {t.name}
-        </Link>&nbsp;&nbsp;
-      </Fragment>
-    ))
   }
 }
 
@@ -126,7 +115,7 @@ class ArticleList extends Component {
       cate_id: cate_id, cate: {},
       topic_id: topic_id, topic: {},
     }
-    this.getArticleList(page, cate_id, topic_id)
+    this.setArticleList(page, cate_id, topic_id)
   }
 
   getCurrentParams() {
@@ -139,7 +128,7 @@ class ArticleList extends Component {
     return { page: page, cate_id: cate_id, topic_id: topic_id }
   }
 
-  async getArticleList(page, cate_id, topic_id) {
+  async setArticleList(page, cate_id, topic_id) {
     // 获取文章列表和分页信息，然后更改state
     let key = {}, cate = {}, topic = {}
     // 收集key用于获取文章列表
@@ -159,8 +148,8 @@ class ArticleList extends Component {
     let articleList = await articleManager.getList(key)
     let pageInfo = {
       page: page,
-      pageSize: articleManager.pageInfo.pageSize,
-      total: articleManager.pageInfo.total,
+      pageSize: articleManager.pageInfo[key].pageSize,
+      total: articleManager.pageInfo[key].total,
     }
     // 更新组件state
     this.setState({
@@ -168,7 +157,6 @@ class ArticleList extends Component {
       cate_id: cate_id, cate: cate,
       topic_id: topic_id, topic: topic,
     })
-    window.state = this.state
   }
 
   render() {
@@ -185,7 +173,7 @@ class ArticleList extends Component {
       (topic_id !== this.state.topic_id)
     ) {
       loading = true
-      this.getArticleList(page, cate_id, topic_id)
+      this.setArticleList(page, cate_id, topic_id)
     }
 
     // 获取数据时显示加载中
@@ -209,7 +197,6 @@ class ArticleList extends Component {
     if (!url.match('article')) {
       url += 'article/'
     }
-
     return (
       <Fade in>
         <Paper className={classes.paper}>

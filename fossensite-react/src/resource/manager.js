@@ -47,7 +47,6 @@ class ResourceManager {
       list = idList.map((id, index) => (
         Object.assign({}, this.data[id])
       ))
-      console.log(list)
       return list
     } else {
       return idList
@@ -81,10 +80,28 @@ class ArticleManager extends ResourceManager {
   baseApi = API_HOST + 'article/'
   pageInfo = {}
 
-  setPageInfo(pageSize, total) {
-    this.pageInfo = {
+  setPageInfo(key, pageSize, total) {
+    this.pageInfo[key] = {
       pageSize: pageSize,
       total: total,
+    }
+  }
+
+  async getItemFromApi(id) {
+    try {
+      if (!id) {
+        return null
+      }
+      let url = `${this.baseApi}${id}/`
+      let rsp = await fetch(url, { headers: headers })
+      if (rsp.status === 404) {
+        return null
+      }
+      let rawData = await rsp.json()
+      return rawData
+    } catch (error) {
+      // console.log(error)
+      return null
     }
   }
 
@@ -103,7 +120,7 @@ class ArticleManager extends ResourceManager {
         return null
       }
       let rawData = await rsp.json()
-      this.setPageInfo(rawData.pageInfo.pageSize, rawData.pageInfo.total)
+      this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
       return rawData.data
     } catch (error) {
       // console.log(error)

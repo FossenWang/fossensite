@@ -1,8 +1,52 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Link } from "react-router-dom";
 import { withStyles, Paper, Fade } from '@material-ui/core';
 
-import { formatDate } from '../common/components'
+import { formatDate, Loading } from '../common/components'
+import { articleManager } from '../resource/manager'
+
+
+const articleInfoStyle = theme => ({
+  info: {
+    fontSize: '0.875rem',
+    color: 'gray',
+    wordBreak: 'keep-all',
+    '& a': {
+      color: 'gray',
+    },
+  },
+})
+
+
+class ArticleInfo extends Component {
+  render() {
+    let article = this.props.article
+    return (
+      <div className={this.props.classes.info}>
+        {formatDate(article.pub_date)}&emsp;
+        {article.views} 阅读&emsp;
+        分类: {this.formatCategory(article.category)}&emsp;
+        话题: {this.formatTopics(article.topics)}
+      </div>
+    )
+  }
+
+  formatCategory(category) {
+    return <Link to={`/article/category/${category.id}/`}>{category.name}</Link>
+  }
+
+  formatTopics(topics) {
+    return topics.map((t) => (
+      <Fragment key={t.id}>
+        <Link to={`/article/topic/${t.id}/`}>
+          {t.name}
+        </Link>&nbsp;&nbsp;
+    </Fragment>
+    ))
+  }
+}
+
+ArticleInfo = withStyles(articleInfoStyle)(ArticleInfo)
 
 
 const articleDetailStyle = theme => ({
@@ -26,13 +70,19 @@ const articleDetailStyle = theme => ({
     margin: '1.5rem 0',
     fontWeight: '500',
   },
-  info: {
-    fontSize: '0.875rem',
-    color: 'gray',
-    marginBottom: '1.25rem',
-  },
   content: {
+    marginTop: '1.25rem',
     color: theme.palette.primary.contrastText,
+    '& p': {
+      marginTop: 0,
+      marginBottom: '1rem',
+    },
+    '& hr': {
+      marginTop: '1rem',
+      marginBottom: '1rem',
+      border: 0,
+      borderTop: '1px solid rgba(0, 0, 0, 0.1)',
+    },
     '& a': {
       color: theme.palette.text.secondary,
     },
@@ -48,25 +98,106 @@ const articleDetailStyle = theme => ({
       marginTop: '1.5rem',
       marginBottom: '1rem'
     },
+    "& pre": {
+      marginTop: 0,
+      marginBottom: '1rem',
+      overflow: 'auto',
+    },
     '& code': {
-      wordWrap: 'normal',
+      fontSize: '87.5%',
+      color: '#e83e8c',
       backgroundColor: '#f6f8fa',
+      wordBreak: 'break-word',
+      fontFamily: 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+    },
+    '& pre code': {
+      overflowX: 'auto',
+      display: 'block',
+      wordWrap: 'normal',
+      color: '#4d4d4c',
+      padding: '0.5rem',
     },
     '& img': { margin: 5 },
+    '& blockquote': {
+      borderLeft: '0.4rem solid #ddd',
+      padding: '0.5rem 0 0.5rem 0.8rem',
+      margin: '1rem 0 1rem 0.8rem',
+    },
+    '& blockquote>p': { margin: 0 }
   }
 })
 
 
 class ArticleDetail extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { article: {} }
+    this.setArticle()
+  }
+
+  async setArticle() {
+    let aid = this.props.match.params.id
+    let article = await articleManager.getItem(aid)
+    this.setState({ article: article })
+  }
+
+  componentDidMount() {
+    this.loadHighLightJS()
+  }
+
+  componentDidUpdate() {
+    this.codeHighLight()
+  }
+
+  codeHighLight() {
+    // 有文章内容且hljs加载完毕时，执行代码高亮
+    console.log(!this.state.article.content, !window.hljs)
+    if (!this.state.article.content || !window.hljs) {
+      return null
+    }
+    console.log('hl')
+    let codes = document.querySelectorAll('pre code')
+    for (let i = 0; i < codes.length; i++) {
+      window.hljs.highlightBlock(codes[i])
+    }
+  }
+
+  loadHighLightJS() {
+    // 加载highlight.js脚本
+    let script = document.getElementById('hljs')
+    if (script) {
+      return null
+    }
+    let body = document.getElementsByTagName('body')[0]
+    let hlcss = document.createElement('link')
+    let codeHighLight = this.codeHighLight.bind(this)
+    hlcss.rel = 'stylesheet'
+    hlcss.href = 'https://cdn.bootcss.com/highlight.js/9.12.0/styles/tomorrow.min.css'
+    // <link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet" />
+    hlcss.onload = () => {
+      // css加载完后加载js
+      script = document.createElement('script')
+      script.id = 'hljs'
+      script.src = 'https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js'
+      // <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+      script.onload = codeHighLight
+      body.appendChild(script)
+    }
+    body.appendChild(hlcss)
+  }
+
   render() {
     let { classes } = this.props
-    let article = this.getArticle()
+    let article = this.state.article
+    if (!article || !article.id) {
+      return <Loading />
+    }
     return (
       <Fade in>
         <Paper className={classes.paper}>
           <div className={classes.breadcrumb}>
             <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
-            <Link to="/article/category/2/">分类：{article.cate}</Link>
+            <Link to="/article/category/2/">分类：{article.category.name}</Link>
           </div>
           <article className={classes.article}>
             {article.cover ?
@@ -74,31 +205,15 @@ class ArticleDetail extends Component {
                 <img src={article.cover} alt='' />
               </div> : null}
             <h1 className={classes.title}>{article.title}</h1>
-            <div className={classes.info}>
-              {formatDate(article.time)}
-              &emsp;{article.views} 阅读&emsp;
-            分类: {article.cate}&emsp;话题: {article.topic}
-            </div>
+            <ArticleInfo article={article} />
             <div className={classes.content} dangerouslySetInnerHTML={{ __html: article.content }}></div>
           </article>
         </Paper>
       </Fade>
     )
   }
-  getArticle() {
-    return {
-      id: 0,
-      cover: 'https://www.fossen.cn/media/blog/cover/003-00_f5IFLQI.png',
-      title: '标题',
-      content: '内容\n<hr><h5>1、下载python源码</h5>',
-      time: new Date(),
-      views: 1,
-      cate: '技术',
-      topic: 'React',
-      url: '/',
-    }
-  }
 }
 
 
 export default withStyles(articleDetailStyle)(ArticleDetail)
+export { ArticleInfo }

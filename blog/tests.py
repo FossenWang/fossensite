@@ -33,6 +33,7 @@ class BlogTestCase(TestCase):
         rsp = c.get('/article/')
         self.assertEqual(rsp.status_code, 200)
         r = rsp.json()
+        aid = r['data'][0]['id']
         self.assertEqual(set(r['data'][0]), {
             'cover', 'views', 'pub_date', 'content',
             'title', 'id', 'category', 'topics'})
@@ -42,6 +43,15 @@ class BlogTestCase(TestCase):
             'id', 'name'})
         self.assertDictEqual(r['pageInfo'], {
             'lastPage': 1, 'page': 1, 'pageSize': 10, 'total': 1})
+
+        rsp = c.get(f'/article/{aid}/')
+        self.assertEqual(rsp.status_code, 200)
+        r = rsp.json()
+        self.assertEqual(set(r), {
+            'cover', 'views', 'pub_date', 'content',
+            'title', 'id', 'category', 'topics'})
+        self.assertEqual(set(r['category']), {'id', 'name'})
+        self.assertEqual(set(r['topics'][0]), {'id', 'name'})
 
         rsp = c.get('/article/category/1/')
         self.assertEqual(rsp.status_code, 200)

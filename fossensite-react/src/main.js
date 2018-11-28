@@ -30,10 +30,10 @@ class Main extends Component {
         <Grid item md={8}>
           <Switch>
             <Route exact path="/" component={ArticleList} />
+            <Route exact path="/article/:id(\d+)/" component={ArticleDetail} />
             <Route exact path="/article/" component={ArticleList} />
             <Route exact path="/article/category/:cate_id(\d+)/" component={ArticleList} />
             <Route exact path="/article/topic/:topic_id(\d+)/" component={ArticleList} />
-            <Route path="/article/:id(\d+)/" component={ArticleDetail} />
             <NotFound />
           </Switch>
         </Grid>

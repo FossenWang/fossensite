@@ -22,6 +22,43 @@ const frameStyle = theme => ({
 const FrameGrid = withStyles(frameStyle)(Grid)
 
 
+const zoomStyle = theme => ({
+  container: {
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    borderRadius: 4,
+    // width: '100%',
+    // height: '100%',
+    '&:hover img': {
+      transform: 'scale(1.25)',
+    },
+  },
+  img: {
+    transition: 'all .5s ease',
+    cursor: 'pointer',
+  }
+})
+
+
+class ZoomImg extends Component {
+  render() {
+    return (
+      <div className={this.props.classes.container}>
+        <img
+          src={this.props.src} alt={this.props.alt}
+          className={this.props.classes.img}
+        />
+      </div>
+    )
+  }
+}
+
+ZoomImg = withStyles(zoomStyle)(ZoomImg)
+
+
 const paginationStyle = theme => ({
   pagination: {
     margin: '20px 0',
@@ -137,4 +174,4 @@ function formatDate(date) {
 }
 
 
-export { Pagination, FrameGrid, NotFound, Loading, formatDate }
+export { Pagination, FrameGrid, NotFound, Loading, formatDate, ZoomImg }

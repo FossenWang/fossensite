@@ -26,7 +26,7 @@ const simple_white_theme = createMuiTheme({
   },
   typography: {
     fontSize: 16,
-    pxToRem: (px)=>{
+    pxToRem: (px) => {
       return (px / 16) + 'rem'
     },
     fontFamily: '"Roboto", Helvetica, "Lucida Sans", "Microsoft YaHei", Georgia, Arial, Sans-serif',
@@ -52,8 +52,20 @@ const simple_white_theme = createMuiTheme({
     i: { cursor: 'pointer' },
     img: { maxWidth: '100%', height: 'auto', borderRadius: 4 },
     ul: { listStyle: 'none', margin: 0, padding: 0 },
+    'h1, h2, h3, h4, h5, h6': {
+      marginTop: 0,
+      marginBottom: '0.5rem',
+      fontWeight: 500,
+      lineHeight: 1.2,
+    },
+    h1: { fontSize: '2.5rem' },
+    h2: { fontSize: '2rem' },
+    h3: { fontSize: '1.75rem' },
+    h4: { fontSize: '1.5rem' },
+    h5: { fontSize: '1.25rem' },
+    h6: { fontSize: '1rem' },
   }
-});
+})
 
 
 export default simple_white_theme
