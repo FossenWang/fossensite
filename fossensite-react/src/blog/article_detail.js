@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { Link } from "react-router-dom";
 import { withStyles, Paper, Fade } from '@material-ui/core';
 
-import { formatDate, Loading } from '../common/components'
+import { Loading } from '../common/components'
+import { formatDate } from '../common/tools'
 import { articleManager } from '../resource/manager'
 
 
@@ -151,11 +152,9 @@ class ArticleDetail extends Component {
 
   codeHighLight() {
     // 有文章内容且hljs加载完毕时，执行代码高亮
-    console.log(!this.state.article.content, !window.hljs)
     if (!this.state.article.content || !window.hljs) {
       return null
     }
-    console.log('hl')
     let codes = document.querySelectorAll('pre code')
     for (let i = 0; i < codes.length; i++) {
       window.hljs.highlightBlock(codes[i])

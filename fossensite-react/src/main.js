@@ -4,7 +4,8 @@ import { withStyles, Grid } from '@material-ui/core';
 
 
 import { FrameGrid, NotFound } from './common/components'
-import ArticleList from './blog/article_list'
+import { NewArticleList, CateArticleList,
+  TopicArticleList, SearchArticleList } from './blog/article_list'
 import SideBar from './blog/side_bar'
 import ArticleDetail from './blog/article_detail'
 
@@ -29,11 +30,12 @@ class Main extends Component {
       <FrameGrid container component={'main'} className={classes.root}>
         <Grid item md={8}>
           <Switch>
-            <Route exact path="/" component={ArticleList} />
+            <Route exact path="/" component={NewArticleList} />
             <Route exact path="/article/:id(\d+)/" component={ArticleDetail} />
-            <Route exact path="/article/" component={ArticleList} />
-            <Route exact path="/article/category/:cate_id(\d+)/" component={ArticleList} />
-            <Route exact path="/article/topic/:topic_id(\d+)/" component={ArticleList} />
+            <Route exact path="/article/" component={NewArticleList} />
+            <Route exact path="/article/category/:cate_id(\d+)/" component={CateArticleList} />
+            <Route exact path="/article/topic/:topic_id(\d+)/" component={TopicArticleList} />
+            <Route exact path="/article/search/" component={SearchArticleList} />
             <NotFound />
           </Switch>
         </Grid>

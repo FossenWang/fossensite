@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-
+import { withRouter } from "react-router-dom";
 import {
   withStyles, Toolbar, InputBase,
   InputAdornment, Grid
@@ -43,13 +43,18 @@ class Search extends Component {
     this.state = {
       focused: false,
     }
-    this.focusInput = this.focusInput.bind(this)
-    this.blurInput = this.blurInput.bind(this)
   }
-  focusInput() {
+  submit = (e) => {
+    e.preventDefault()
+    let target = e.target
+    let url = `/article/search/?q=${target.elements.q.value}`
+    this.props.history.push(url)
+    console.log(url, this.props.history)
+  }
+  focusInput = () => {
     this.setState({ focused: true })
   }
-  blurInput() {
+  blurInput = () => {
     this.setState({ focused: false })
   }
   render() {
@@ -58,26 +63,27 @@ class Search extends Component {
       classNames += ' ' + this.props.classes.inputOnFocus
     }
     return (
-      <InputBase
-        id={'search'}
-        placeholder={'Search...'}
-        inputProps={{
-          onFocus: this.focusInput,
-          onBlur: this.blurInput,
-        }}
-        disableunderline='true'
-        className={classNames}
-        startAdornment={(
-          <InputAdornment position="start">
-            <i className="fa fa-search fa-lg"></i>
-          </InputAdornment>
-        )}
-      />
+      <form method='get' action={'/article/search/'} onSubmit={this.submit}>
+        <InputBase
+          id={'search'} name={'q'} required placeholder={'Search...'}
+          disableunderline='true' className={classNames}
+          inputProps={{
+            maxLength: 88,
+            onFocus: this.focusInput,
+            onBlur: this.blurInput,
+          }}
+          startAdornment={(
+            <InputAdornment position="start">
+              <i className="fa fa-search fa-lg"></i>
+            </InputAdornment>
+          )}
+        />
+      </form>
     )
   }
 }
 
-Search = withStyles(searchStyle)(Search)
+Search = withRouter(withStyles(searchStyle)(Search))
 
 
 const userBarStyle = theme => ({

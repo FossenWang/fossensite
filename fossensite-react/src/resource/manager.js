@@ -17,6 +17,11 @@ class NotImplementedError extends Exception {
   }
 }
 
+class Http404 extends Exception {
+  constructor(msg = 'Page Not Found') {
+    super(msg)
+  }
+}
 
 class ResourceManager {
   data = {}
@@ -100,30 +105,41 @@ class ArticleManager extends ResourceManager {
       let rawData = await rsp.json()
       return rawData
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       return null
     }
   }
 
   async getListFromApi(key) {
-    let { page, cate_id, topic_id } = JSON.parse(key)
+    let { page, cate_id, topic_id, q } = JSON.parse(key)
     try {
       let url = this.baseApi
+      let params = []
       if (cate_id) {
         url = `${url}category/${cate_id}/`
       } else if (topic_id) {
         url = `${url}topic/${topic_id}/`
+      } else if (q) {
+        url = `${url}search/`
+        params.push(`q=${q}`)
       }
-      url += (page ? `?page=${page}` : '')
+      if (page) {
+        params.push(`page=${page}`)
+      }
+      if (params.length > 0) {
+        url += '?' + params.join('&')
+      }
       let rsp = await fetch(url, { headers: headers })
       if (rsp.status === 404) {
-        return null
+        throw new Http404()
       }
       let rawData = await rsp.json()
+      if(rawData.pageInfo) {
       this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
+      }
       return rawData.data
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       return null
     }
   }

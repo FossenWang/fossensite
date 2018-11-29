@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-import moment from 'moment'
 
 import { withStyles, Grid, Paper } from '@material-ui/core';
 
@@ -17,8 +16,6 @@ const frameStyle = theme => ({
     },
   },
 })
-
-
 const FrameGrid = withStyles(frameStyle)(Grid)
 
 
@@ -55,7 +52,6 @@ class ZoomImg extends Component {
     )
   }
 }
-
 ZoomImg = withStyles(zoomStyle)(ZoomImg)
 
 
@@ -98,50 +94,45 @@ const paginationStyle = theme => ({
 
 class Pagination extends Component {
   render() {
-    let { classes, url } = this.props
-    if (!url) {
-      url = '/'
+    let { classes, url, page, pageSize, total } = this.props
+    if (!total) {
+      return ''
     }
-    let pageInfo = {
-      page: this.props.page,
-      pageSize: this.props.pageSize,
-      total: this.props.total,
-    }
-    pageInfo.lastPage = Math.ceil(pageInfo.total / pageInfo.pageSize)
-    pageInfo.prevPage = pageInfo.page > 2 ? (pageInfo.page - 1) : null
-    pageInfo.morePrev = pageInfo.page > 3 ? true : false
-    pageInfo.nextPage = pageInfo.page < (pageInfo.lastPage - 1) ? (pageInfo.page + 1) : null
-    pageInfo.moreNext = pageInfo.page < (pageInfo.lastPage - 2) ? true : false
+    let lastPage = total ? Math.ceil(total / pageSize) : 1
+    let prevPage = page > 2 ? (page - 1) : null
+    let morePrev = page > 3 ? true : false
+    let nextPage = page < (lastPage - 1) ? (page + 1) : null
+    let moreNext = page < (lastPage - 2) ? true : false
     return (
       <div className={classes.pagination}>
-        {pageInfo.page !== 1 &&
+        {page !== 1 &&
           <Link to={url}>1</Link>}
-        {pageInfo.morePrev && <span>···</span>}
-        {pageInfo.prevPage !== null &&
-          <Link to={`${url}?page=${pageInfo.prevPage}`}>{pageInfo.prevPage}</Link>}
-        <div className={classes.currentPage}>{pageInfo.page}</div>
-        {pageInfo.nextPage !== null &&
-          <Link to={`${url}?page=${pageInfo.nextPage}`}>{pageInfo.nextPage}</Link>}
-        {pageInfo.moreNext && <span>···</span>}
-        {pageInfo.page !== pageInfo.lastPage &&
-          <Link to={`${url}?page=${pageInfo.lastPage}`}>{pageInfo.lastPage}</Link>}
+        {morePrev && <span>···</span>}
+        {prevPage !== null &&
+          <Link to={this.joinUrl(url, prevPage)}>{prevPage}</Link>}
+        <div className={classes.currentPage}>{page}</div>
+        {nextPage !== null &&
+          <Link to={this.joinUrl(url, nextPage)}>{nextPage}</Link>}
+        {moreNext && <span>···</span>}
+        {page !== lastPage &&
+          <Link to={this.joinUrl(url, lastPage)}>{lastPage}</Link>}
       </div>)
   }
+  joinUrl(url, page) {
+    let prefix
+    if (url.match('\\?')) {
+      prefix = '&'
+    } else {
+      prefix = '?'
+    }
+    return `${url}${prefix}page=${page}`
+  }
 }
-
-
 Pagination = withStyles(paginationStyle)(Pagination)
 
 
-class NotFound extends Component {
-  static defaultProps = {
-    children: (
-      <span style={{fontSize: '1.5rem'}}>
-        <i className="fa fa-exclamation-circle" aria-hidden="true"></i>&emsp;
-        404&emsp;当前页面不存在
-      </span>
-    )
-  }
+
+class InfoPage extends Component {
   render() {
     return (
       <Paper>
@@ -154,24 +145,46 @@ class NotFound extends Component {
 }
 
 
-class Loading extends Component {
+class ErrorPage extends Component {
   render() {
     return (
-      <NotFound>
-        <i className="fa fa-spinner fa-spin fa-3x"></i>
-        <br /><br />{'加载中...'}
-      </NotFound>
+      <InfoPage>
+        <span style={{ fontSize: '1.5rem' }}>
+          好像除了点问题...
+        </span>
+      </InfoPage>
     )
   }
 }
 
 
-function formatDate(date) {
-  if (typeof (date) == 'string') {
-    date = new Date(date)
+class NotFound extends Component {
+  render() {
+    return (
+      <InfoPage>
+        <span style={{ fontSize: '1.5rem' }}>
+          <i className="fa fa-exclamation-circle" aria-hidden="true"></i>&emsp;
+          404&emsp;当前页面不存在
+        </span>
+      </InfoPage>
+    )
   }
-  return moment(date).format('YYYY年M月D日 HH:mm')
 }
 
 
-export { Pagination, FrameGrid, NotFound, Loading, formatDate, ZoomImg }
+class Loading extends Component {
+  render() {
+    return (
+      <InfoPage>
+        <i className="fa fa-spinner fa-spin fa-3x"></i>
+        <br /><br />{'加载中...'}
+      </InfoPage>
+    )
+  }
+}
+
+
+export {
+  Pagination, FrameGrid, NotFound,
+  Loading, ZoomImg, ErrorPage
+}
