@@ -7,6 +7,7 @@ import simple_white_theme from './theme/simple_white'
 import Topbar from './topbar/topbar'
 import Main from './main'
 import Footer from './footer'
+import { ErrorBoundary } from './common/components';
 
 
 var theme = simple_white_theme
@@ -15,13 +16,15 @@ var theme = simple_white_theme
 class Blog extends Component {
   render() {
     return (
-      <Router>
-        <MuiThemeProvider theme={theme}>
-          <Topbar />
-          <Main />
-          <Footer />
-        </MuiThemeProvider>
-      </Router>
+      <ErrorBoundary>
+        <Router>
+          <MuiThemeProvider theme={theme}>
+            <Topbar />
+            <Main />
+            <Footer />
+          </MuiThemeProvider>
+        </Router>
+      </ErrorBoundary>
     );
   }
 }

@@ -4,8 +4,10 @@ import { withStyles, Grid } from '@material-ui/core';
 
 
 import { FrameGrid, NotFound } from './common/components'
-import { NewArticleList, CateArticleList,
-  TopicArticleList, SearchArticleList } from './blog/article_list'
+import {
+  NewArticleList, CateArticleList,
+  TopicArticleList, SearchArticleList
+} from './blog/article_list'
 import SideBar from './blog/side_bar'
 import ArticleDetail from './blog/article_detail'
 

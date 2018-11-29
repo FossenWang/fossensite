@@ -1,27 +1,11 @@
+import { NotImplementedError, Http404 } from '../common/errors'
+
+
 const API_HOST = 'http://127.0.0.1:8000/'
 var headers = {
   'Accept': 'application/json',
 }
 
-
-class Exception {
-  constructor(msg = 'Error') {
-    this.msg = msg
-  }
-}
-
-
-class NotImplementedError extends Exception {
-  constructor(msg = 'Not Implemented') {
-    super(msg)
-  }
-}
-
-class Http404 extends Exception {
-  constructor(msg = 'Page Not Found') {
-    super(msg)
-  }
-}
 
 class ResourceManager {
   data = {}
@@ -31,7 +15,8 @@ class ResourceManager {
     let item = this.data[id]
     if (item === undefined) {
       item = await this.getItemFromApi(id)
-      this.data[item.id] = item
+      if (item) { this.data[item.id] = item }
+      else { return item}
     }
     return Object.assign({}, item)
   }
@@ -100,7 +85,7 @@ class ArticleManager extends ResourceManager {
       let url = `${this.baseApi}${id}/`
       let rsp = await fetch(url, { headers: headers })
       if (rsp.status === 404) {
-        return null
+        return {}
       }
       let rawData = await rsp.json()
       return rawData
@@ -111,8 +96,8 @@ class ArticleManager extends ResourceManager {
   }
 
   async getListFromApi(key) {
-    let { page, cate_id, topic_id, q } = JSON.parse(key)
     try {
+      let { page, cate_id, topic_id, q } = JSON.parse(key)
       let url = this.baseApi
       let params = []
       if (cate_id) {
@@ -131,7 +116,7 @@ class ArticleManager extends ResourceManager {
       }
       let rsp = await fetch(url, { headers: headers })
       if (rsp.status === 404) {
-        throw new Http404()
+        return []
       }
       let rawData = await rsp.json()
       if(rawData.pageInfo) {
@@ -186,4 +171,4 @@ class LinkManager extends CategoryManager {
 const linkManager = new LinkManager()
 
 
-export { articleManager, categoryManager, topicManager, linkManager }
+export { articleManager, categoryManager, topicManager, linkManager, Http404 }

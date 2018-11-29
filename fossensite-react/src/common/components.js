@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-
 import { withStyles, Grid, Paper } from '@material-ui/core';
+
+import { Http404 } from './errors';
 
 
 const frameStyle = theme => ({
@@ -150,7 +151,7 @@ class ErrorPage extends Component {
     return (
       <InfoPage>
         <span style={{ fontSize: '1.5rem' }}>
-          好像除了点问题...
+          好像出了点问题...
         </span>
       </InfoPage>
     )
@@ -184,7 +185,48 @@ class Loading extends Component {
 }
 
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true, error: error };
+  }
+
+  componentDidCatch(error, info) {
+    // You can also log the error to an error reporting service
+    console.log(error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      console.log(this.state.error)
+      if ( this.state.error instanceof Http404) {
+        return <NotFound />
+      }
+      return <ErrorPage />
+    }
+    return this.props.children; 
+  }
+}
+
+
+function withErrorBoundary(WrappedComponent) {
+  function NewComponent(props) {
+    return (
+      <ErrorBoundary>
+        <WrappedComponent {...props}/>
+      </ErrorBoundary>
+    )
+  }
+  return NewComponent
+}
+
+
 export {
-  Pagination, FrameGrid, NotFound,
-  Loading, ZoomImg, ErrorPage
+  Pagination, FrameGrid, ZoomImg, InfoPage, Loading, 
+  NotFound, ErrorPage, ErrorBoundary, withErrorBoundary
 }

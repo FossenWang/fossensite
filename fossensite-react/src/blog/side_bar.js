@@ -119,7 +119,7 @@ class TopicCard extends Component {
   async setTopicList() {
     let topicList = await topicManager.getList()
     topicList = topicList.map((item) => {
-      item.url = `/article/topic/${item.id}`
+      item.url = `/article/topic/${item.id}/`
       item.value = item.name
       return item
     })

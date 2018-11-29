@@ -2,9 +2,9 @@ import React, { Component, Fragment } from 'react';
 import { Link } from "react-router-dom";
 import { withStyles, Grid, Paper, Fade } from '@material-ui/core';
 
-import { Pagination, Loading, ErrorPage, ZoomImg } from '../common/components'
+import { Pagination, Loading, ZoomImg, withErrorBoundary } from '../common/components'
 import { parseUrlParams } from '../common/tools'
-import { articleManager, categoryManager, topicManager } from '../resource/manager'
+import { articleManager, categoryManager, topicManager, Http404 } from '../resource/manager'
 
 import { ArticleInfo } from './article_detail'
 
@@ -82,6 +82,10 @@ ArticleListTittle = withStyles(articleListTittleStyle)(ArticleListTittle)
 
 
 const baseArticleListStyle = theme => ({
+  paper: {
+    paddingBottom: 8,
+    marginBottom: 8,
+  },
   empty: {
     margin: '3rem 0',
     fontSize: '1.25rem',
@@ -91,7 +95,13 @@ const baseArticleListStyle = theme => ({
 
 class BaseArticleList extends Component {
   render() {
-    let { classes, articleList, pageInfo } = this.props
+    let { classes, articleList, pageInfo, loading } = this.props
+    
+    // 获取数据时显示加载中
+    if (loading) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return (<Loading />)
+    }
 
     let items
     if (articleList.length) {
@@ -100,35 +110,26 @@ class BaseArticleList extends Component {
           <ArticleListItem key={article.id} article={article} />
         )
       })
+    } else if (pageInfo.page !== 1) {
+      throw new Http404()
     } else {
       items = (<div className={classes.empty}>没有相关的文章</div>)
     }
-
     return (
-      <Fragment>
-        <Grid container justify={'center'}>
-          {items}
-        </Grid>
-        <Pagination
-          url={pageInfo.url}
-          page={pageInfo.page}
-          pageSize={pageInfo.pageSize}
-          total={pageInfo.total} />
-      </Fragment>
+      <Fade in>
+        <Paper className={classes.paper}>
+          <ArticleListTittle>{this.props.title}</ArticleListTittle>
+          <Grid container justify={'center'}>
+            {items}
+          </Grid>
+          <Pagination url={pageInfo.url} page={pageInfo.page}
+            pageSize={pageInfo.pageSize} total={pageInfo.total} />
+        </Paper>
+      </Fade>
     )
   }
 }
-
 BaseArticleList = withStyles(baseArticleListStyle)(BaseArticleList)
-
-
-const listStyle = theme => ({
-  paper: {
-    paddingBottom: 8,
-    marginBottom: 8,
-  },
-  q: {color: theme.palette.text.secondary}
-})
 
 
 class NewArticleList extends Component {
@@ -163,10 +164,10 @@ class NewArticleList extends Component {
     let key = this.makeListKey(page)
     // 异步获取文章列表
     let articleList = await articleManager.getList(key)
-    let pageInfo = {
-      page: page,
-      pageSize: articleManager.pageInfo[key].pageSize,
-      total: articleManager.pageInfo[key].total,
+    let pageInfo = { page: page }
+    if (articleManager.pageInfo[key]) {
+      pageInfo.pageSize = articleManager.pageInfo[key].pageSize
+      pageInfo.total = articleManager.pageInfo[key].total
     }
     // 更新组件state
     this.setState({
@@ -175,7 +176,6 @@ class NewArticleList extends Component {
   }
 
   render() {
-    let { classes } = this.props
     let { articleList, pageInfo } = this.state
     let { page } = this.getCurrentParams()
     let key = this.makeListKey(page)
@@ -188,33 +188,18 @@ class NewArticleList extends Component {
       this.setArticleList(page)
     }
 
-    // 获取数据时显示加载中
-    if (loading) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      return (<Loading />)
-    }
-
-    // 获取文章列表出错时显示错误页面
-    if (!articleList) {
-      return (<ErrorPage />)
-    }
-
     let url = this.props.location.pathname
     if (!url.match('article')) {
       url += 'article/'
     }
     pageInfo.url = url
     return (
-      <Fade in>
-        <Paper className={classes.paper}>
-          <ArticleListTittle>最新文章</ArticleListTittle>
-          <BaseArticleList articleList={articleList} pageInfo={pageInfo} />
-        </Paper>
-      </Fade>
+      <BaseArticleList articleList={articleList} pageInfo={pageInfo}
+        loading={loading} title={'最新文章'} />
     )
   }
 }
-NewArticleList = withStyles(listStyle)(NewArticleList)
+NewArticleList = withErrorBoundary(NewArticleList)
 
 
 class CateArticleList extends Component {
@@ -261,10 +246,10 @@ class CateArticleList extends Component {
     let key = this.makeListKey(page, cate_id)
     // 异步获取文章列表
     let articleList = await articleManager.getList(key)
-    let pageInfo = {
-      page: page,
-      pageSize: articleManager.pageInfo[key].pageSize,
-      total: articleManager.pageInfo[key].total,
+    let pageInfo = { page: page }
+    if (articleManager.pageInfo[key]) {
+      pageInfo.pageSize = articleManager.pageInfo[key].pageSize
+      pageInfo.total = articleManager.pageInfo[key].total
     }
 
     // 更新组件state
@@ -275,8 +260,8 @@ class CateArticleList extends Component {
   }
 
   render() {
-    let { classes } = this.props
     let { articleList, pageInfo, cate } = this.state
+    if (!cate) { throw new Http404() }
     let { page, cate_id } = this.getCurrentParams()
     let key = this.makeListKey(page, cate_id)
     let loading = this.state.loading
@@ -288,32 +273,17 @@ class CateArticleList extends Component {
       this.setArticleList(page, cate_id)
     }
 
-    // 获取数据时显示加载中
-    if (loading) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      return (<Loading />)
-    }
-
-    // 获取文章列表出错时显示错误页面
-    if (!articleList) {
-      return (<ErrorPage />)
-    }
-
     pageInfo.url = this.props.location.pathname
     return (
-      <Fade in>
-        <Paper className={classes.paper}>
-          <ArticleListTittle>
-            <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
-            <span>分类：{cate.name}</span>
-          </ArticleListTittle>
-          <BaseArticleList articleList={articleList} pageInfo={pageInfo} />
-        </Paper>
-      </Fade>
+      <BaseArticleList articleList={articleList} pageInfo={pageInfo}
+        loading={loading} title={<Fragment>
+          <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
+          <span>分类：{cate.name}</span>
+        </Fragment>} />
     )
   }
 }
-CateArticleList = withStyles(listStyle)(CateArticleList)
+CateArticleList = withErrorBoundary(CateArticleList)
 
 
 class TopicArticleList extends Component {
@@ -360,12 +330,11 @@ class TopicArticleList extends Component {
     let key = this.makeListKey(page, topic_id)
     // 异步获取文章列表
     let articleList = await articleManager.getList(key)
-    let pageInfo = {
-      page: page,
-      pageSize: articleManager.pageInfo[key].pageSize,
-      total: articleManager.pageInfo[key].total,
+    let pageInfo = { page: page }
+    if (articleManager.pageInfo[key]) {
+      pageInfo.pageSize = articleManager.pageInfo[key].pageSize
+      pageInfo.total = articleManager.pageInfo[key].total
     }
-
     // 更新组件state
     this.setState({
       loading: false, articleList: articleList,
@@ -374,8 +343,8 @@ class TopicArticleList extends Component {
   }
 
   render() {
-    let { classes } = this.props
     let { articleList, pageInfo, topic } = this.state
+    if (!topic) { throw new Http404() }
     let { page, topic_id } = this.getCurrentParams()
     let key = this.makeListKey(page, topic_id)
     let loading = this.state.loading
@@ -387,32 +356,22 @@ class TopicArticleList extends Component {
       this.setArticleList(page, topic_id)
     }
 
-    // 获取数据时显示加载中
-    if (loading) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      return (<Loading />)
-    }
-
-    // 获取文章列表出错时显示错误页面
-    if (!articleList) {
-      return (<ErrorPage />)
-    }
-
     pageInfo.url = this.props.location.pathname
     return (
-      <Fade in>
-        <Paper className={classes.paper}>
-          <ArticleListTittle>
-            <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
+      <BaseArticleList articleList={articleList} pageInfo={pageInfo}
+        loading={loading} title={<Fragment>
+          <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
             <span>话题：{topic.name}</span>
-          </ArticleListTittle>
-          <BaseArticleList articleList={articleList} pageInfo={pageInfo} />
-        </Paper>
-      </Fade>
+        </Fragment>} />
     )
   }
 }
-TopicArticleList = withStyles(listStyle)(TopicArticleList)
+TopicArticleList = withErrorBoundary(TopicArticleList)
+
+
+const searchListStyle = theme => ({
+  q: { color: theme.palette.text.secondary }
+})
 
 
 class SearchArticleList extends Component {
@@ -432,7 +391,8 @@ class SearchArticleList extends Component {
     let { page, q } = params
     page = parseInt(page)
     page = (page ? page : 1)
-    q = decodeURI(q)
+    if (q) { q = decodeURI(q) }
+    else { throw new Http404() }
     return { page: page, q: q }
   }
 
@@ -448,10 +408,10 @@ class SearchArticleList extends Component {
     // 异步获取文章列表
     let key = this.makeListKey(page, q)
     let articleList = await articleManager.getList(key)
-    let pageInfo = {
-      page: page,
-      pageSize: articleManager.pageInfo[key].pageSize,
-      total: articleManager.pageInfo[key].total,
+    let pageInfo = { page: page }
+    if (articleManager.pageInfo[key]) {
+      pageInfo.pageSize = articleManager.pageInfo[key].pageSize
+      pageInfo.total = articleManager.pageInfo[key].total
     }
     // 更新组件state
     this.setState({
@@ -474,31 +434,16 @@ class SearchArticleList extends Component {
       this.setArticleList(page, q)
     }
 
-    // 获取数据时显示加载中
-    if (loading) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      return (<Loading />)
-    }
-
-    // 获取文章列表出错时显示错误页面
-    if (!articleList) {
-      return (<ErrorPage />)
-    }
-
     pageInfo.url = this.props.location.pathname + (q ? `?q=${q}` : '')
     return (
-      <Fade in>
-        <Paper className={classes.paper}>
-          <ArticleListTittle>
-            关键词：<span className={classes.q}>{q}</span>&emsp;搜索结果 共{pageInfo.total}条
-          </ArticleListTittle>
-          <BaseArticleList articleList={articleList} pageInfo={pageInfo} />
-        </Paper>
-      </Fade>
+      <BaseArticleList articleList={articleList} pageInfo={pageInfo}
+        loading={loading} title={<Fragment>
+          关键词：<span className={classes.q}>{q}</span>&emsp;搜索结果 共{pageInfo.total}条
+      </Fragment>} />
     )
   }
 }
-SearchArticleList = withStyles(listStyle)(SearchArticleList)
+SearchArticleList = withErrorBoundary(withStyles(searchListStyle)(SearchArticleList))
 
 
 export { NewArticleList, CateArticleList, TopicArticleList, SearchArticleList }
