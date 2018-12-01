@@ -21,6 +21,6 @@ urlpatterns = [
     path('article/<int:article_id>/comment/', ArticleCommentView.as_view(), name='article_comment'),
     path('article/comment/create/', CreateArticleCommentView.as_view(), name='create_article_comment'),
     path('article/comment/reply/create/', CreateArticleCommentReplyView.as_view(), name='create_article_comment_reply'),
-    path('article/comment/delete/(?P<pk>[0-9]+)/', DeleteArticleCommentView.as_view(), name='delete_article_comment'),
-    path('article/comment/reply/delete/(?P<pk>[0-9]+)/', DeleteArticleCommentReplyView.as_view(), name='delete_article_comment_reply'),
+    path('article/comment/delete/<int:pk>/', DeleteArticleCommentView.as_view(), name='delete_article_comment'),
+    path('article/comment/reply/delete/<int:pk>/', DeleteArticleCommentReplyView.as_view(), name='delete_article_comment_reply'),
 ]

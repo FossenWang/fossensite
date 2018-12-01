@@ -15,14 +15,26 @@ class ResourceManager {
     let item = this.data[id]
     if (item === undefined) {
       item = await this.getItemFromApi(id)
-      if (item) { this.data[item.id] = item }
-      else { return item}
+      if (item) { this.setItem(item) }
+      else { return item }
     }
     return Object.assign({}, item)
   }
 
+  getItemSync(id) {
+    let item = this.data[id]
+    if (item) {
+      item = Object.assign({}, item)
+    }
+    return item
+  }
+
+  setItem(item) {
+    this.data[item.id] = item
+  }
+
   async getList(key) {
-    let list = this.processListData(key)
+    let list = this.getListSync(key)
     if (list === undefined) {
       list = await this.getListFromApi(key)
       this.setlistData(key, list)
@@ -30,7 +42,7 @@ class ResourceManager {
     return list
   }
 
-  processListData(key) {
+  getListSync(key) {
     let idList = this.idListMap[key]
     let list = []
     if (idList) {
@@ -80,7 +92,7 @@ class ArticleManager extends ResourceManager {
   async getItemFromApi(id) {
     try {
       if (!id) {
-        return null
+        return undefined
       }
       let url = `${this.baseApi}${id}/`
       let rsp = await fetch(url, { headers: headers })
@@ -91,7 +103,7 @@ class ArticleManager extends ResourceManager {
       return rawData
     } catch (error) {
       console.log(error)
-      return null
+      return undefined
     }
   }
 
@@ -119,17 +131,16 @@ class ArticleManager extends ResourceManager {
         return []
       }
       let rawData = await rsp.json()
-      if(rawData.pageInfo) {
-      this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
+      if (rawData.pageInfo) {
+        this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
       }
       return rawData.data
     } catch (error) {
       console.log(error)
-      return null
+      return undefined
     }
   }
 }
-
 const articleManager = new ArticleManager()
 
 
@@ -138,10 +149,14 @@ class CategoryManager extends ResourceManager {
   baseApi = API_HOST + 'category/'
 
   async getListFromApi(key) {
-    let url = this.baseApi
-    let rsp = await fetch(url, { headers: headers })
-    let rawData = await rsp.json()
-    return rawData.data
+    try {
+      let url = this.baseApi
+      let rsp = await fetch(url, { headers: headers })
+      let rawData = await rsp.json()
+      return rawData.data
+    } catch (error) {
+      return undefined
+    }
   }
 
   async getItemFromApi(id) {
@@ -151,7 +166,6 @@ class CategoryManager extends ResourceManager {
     return this.data[id]
   }
 }
-
 const categoryManager = new CategoryManager()
 
 
@@ -159,7 +173,6 @@ class TopicManager extends CategoryManager {
   // 文章话题
   baseApi = API_HOST + 'topic/'
 }
-
 const topicManager = new TopicManager()
 
 
@@ -167,8 +180,39 @@ class LinkManager extends CategoryManager {
   // 友情链接
   baseApi = API_HOST + 'link/'
 }
-
 const linkManager = new LinkManager()
 
 
-export { articleManager, categoryManager, topicManager, linkManager, Http404 }
+class UserManager extends ResourceManager {
+  // 文章分类
+  baseApi = API_HOST + 'account/'
+  currentUserId = null
+
+  async getCurrentUser() {
+    let currentUser = this.getItemSync(this.currentUserId)
+    if (!currentUser) {
+      currentUser = await this.getCurrentUserFromApi()
+      this.currentUserId = currentUser.id
+      if (currentUser) { this.setItem(currentUser) }
+    }
+    return currentUser
+  }
+
+  async getCurrentUserFromApi() {
+    try {
+      let url = this.baseApi + 'profile/'
+      let rsp = await fetch(url, { headers: headers })
+      let rawData = await rsp.json()
+      return rawData
+    } catch (error) {
+      return undefined
+    }
+  }
+}
+const userManager = new UserManager()
+
+
+export {
+  articleManager, categoryManager, topicManager,
+  linkManager, Http404, userManager
+}

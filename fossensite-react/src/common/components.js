@@ -203,7 +203,9 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      console.log(this.state.error)
+      if (this.props.errorPage !== undefined) {
+        return this.props.errorPage
+      }
       if ( this.state.error instanceof Http404) {
         return <NotFound />
       }

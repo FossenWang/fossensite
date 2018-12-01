@@ -4,6 +4,7 @@ import subprocess
 
 from django import setup
 from django.core.mail import send_mail
+from django.db.models import Model
 
 from fossensite.settings import BASE_DIR
 
@@ -45,3 +46,14 @@ def send_email(title, message):
         'admin@fossen.cn',
         ['fossen@fossen.cn']
     )  # 在setting.py中定义邮箱与密码
+
+
+def update_model(model: Model, update_data: dict):
+    '根据内容改变与否判断需要更新的模型字段'
+    update_fields = []
+    for field in update_data:
+        if update_data[field] != getattr(model, field):
+            setattr(model, field, update_data[field])
+            update_fields.append(field)
+    if update_fields:
+        model.save(update_fields=update_fields)

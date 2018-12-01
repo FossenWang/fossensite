@@ -2,8 +2,11 @@ import React, { Component, Fragment } from 'react';
 import { withRouter } from "react-router-dom";
 import {
   withStyles, Toolbar, InputBase,
-  InputAdornment, Grid
+  InputAdornment, Grid, Button
 } from '@material-ui/core';
+
+import { userManager } from '../resource/manager'
+import { ErrorBoundary } from '../common/components'
 
 
 const searchStyle = theme => ({
@@ -40,9 +43,7 @@ const searchStyle = theme => ({
 class Search extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      focused: false,
-    }
+    this.state = { focused: false }
   }
   submit = (e) => {
     e.preventDefault()
@@ -82,7 +83,6 @@ class Search extends Component {
     )
   }
 }
-
 Search = withRouter(withStyles(searchStyle)(Search))
 
 
@@ -95,25 +95,35 @@ const userBarStyle = theme => ({
 })
 
 class UserBar extends Component {
-  get_user() {
-    return {
-      name: 'Fossen',
-      githubUrl: 'https://github.com/FossenWang',
+  constructor(props) {
+    super(props)
+    this.state = {
+      user: {
+        id: null, username: "", avatar: null,
+        github_url: null, new_notice: false
+      }
+    }
+    this.setUser()
+  }
+
+  async setUser() {
+    let currentUser = await userManager.getCurrentUser()
+    window.user = currentUser
+    if (currentUser && currentUser.id !== undefined) {
+      this.setState({ user: currentUser })
     }
   }
 
   render() {
-    let user = this.get_user()
-    let parts;
-    if (user.name !== undefined) {
+    let parts
+    let user = this.state.user
+    if (user.id) {
       parts = <Fragment>
-        <a href={user.githubUrl} target={'_blank'} >{user.name}</a>
+        <a href={user.github_url} target={'_blank'} >{user.username}</a>
         <a href="/">注销</a>
       </Fragment>
     } else {
-      parts = <Fragment>
-        <a href="/">登录</a>
-      </Fragment>
+      parts = <Button>登录</Button>
     }
     return (
       <div className={this.props.classes.root}>
@@ -123,19 +133,20 @@ class UserBar extends Component {
     )
   }
 }
-
 UserBar = withStyles(userBarStyle)(UserBar)
 
 
 class TopToolbar extends Component {
   render() {
     return (
-      <Grid container alignItems={'center'} justify={'flex-end'}>
-        <Toolbar>
-          <Search />
-          <UserBar />
-        </Toolbar>
-      </Grid>
+      <ErrorBoundary errorPage={''}>
+        <Grid container alignItems={'center'} justify={'flex-end'}>
+          <Toolbar>
+            <Search />
+            <UserBar />
+          </Toolbar>
+        </Grid>
+      </ErrorBoundary>
     )
   }
 }

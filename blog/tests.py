@@ -1,18 +1,25 @@
 from datetime import datetime
-from django.test import TestCase, Client
+from django.test import TestCase
+from django.contrib.auth.models import User
 
+
+from account.models import Profile
 from .models import Article, Category, Topic, Link
 
 
 class BlogTestCase(TestCase):
     def setUp(self):
+        User.objects.create_superuser('admin', 'admin@fossne.cn', 'admin')
+        user = User.objects.create_user('Fossen', 'fossen@fossen.cn', 'fossen')
+        Profile.objects.create(user=user, avatar=None, github_id=1,
+                               github_url='https://github.com/FossenWang')
         Category.objects.create(name='cate1', number=1)
         self.t1 = Topic.objects.create(name='topic1', number=1)
         Link.objects.create(name='link1', url='www.fossen.cn')
-        self.c = Client(HTTP_ACCEPT='application/json')
+        self.client.defaults = {'HTTP_ACCEPT': 'application/json'}
 
     def test_article_list(self):
-        c = self.c
+        c = self.client
         rsp = c.get('/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(rsp.json()['data'], [])

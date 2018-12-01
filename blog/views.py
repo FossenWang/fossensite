@@ -151,10 +151,9 @@ class ArticleDetailView(DetailView):
     '文章详情视图'
     model = Article
     template_name = 'index.html'
-    context_object_name = 'article'
 
-    def serialize(self):
-        article = self.context['article']  # type: Article
+    def get_context_data(self):
+        article = self.object  # type: Article
         data = serialize_article(article)
         # 每处理一次get请求就增加一次阅读量
         article.increase_views()

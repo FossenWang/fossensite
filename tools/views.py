@@ -59,11 +59,11 @@ class JSONMixin:
             data = self.request.POST
         return data
 
-
-class JSONView(JSONMixin, View):
     def handle404(self, error):
         return JsonResponse({'msg': str(error)}, status=404)
 
+
+class JSONView(JSONMixin, View):
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         try:
             response = super().dispatch(request, *args, **kwargs)
@@ -78,9 +78,6 @@ class JSONView(JSONMixin, View):
 
 class TemplateJSONView(JSONMixin, TemplateResponseMixin, View):
     json_only = False
-
-    def handle404(self, error):
-        return JsonResponse({'msg': str(error)}, status=404)
 
     def dispatch(self, request: HttpRequest, *args, **kwargs):
         try:
@@ -128,9 +125,5 @@ class ListView(MultipleObjectMixin, TemplateJSONView):
 class DetailView(SingleObjectMixin, TemplateJSONView):
     def get(self, request, **kwargs):
         self.object = self.get_object()
-        self.context = self.get_context_data()
-        data = self.serialize()
-        return data
-
-    def serialize(self):
-        raise NotImplementedError
+        context = self.get_context_data()
+        return context
