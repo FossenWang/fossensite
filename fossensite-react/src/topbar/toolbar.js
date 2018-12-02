@@ -2,11 +2,12 @@ import React, { Component, Fragment } from 'react';
 import { withRouter } from "react-router-dom";
 import {
   withStyles, Toolbar, InputBase,
-  InputAdornment, Grid, Button
+  InputAdornment, Grid, Button, Dialog
 } from '@material-ui/core';
 
 import { userManager } from '../resource/manager'
 import { ErrorBoundary } from '../common/components'
+// import { parseUrlParams } from '../common/tools';
 
 
 const searchStyle = theme => ({
@@ -50,7 +51,6 @@ class Search extends Component {
     let target = e.target
     let url = `/article/search/?q=${target.elements.q.value}`
     this.props.history.push(url)
-    console.log(url, this.props.history)
   }
   focusInput = () => {
     this.setState({ focused: true })
@@ -86,6 +86,59 @@ class Search extends Component {
 Search = withRouter(withStyles(searchStyle)(Search))
 
 
+const loginStyle = theme => ({
+  dialog: {
+    padding: 48,
+    '& span': {
+      cursor: 'pointer',
+    },
+    '& i:hover, span:hover': {
+      color: theme.palette.text.secondary,
+    },
+  },
+})
+
+
+class LoginDialog extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { open: false }
+  }
+
+  openDialog = () => {
+    this.setState({ open: true })
+  }
+  closeDialog = (e) => {
+    this.setState({ open: false })
+  }
+  login = async () => {
+    let next = window.location.href
+    let data = await userManager.prepareLogin(next)
+    let rsp = await userManager.devLogin(2, data.github_oauth_url)
+    if (rsp.status === 0) {
+      this.setState({open: false})
+      this.props.refresh(true)
+    }
+  }
+  clickLogin = () => {this.login()}
+
+  render() {
+    return (
+      <Fragment>
+        <Button onClick={this.openDialog}>登录</Button>
+        <Dialog open={this.state.open} onClose={this.closeDialog}>
+          <Grid container alignItems={'center'} direction={'column'} className={this.props.classes.dialog}>
+            <i onClick={this.clickLogin} className="fa fa-github fa-3x" />
+            <span onClick={this.clickLogin}>GitHub登录</span>
+          </Grid>
+        </Dialog>
+      </Fragment>
+    )
+  }
+}
+LoginDialog = withRouter(withStyles(loginStyle)(LoginDialog))
+
+
 const userBarStyle = theme => ({
   root: {
     '& i, a': {
@@ -93,6 +146,7 @@ const userBarStyle = theme => ({
     },
   }
 })
+
 
 class UserBar extends Component {
   constructor(props) {
@@ -106,24 +160,32 @@ class UserBar extends Component {
     this.setUser()
   }
 
-  async setUser() {
-    let currentUser = await userManager.getCurrentUser()
+  setUser = async (refresh=false) => {
+    let currentUser = await userManager.getCurrentUser(refresh)
     window.user = currentUser
     if (currentUser && currentUser.id !== undefined) {
       this.setState({ user: currentUser })
     }
   }
 
+  async logout() {
+    let rsp = await userManager.logout()
+    if (rsp.status === 0) {
+      this.setUser(true)
+    }
+  }
+
   render() {
     let parts
     let user = this.state.user
+    window.s = this.state
     if (user.id) {
       parts = <Fragment>
-        <a href={user.github_url} target={'_blank'} >{user.username}</a>
-        <a href="/">注销</a>
+        <Button style={{textTransform: 'none'}} href={user.github_url ? user.github_url : null} target={'_blank'}>{user.username}</Button>
+        <Button onClick={()=>{this.logout()}}>注销</Button>
       </Fragment>
     } else {
-      parts = <Button>登录</Button>
+      parts = <LoginDialog refresh={this.setUser} />
     }
     return (
       <div className={this.props.classes.root}>

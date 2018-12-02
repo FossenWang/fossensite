@@ -1,4 +1,5 @@
 import { NotImplementedError, Http404 } from '../common/errors'
+import {parseUrlParams} from '../common/tools'
 
 
 const API_HOST = 'http://127.0.0.1:8000/'
@@ -186,27 +187,55 @@ const linkManager = new LinkManager()
 class UserManager extends ResourceManager {
   // 文章分类
   baseApi = API_HOST + 'account/'
+  profileUrl = API_HOST + 'account/profile/'
+  preLoginUrl = API_HOST + 'account/login/prepare/'
+  devLoginUrl = API_HOST + 'account/oauth/github/'
+  logoutUrl = API_HOST + 'account/logout/'
   currentUserId = null
 
-  async getCurrentUser() {
+  async getCurrentUser(refresh=false) {
     let currentUser = this.getItemSync(this.currentUserId)
-    if (!currentUser) {
+    if (!currentUser || refresh) {
       currentUser = await this.getCurrentUserFromApi()
-      this.currentUserId = currentUser.id
-      if (currentUser) { this.setItem(currentUser) }
+      if (currentUser) {
+        this.currentUserId = currentUser.id
+        this.setItem(currentUser)
+      }
     }
     return currentUser
   }
 
   async getCurrentUserFromApi() {
     try {
-      let url = this.baseApi + 'profile/'
-      let rsp = await fetch(url, { headers: headers })
+      let rsp = await fetch(this.profileUrl, { headers: headers, credentials: 'include' })
       let rawData = await rsp.json()
       return rawData
     } catch (error) {
       return undefined
     }
+  }
+
+  async prepareLogin(next) {
+    let url = this.preLoginUrl + (next ? '?next=' + next : '')
+    let rsp = await fetch(url, { headers: headers, credentials: 'include' })
+    let rawData = await rsp.json()
+    return rawData
+  }
+
+  async devLogin(id, githubOauthUrl) {
+    let params = parseUrlParams(githubOauthUrl)
+    let url = this.devLoginUrl + '?id=' + id
+    if (params.state) {
+      url += '&state=' + params.state
+    }
+
+    let rsp = await fetch(url, { headers: headers, credentials: 'include', redirect: 'manual' })
+    return rsp
+  }
+
+  async logout() {
+    let rsp = await fetch(this.logoutUrl, { headers: headers, credentials: 'include', redirect: 'manual' })
+    return rsp
   }
 }
 const userManager = new UserManager()
