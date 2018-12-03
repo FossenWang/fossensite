@@ -103,6 +103,7 @@ class LoginDialog extends Component {
   constructor(props) {
     super(props)
     this.state = { open: false }
+    window.p = this.props
   }
 
   openDialog = () => {
@@ -114,11 +115,16 @@ class LoginDialog extends Component {
   login = async () => {
     let next = window.location.href
     let data = await userManager.prepareLogin(next)
+    // // production
+    // if (data.github_oauth_url){
+    //   window.location.href = data.github_oauth_url
+    // }
+    // devlopment
     let rsp = await userManager.devLogin(2, data.github_oauth_url)
     if (rsp.status === 0) {
-      this.setState({open: false})
       this.props.refresh(true)
     }
+    this.setState({open: false})
   }
   clickLogin = () => {this.login()}
 

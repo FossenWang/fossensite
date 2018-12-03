@@ -1,5 +1,5 @@
 import { NotImplementedError, Http404 } from '../common/errors'
-import {parseUrlParams} from '../common/tools'
+import { parseUrlParams } from '../common/tools'
 
 
 const API_HOST = 'http://127.0.0.1:8000/'
@@ -11,6 +11,7 @@ var headers = {
 class ResourceManager {
   data = {}
   idListMap = {}  //idListMap = {key: [idList]}
+  listApiPromise = {}
 
   async getItem(id) {
     let item = this.data[id]
@@ -37,7 +38,10 @@ class ResourceManager {
   async getList(key) {
     let list = this.getListSync(key)
     if (list === undefined) {
-      list = await this.getListFromApi(key)
+      if (!this.listApiPromise[key]) {
+        this.listApiPromise[key] = this.getListFromApi(key)
+      }
+      list = await this.listApiPromise[key]
       this.setlistData(key, list)
     }
     return list
@@ -156,6 +160,7 @@ class CategoryManager extends ResourceManager {
       let rawData = await rsp.json()
       return rawData.data
     } catch (error) {
+      console.log(error)
       return undefined
     }
   }
@@ -168,7 +173,7 @@ class CategoryManager extends ResourceManager {
   }
 }
 const categoryManager = new CategoryManager()
-
+window.c = categoryManager
 
 class TopicManager extends CategoryManager {
   // 文章话题
@@ -193,7 +198,7 @@ class UserManager extends ResourceManager {
   logoutUrl = API_HOST + 'account/logout/'
   currentUserId = null
 
-  async getCurrentUser(refresh=false) {
+  async getCurrentUser(refresh = false) {
     let currentUser = this.getItemSync(this.currentUserId)
     if (!currentUser || refresh) {
       currentUser = await this.getCurrentUserFromApi()
@@ -211,6 +216,7 @@ class UserManager extends ResourceManager {
       let rawData = await rsp.json()
       return rawData
     } catch (error) {
+      console.log(error)
       return undefined
     }
   }
