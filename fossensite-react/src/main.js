@@ -10,6 +10,7 @@ import {
 } from './blog/article_list'
 import SideBar from './blog/side_bar'
 import ArticleDetail from './blog/article_detail'
+import { NoticeList } from './account/notice_list';
 
 
 const mainStyle = theme => ({
@@ -38,6 +39,7 @@ class Main extends Component {
             <Route exact path="/article/category/:cate_id(\d+)/" component={CateArticleList} />
             <Route exact path="/article/topic/:topic_id(\d+)/" component={TopicArticleList} />
             <Route exact path="/article/search/" component={SearchArticleList} />
+            <Route exact path="/account/notice/" component={NoticeList} />
             <NotFound />
           </Switch>
         </Grid>

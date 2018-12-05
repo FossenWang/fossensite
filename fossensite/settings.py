@@ -216,7 +216,7 @@ if getattr(env, 'LOGGING', None):
 
 # Authorization
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/account/login/'
+LOGIN_URL = '/account/login/prepare/'
 LOGOUT_REDIRECT_URL = '/'
 
 

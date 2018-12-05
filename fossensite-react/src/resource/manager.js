@@ -1,4 +1,4 @@
-import { NotImplementedError, Http404 } from '../common/errors'
+import { NotImplementedError } from '../common/errors'
 import { parseUrlParams } from '../common/tools'
 
 
@@ -9,9 +9,11 @@ var headers = {
 
 
 class ResourceManager {
-  data = {}
-  idListMap = {}  //idListMap = {key: [idList]}
-  listApiPromise = {}
+  constructor() {
+    this.data = {}
+    this.idListMap = {}  //idListMap = {key: [idList]}
+    this.listApiPromise = {}
+  }
 
   async getItem(id) {
     let item = this.data[id]
@@ -173,7 +175,7 @@ class CategoryManager extends ResourceManager {
   }
 }
 const categoryManager = new CategoryManager()
-window.c = categoryManager
+
 
 class TopicManager extends CategoryManager {
   // 文章话题
@@ -190,7 +192,7 @@ const linkManager = new LinkManager()
 
 
 class UserManager extends ResourceManager {
-  // 文章分类
+  // 用户管理
   baseApi = API_HOST + 'account/'
   profileUrl = API_HOST + 'account/profile/'
   preLoginUrl = API_HOST + 'account/login/prepare/'
@@ -247,7 +249,46 @@ class UserManager extends ResourceManager {
 const userManager = new UserManager()
 
 
+class NoticeManager extends ResourceManager {
+  baseApi = API_HOST + 'account/notice/'
+  pageInfo = {}
+
+  setPageInfo(key, pageSize, total) {
+    this.pageInfo[key] = {
+      pageSize: pageSize,
+      total: total,
+    }
+  }
+
+  makeListKey(page) {
+    // 收集key用于获取列表
+    let key = {}
+    if (page) { key.page = page }
+    return key = JSON.stringify(key)
+  }
+
+  async getListFromApi(key) {
+    let url = this.baseApi
+    let { page } = JSON.parse(key)
+    if (page) {
+      url += `?page=${page}`
+    }
+    let rsp = await fetch(url, { headers: headers, credentials: 'include' })
+    if (rsp.status === 404) {
+      return []
+    }
+    let rawData = await rsp.json()
+    if (rawData.pageInfo) {
+      this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
+    }
+    console.log(rawData)
+    return rawData.data
+  }
+}
+const noticeManager = new NoticeManager()
+
+
 export {
   articleManager, categoryManager, topicManager,
-  linkManager, Http404, userManager
+  linkManager, userManager, noticeManager
 }

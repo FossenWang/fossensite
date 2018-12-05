@@ -4,8 +4,8 @@ import { withStyles, Grid, Paper, Fade } from '@material-ui/core';
 
 import { Pagination, Loading, ZoomImg, withErrorBoundary } from '../common/components'
 import { parseUrlParams } from '../common/tools'
-import { articleManager, categoryManager, topicManager, Http404 } from '../resource/manager'
-
+import { Http404 } from '../common/errors';
+import { articleManager, categoryManager, topicManager } from '../resource/manager'
 import { ArticleInfo } from './article_detail'
 
 
@@ -57,7 +57,6 @@ class ArticleListItem extends Component {
     )
   }
 }
-
 ArticleListItem = withStyles(articleListItemStyle)(ArticleListItem)
 
 
@@ -77,7 +76,6 @@ class ArticleListTittle extends Component {
     )
   }
 }
-
 ArticleListTittle = withStyles(articleListTittleStyle)(ArticleListTittle)
 
 

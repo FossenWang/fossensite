@@ -2,19 +2,19 @@ import React, { Component, Fragment } from 'react';
 import { withRouter } from "react-router-dom";
 import {
   withStyles, Toolbar, InputBase,
-  InputAdornment, Grid, Button, Dialog
+  InputAdornment, Grid, Button, Dialog, Badge
 } from '@material-ui/core';
 
 import { userManager } from '../resource/manager'
 import { ErrorBoundary } from '../common/components'
-// import { parseUrlParams } from '../common/tools';
+import Link from 'react-router-dom/Link';
 
 
 const searchStyle = theme => ({
   root: {
     borderRadius: 16,
     padding: '0 8px',
-    marginRight: '1rem',
+    marginRight: '8px',
     transition: 'all 0.2s ease-in-out',
     borderStyle: 'solid',
     borderWidth: 1.25,
@@ -103,7 +103,6 @@ class LoginDialog extends Component {
   constructor(props) {
     super(props)
     this.state = { open: false }
-    window.p = this.props
   }
 
   openDialog = () => {
@@ -124,9 +123,9 @@ class LoginDialog extends Component {
     if (rsp.status === 0) {
       this.props.refresh(true)
     }
-    this.setState({open: false})
+    this.setState({ open: false })
   }
-  clickLogin = () => {this.login()}
+  clickLogin = () => { this.login() }
 
   render() {
     return (
@@ -142,14 +141,25 @@ class LoginDialog extends Component {
     )
   }
 }
-LoginDialog = withRouter(withStyles(loginStyle)(LoginDialog))
+LoginDialog = withStyles(loginStyle)(LoginDialog)
 
 
 const userBarStyle = theme => ({
   root: {
-    '& i, a': {
-      marginRight: '1rem',
+    '&>i, >a': {
+      margin: '0 8px',
     },
+  },
+  button: {
+    padding: '8px 8px',
+    textTransform: 'none',
+    minWidth: 'auto',
+  },
+  badge: {
+    width: 8,
+    height: 8,
+    top: -5,
+    right: -5,
   }
 })
 
@@ -166,9 +176,8 @@ class UserBar extends Component {
     this.setUser()
   }
 
-  setUser = async (refresh=false) => {
+  setUser = async (refresh = false) => {
     let currentUser = await userManager.getCurrentUser(refresh)
-    window.user = currentUser
     if (currentUser && currentUser.id !== undefined) {
       this.setState({ user: currentUser })
     }
@@ -182,20 +191,30 @@ class UserBar extends Component {
   }
 
   render() {
+    let { classes } = this.props
     let parts
     let user = this.state.user
-    window.s = this.state
     if (user.id) {
       parts = <Fragment>
-        <Button style={{textTransform: 'none'}} href={user.github_url ? user.github_url : null} target={'_blank'}>{user.username}</Button>
-        <Button onClick={()=>{this.logout()}}>注销</Button>
+        <Button className={classes.button}>
+          <Link to={"/account/notice/"}>
+            <Badge color="error" invisible={!user.new_notice} badgeContent={''}
+              classes={{ badge: classes.badge }}>
+              <i className="fa fa-envelope" aria-hidden="true"></i>
+            </Badge></Link>
+        </Button>
+        <Button className={classes.button}
+          href={user.github_url ? user.github_url : null}
+          target={'_blank'}>{user.username}</Button>
+        <Button className={classes.button}
+          onClick={() => { this.logout() }}>注销</Button>
       </Fragment>
     } else {
       parts = <LoginDialog refresh={this.setUser} />
     }
     return (
-      <div className={this.props.classes.root}>
-        <i className="fa fa-user fa-lg"></i>
+      <div className={classes.root}>
+        <i className="fa fa-user fa-lg" aria-hidden="true"></i>
         {parts}
       </div>
     )

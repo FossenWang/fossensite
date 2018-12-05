@@ -135,6 +135,7 @@ class UserReplyList(LoginRequiredMixin, ListView):
     template_name = 'index.html'
     context_object_name = 'replies'
     paginate_by = 10
+    raise_exception = True
 
     def get_queryset(self):
         uid = self.request.user.id
