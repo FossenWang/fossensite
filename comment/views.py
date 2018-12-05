@@ -1,4 +1,3 @@
-from django.views.generic.list import ListView
 from django.views.generic.edit import BaseCreateView, BaseDeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseRedirect
@@ -7,6 +6,11 @@ from django.db.models import Prefetch
 from django.core.exceptions import ImproperlyConfigured
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
+from django.db.models import Q, Value, IntegerField
+from django.contrib.auth.models import User
+
+from tools.views import ListView
+from blog.models import Article
 
 from .models import ArticleComment, ArticleCommentReply
 from .forms import ArticleCommentForm, ArticleCommentReplyForm
@@ -123,3 +127,56 @@ class DeleteArticleCommentView(CommentCreatorTestMixin, EditArticleCommentMixin,
 class DeleteArticleCommentReplyView(DeleteArticleCommentView):
     '删除一条文章二级评论'
     model = ArticleCommentReply
+
+
+class UserReplyList(LoginRequiredMixin, ListView):
+    '用户收到的回复列表'
+    model = ArticleCommentReply
+    template_name = 'index.html'
+    context_object_name = 'replies'
+    paginate_by = 10
+
+    def get_queryset(self):
+        uid = self.request.user.id
+        q1 = ArticleCommentReply.objects \
+            .filter(Q(comment_user_id=uid) | Q(reply_user_id=uid)) \
+            .exclude(user=uid).order_by('-time') \
+            .values('content', 'comment_user_id', 'reply_user_id', 'article_id',
+                    'user_id', 'id', 'reply_id', 'comment_id', 'time', 'article__title',)
+
+        # if uid == 2:
+        #     none = Value(None, IntegerField())
+        #     q2 = ArticleComment.objects \
+        #         .annotate(comment=none, reply=none)
+        #         # .values('id', 'content', 'time', 'user__username', 'user__profile__avatar', 'article__title')
+        #     q1 = q1.union(q2, all=True)
+
+        self.request.user.profile.have_read_notice()
+        return q1
+
+    def serialize(self):
+        data = super().serialize()
+        reply_list = list(self.context['replies'])
+        user_dict = {}
+        for item in reply_list:
+            user_dict[item['user_id']] = None
+            user_dict[item['comment_user_id']] = None
+            user_dict[item['reply_user_id']] = None
+        if None in user_dict:
+            del user_dict[None]
+        users = User.objects.filter(id__in=user_dict.keys()).values(
+            'id', 'username', 'profile__avatar', 'profile__github_url')
+        for user in users:
+            user['avatar'] = user.pop('profile__avatar')
+            user['github_url'] = user.pop('profile__github_url')
+            user_dict[user['id']] = user
+        for reply in reply_list:
+            if reply['user_id'] is not None:
+                reply['user'] = user_dict[reply.pop('user_id')]
+            if reply['comment_user_id'] is not None:
+                reply['comment_user'] = user_dict[reply.pop('comment_user_id')]
+            if reply['reply_user_id'] is not None:
+                reply['reply_user'] = user_dict[reply.pop('reply_user_id')]
+
+        data['data'] = reply_list
+        return data

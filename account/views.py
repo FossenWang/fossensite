@@ -2,59 +2,18 @@ import requests
 
 from django.shortcuts import redirect, reverse
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView
 from django.contrib.auth.models import User
 from django.contrib.auth import login
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Q
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 
 from fossensite import settings
-from comment.models import ArticleComment, ArticleCommentReply
-from tools.views import JSONView, ListView
+from tools.views import JSONView
 from tools.base import update_model
 
 from .models import Profile, BlankProfile
 from .forms import OauthEditUsernameForm
-
-
-class UserHomeView(LoginRequiredMixin, ListView):
-    '用户主页'
-    model = ArticleCommentReply
-    template_name = 'account/user_home.html'
-    context_object_name = 'notices'
-    paginate_by = 10
-
-    def get_queryset(self):
-        uid = self.request.user.id
-        self.request.user.profile.have_read_notice()
-        return super().get_queryset() \
-            .filter(Q(comment__user_id=uid) | Q(reply__user_id=uid)) \
-            .exclude(user=uid).order_by('-time') \
-            .select_related('user', 'user__profile', 'comment__article') \
-            .only('content', 'time', 'user__username', 'user__profile__avatar', 'comment__article__title')
-
-
-class CommentNoticesView(UserPassesTestMixin, ListView):
-    '文章评论通知'
-    model = ArticleComment
-    template_name = 'account/comment_notices.html'
-    context_object_name = 'notices'
-    paginate_by = 10
-    raise_exception = True
-
-    def test_func(self):
-        if self.request.user.id != 2:
-            return False
-        else:
-            return True
-
-    def get_queryset(self):
-        self.request.user.profile.have_read_notice()
-        return super().get_queryset() \
-            .select_related('user', 'user__profile', 'article') \
-            .only('content', 'time', 'user__username', 'user__profile__avatar', 'article__title')
 
 
 class ProfileDetailView(JSONView):

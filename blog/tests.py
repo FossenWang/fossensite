@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -32,7 +32,7 @@ class BlogTestCase(TestCase):
         a1 = Article.objects.create(**{
             'title': 'title',
             'content': 'content',
-            'pub_date': datetime.utcnow(),
+            'pub_date': timezone.now(),
             'category_id': 1,
         })
         a1.topics.add(self.t1)

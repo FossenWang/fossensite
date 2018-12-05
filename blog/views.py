@@ -19,6 +19,7 @@ class CategoryListView(ListView):
         return Category.objects.filter(number__gt=0)
 
     def serialize(self):
+        data = super().serialize()
         context = self.context
         cates = []
         for i in context['cates']:
@@ -26,7 +27,8 @@ class CategoryListView(ListView):
                 'id': i.id,
                 'name': i.name,
             })
-        return {'data': cates}
+        data['data'] = cates
+        return data
 
 
 class TopicListView(ListView):
@@ -38,6 +40,7 @@ class TopicListView(ListView):
         return Topic.objects.filter(number__gt=0)
 
     def serialize(self):
+        data = super().serialize()
         context = self.context
         topics = []
         for i in context['topics']:
@@ -45,7 +48,8 @@ class TopicListView(ListView):
                 'id': i.id,
                 'name': i.name,
             })
-        return {'data': topics}
+        data['data'] = topics
+        return data
 
 
 class LinkListView(ListView):
@@ -54,6 +58,7 @@ class LinkListView(ListView):
     context_object_name = 'links'
 
     def serialize(self):
+        data = super().serialize()
         context = self.context
         links = []
         for i in context['links']:
@@ -62,7 +67,8 @@ class LinkListView(ListView):
                 'name': i.name,
                 'url': i.url
             })
-        return {'data': links}
+        data['data'] = links
+        return data
 
 
 def serialize_article(article):
@@ -102,12 +108,14 @@ class ArticleListView(ListView):
             .prefetch_related('topics')
 
     def serialize(self):
+        data = super().serialize()
         context = self.context
         articles = []
         for article in context['articles']:
             item = serialize_article(article)
             articles.append(item)
-        return {'data': articles}
+        data['data'] = articles
+        return data
 
 
 class HomeView(ArticleListView):

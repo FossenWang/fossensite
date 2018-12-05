@@ -22,7 +22,7 @@ class DevConfig:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': privacy.PSQL_TEST_NAME,
+            'NAME': privacy.PSQL_DEV_NAME,
             'USER': privacy.PSQL_USER,
             'PASSWORD': privacy.PSQL_PASSWORD,
             'HOST': privacy.PSQL_HOST,

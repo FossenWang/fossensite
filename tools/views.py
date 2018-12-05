@@ -102,8 +102,6 @@ class ListView(MultipleObjectMixin, TemplateJSONView):
         self.object_list = self.get_queryset()
         self.context = self.get_context_data()
         data = self.serialize()
-        if self.paginate_by and 'pageInfo' not in data:
-            data['pageInfo'] = self.get_page_info()
         return data
 
     def get_page_info(self):
@@ -119,7 +117,10 @@ class ListView(MultipleObjectMixin, TemplateJSONView):
         return page_info
 
     def serialize(self):
-        raise NotImplementedError
+        data = {}
+        if self.paginate_by:
+            data['pageInfo'] = self.get_page_info()
+        return data
 
 
 class DetailView(SingleObjectMixin, TemplateJSONView):
