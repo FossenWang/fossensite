@@ -94,7 +94,7 @@ const baseArticleListStyle = theme => ({
 class BaseArticleList extends Component {
   render() {
     let { classes, articleList, pageInfo, loading } = this.props
-    
+
     // 获取数据时显示加载中
     if (loading) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -133,59 +133,49 @@ BaseArticleList = withStyles(baseArticleListStyle)(BaseArticleList)
 class NewArticleList extends Component {
   constructor(props) {
     super(props)
-    let { page } = this.getCurrentParams()
+    let params = this.getCurrentParams()
+    let { page } = params
     this.state = {
-      loading: true, articleList: [], pageInfo: { page: page }, key: '',
+      articleList: [], key: '',
+      pageInfo: { page: page, total: 0, pageSize: 0 },
     }
-    this.setArticleList(page)
   }
 
   getCurrentParams() {
     // 获取当前的url参数
     let params = parseUrlParams(this.props.location.search)
-    let { page } = params
-    page = parseInt(page)
-    page = (page ? page : 1)
+    let page = articleManager.parsePage(params)
     return { page: page }
   }
 
-  makeListKey(page) {
+  async setArticleList(params) {
+    console.log('loading', params)
     // 收集key用于获取文章列表
-    let key = {}
-    if (page) { key.page = page }
-    return key = JSON.stringify(key)
-  }
-
-  async setArticleList(page) {
-    // 收集key用于获取文章列表
+    let { page } = params
     page = (page ? page : 1)
-    let key = this.makeListKey(page)
+    let key = articleManager.makeListKey(params)
     // 异步获取文章列表
     let articleList = await articleManager.getList(key)
-    let pageInfo = { page: page }
-    if (articleManager.pageInfo[key]) {
-      pageInfo.pageSize = articleManager.pageInfo[key].pageSize
-      pageInfo.total = articleManager.pageInfo[key].total
-    }
+    let pageInfo = Object.assign({ page: page }, articleManager.pageInfo[key])
     // 更新组件state
     this.setState({
-      loading: false, articleList: articleList, pageInfo: pageInfo, key: key
+      articleList: articleList, pageInfo: pageInfo, key: key
     })
   }
 
   render() {
-    let { articleList, pageInfo } = this.state
-    let { page } = this.getCurrentParams()
-    let key = this.makeListKey(page)
-    let loading = this.state.loading
+    let params = this.getCurrentParams()
+    let key = articleManager.makeListKey(params)
+    let loading = false
 
     // 切换页面时router会重用组件，不会调用construct方法
     // 会调用render方法，故需判断当前页面是否要重新渲染
     if (key !== this.state.key) {
       loading = true
-      this.setArticleList(page)
+      this.setArticleList(params)
     }
 
+    let { articleList, pageInfo } = this.state
     let url = this.props.location.pathname
     if (!url.match('article')) {
       url += 'article/'
@@ -203,36 +193,25 @@ NewArticleList = withErrorBoundary(NewArticleList)
 class CateArticleList extends Component {
   constructor(props) {
     super(props)
-    let { page, cate_id } = this.getCurrentParams()
+    let params = this.getCurrentParams()
+    let { page } = params
     this.state = {
-      loading: true, articleList: [],
-      pageInfo: { page: page }, key: '', cate: {}
+      articleList: [], key: '', cate: {},
+      pageInfo: { page: page, total: 0, pageSize: 0 },
     }
-    this.setArticleList(page, cate_id)
   }
 
   getCurrentParams() {
     // 获取当前的url参数，包括页码，分类id
     let params = parseUrlParams(this.props.location.search)
-    let { page } = params
-    page = parseInt(page)
-    page = (page ? page : 1)
-
-    let { cate_id } = this.props.match.params
-    if (cate_id) { cate_id = parseInt(cate_id) }
+    let page = articleManager.parsePage(params)
+    let cate_id = articleManager.parseCateId(this.props.match.params)
     return { page: page, cate_id: cate_id }
   }
 
-  makeListKey(page, cate_id) {
-    // 收集key用于获取文章列表
-    let key = {}
-    if (page) { key.page = page }
-    if (cate_id) { key.cate_id = cate_id }
-    return key = JSON.stringify(key)
-  }
-
-  async setArticleList(page, cate_id) {
+  async setArticleList(params) {
     // 获取文章列表和分页信息，然后更改state
+    let { page, cate_id } = params
     let cate = {}
     if (cate_id) {
       // 异步获取当前分类
@@ -241,36 +220,30 @@ class CateArticleList extends Component {
 
     // 收集key用于获取文章列表
     page = (page ? page : 1)
-    let key = this.makeListKey(page, cate_id)
+    let key = articleManager.makeListKey(params)
     // 异步获取文章列表
     let articleList = await articleManager.getList(key)
-    let pageInfo = { page: page }
-    if (articleManager.pageInfo[key]) {
-      pageInfo.pageSize = articleManager.pageInfo[key].pageSize
-      pageInfo.total = articleManager.pageInfo[key].total
-    }
+    let pageInfo = Object.assign({ page: page }, articleManager.pageInfo[key])
 
     // 更新组件state
     this.setState({
-      loading: false, articleList: articleList,
-      pageInfo: pageInfo, key: key, cate: cate
+      articleList: articleList, pageInfo: pageInfo, key: key, cate: cate
     })
   }
 
   render() {
-    let { articleList, pageInfo, cate } = this.state
-    if (!cate) { throw new Http404() }
-    let { page, cate_id } = this.getCurrentParams()
-    let key = this.makeListKey(page, cate_id)
-    let loading = this.state.loading
+    let params = this.getCurrentParams()
+    let key = articleManager.makeListKey(params)
+    let loading = false
 
     // 切换页面时router会重用组件，不会调用construct方法
     // 会调用render方法，故需判断当前页面是否要重新渲染
     if (key !== this.state.key) {
       loading = true
-      this.setArticleList(page, cate_id)
+      this.setArticleList(params)
     }
 
+    let { articleList, pageInfo, cate } = this.state
     pageInfo.url = this.props.location.pathname
     return (
       <BaseArticleList articleList={articleList} pageInfo={pageInfo}
@@ -287,36 +260,25 @@ CateArticleList = withErrorBoundary(CateArticleList)
 class TopicArticleList extends Component {
   constructor(props) {
     super(props)
-    let { page, topic_id } = this.getCurrentParams()
+    let params = this.getCurrentParams()
+    let { page } = params
     this.state = {
-      loading: true, articleList: [],
-      pageInfo: { page: page }, key: '', topic: {}
+      articleList: [], key: '', topic: {},
+      pageInfo: { page: page, total: 0, pageSize: 0 },
     }
-    this.setArticleList(page, topic_id)
   }
 
   getCurrentParams() {
     // 获取当前的url参数，包括页码，分类id
     let params = parseUrlParams(this.props.location.search)
-    let { page } = params
-    page = parseInt(page)
-    page = (page ? page : 1)
-
-    let { topic_id } = this.props.match.params
-    if (topic_id) { topic_id = parseInt(topic_id) }
+    let page = articleManager.parsePage(params)
+    let topic_id = articleManager.parseTopicId(this.props.match.params)
     return { page: page, topic_id: topic_id }
   }
 
-  makeListKey(page, topic_id) {
-    // 收集key用于获取文章列表
-    let key = {}
-    if (page) { key.page = page }
-    if (topic_id) { key.topic_id = topic_id }
-    return key = JSON.stringify(key)
-  }
-
-  async setArticleList(page, topic_id) {
+  async setArticleList(params) {
     // 获取文章列表和分页信息，然后更改state
+    let { page, topic_id } = params
     let topic = {}
     if (topic_id) {
       // 异步获取当前分类
@@ -325,35 +287,29 @@ class TopicArticleList extends Component {
 
     // 收集key用于获取文章列表
     page = (page ? page : 1)
-    let key = this.makeListKey(page, topic_id)
+    let key = articleManager.makeListKey(params)
     // 异步获取文章列表
     let articleList = await articleManager.getList(key)
-    let pageInfo = { page: page }
-    if (articleManager.pageInfo[key]) {
-      pageInfo.pageSize = articleManager.pageInfo[key].pageSize
-      pageInfo.total = articleManager.pageInfo[key].total
-    }
+    let pageInfo = Object.assign({ page: page }, articleManager.pageInfo[key])
     // 更新组件state
     this.setState({
-      loading: false, articleList: articleList,
-      pageInfo: pageInfo, key: key, topic: topic
+      articleList: articleList, pageInfo: pageInfo, key: key, topic: topic
     })
   }
 
   render() {
-    let { articleList, pageInfo, topic } = this.state
-    if (!topic) { throw new Http404() }
-    let { page, topic_id } = this.getCurrentParams()
-    let key = this.makeListKey(page, topic_id)
-    let loading = this.state.loading
+    let params = this.getCurrentParams()
+    let key = articleManager.makeListKey(params)
+    let loading = false
 
     // 切换页面时router会重用组件，不会调用construct方法
     // 会调用render方法，故需判断当前页面是否要重新渲染
     if (key !== this.state.key) {
       loading = true
-      this.setArticleList(page, topic_id)
+      this.setArticleList(params)
     }
 
+    let { articleList, pageInfo, topic } = this.state
     pageInfo.url = this.props.location.pathname
     return (
       <BaseArticleList articleList={articleList} pageInfo={pageInfo}
@@ -375,63 +331,50 @@ const searchListStyle = theme => ({
 class SearchArticleList extends Component {
   constructor(props) {
     super(props)
-    let { page, q } = this.getCurrentParams()
+    let params = this.getCurrentParams()
+    let { page, q } = params
     this.state = {
-      loading: true, articleList: [],
-      pageInfo: { page: page }, key: '', q: q
+      articleList: [], key: null, q: q,
+      pageInfo: { page: page, total: 0, pageSize: 0 },
     }
-    this.setArticleList(page, q)
   }
 
   getCurrentParams() {
     // 获取当前的url参数
     let params = parseUrlParams(this.props.location.search)
-    let { page, q } = params
-    page = parseInt(page)
-    page = (page ? page : 1)
-    if (q) { q = decodeURI(q) }
-    else { throw new Http404() }
+    let page = articleManager.parsePage(params)
+    let q = articleManager.parseQ(params)
+    if (!q) { throw new Http404() }
     return { page: page, q: q }
   }
 
-  makeListKey(page, q) {
-    // 收集key用于获取文章列表
-    let key = {}
-    if (page) { key.page = page }
-    if (q) { key.q = q }
-    return key = JSON.stringify(key)
-  }
-
-  async setArticleList(page, q) {
+  async setArticleList(params) {
     // 异步获取文章列表
-    let key = this.makeListKey(page, q)
+    let { page, q } = params
+    let key = articleManager.makeListKey(params)
     let articleList = await articleManager.getList(key)
-    let pageInfo = { page: page }
-    if (articleManager.pageInfo[key]) {
-      pageInfo.pageSize = articleManager.pageInfo[key].pageSize
-      pageInfo.total = articleManager.pageInfo[key].total
-    }
+    let pageInfo = Object.assign({ page: page }, articleManager.pageInfo[key])
     // 更新组件state
     this.setState({
-      loading: false, articleList: articleList,
-      pageInfo: pageInfo, key: key, q: q
+      articleList: articleList, pageInfo: pageInfo, key: key, q: q
     })
   }
 
   render() {
-    let { classes } = this.props
-    let { articleList, pageInfo } = this.state
-    let { page, q } = this.getCurrentParams()
-    let key = this.makeListKey(page, q)
-    let loading = this.state.loading
+    let params = this.getCurrentParams()
+    let key = articleManager.makeListKey(params)
+    let loading = false
 
     // 切换页面时router会重用组件，不会调用construct方法
     // 会调用render方法，故需判断当前页面是否要重新渲染
     if (key !== this.state.key) {
       loading = true
-      this.setArticleList(page, q)
+      this.setArticleList(params)
     }
 
+    let { q } = params
+    let { classes } = this.props
+    let { articleList, pageInfo } = this.state
     pageInfo.url = this.props.location.pathname + (q ? `?q=${q}` : '')
     return (
       <BaseArticleList articleList={articleList} pageInfo={pageInfo}

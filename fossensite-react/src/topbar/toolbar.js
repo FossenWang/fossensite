@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { withRouter } from "react-router-dom";
 import {
-  withStyles, Toolbar, InputBase,
+  withStyles, Toolbar, InputBase, Snackbar,
   InputAdornment, Grid, Button, Dialog, Badge
 } from '@material-ui/core';
 
@@ -146,7 +146,7 @@ LoginDialog = withStyles(loginStyle)(LoginDialog)
 
 const userBarStyle = theme => ({
   root: {
-    '&>i, >a': {
+    '&>i': {
       margin: '0 8px',
     },
   },
@@ -171,11 +171,14 @@ class UserBar extends Component {
       user: {
         id: null, username: "", avatar: null,
         github_url: null, new_notice: false
-      }
+      },
+      openLogoutMsg: false,
     }
     this.setUser()
-    // 注册该组件的引用
-    userManager.refs.push(this)
+    // 注册已读阅读的回调
+    userManager.callbacks.readNotice.push((params) => {
+      this.setState({ user: params.currentUser })
+    })
   }
 
   setUser = async (refresh = false) => {
@@ -188,8 +191,12 @@ class UserBar extends Component {
   async logout() {
     let rsp = await userManager.logout()
     if (rsp.status === 0) {
-      this.setUser(true)
+      await this.setUser(true)
+      this.setState({openLogoutMsg: true})
     }
+  }
+  closeLogoutMsg = () => {
+    this.setState({openLogoutMsg: false})
   }
 
   render() {
@@ -219,6 +226,12 @@ class UserBar extends Component {
       <div className={classes.root}>
         <i className="fa fa-user fa-lg" aria-hidden="true"></i>
         {parts}
+        <Snackbar
+          anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+          open={this.state.openLogoutMsg}
+          onClose={this.closeLogoutMsg}
+          autoHideDuration={2000}
+          message={'已退出登录'} />
       </div>
     )
   }

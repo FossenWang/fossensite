@@ -27,4 +27,11 @@ class Http404 extends HttpError {
 }
 
 
-export { Exception, NotImplementedError, HttpError, Http404 }
+class HttpForbidden extends HttpError {
+  constructor(msg = 'Forbidden', code=403) {
+    super(msg, code)
+  }
+}
+
+
+export { Exception, NotImplementedError, HttpError, Http404, HttpForbidden }

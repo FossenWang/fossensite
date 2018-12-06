@@ -1,4 +1,4 @@
-import { NotImplementedError } from '../common/errors'
+import { NotImplementedError, HttpForbidden } from '../common/errors'
 import { parseUrlParams } from '../common/tools'
 
 
@@ -13,12 +13,21 @@ class ResourceManager {
     this.data = {}
     this.idListMap = {}  //idListMap = {key: [idList]}
     this.listApiPromise = {}
+    this.itemApiPromise = {}
   }
 
   async getItem(id) {
     let item = this.data[id]
     if (item === undefined) {
-      item = await this.getItemFromApi(id)
+      if (!this.itemApiPromise[id]) {
+        this.itemApiPromise[id] = this.getItemFromApi(id)
+      }
+      try {
+        item = await this.itemApiPromise[id]
+      } catch (error) {
+        this.itemApiPromise[id] = undefined
+        throw error
+      }
       if (item) { this.setItem(item) }
       else { return item }
     }
@@ -43,7 +52,12 @@ class ResourceManager {
       if (!this.listApiPromise[key]) {
         this.listApiPromise[key] = this.getListFromApi(key)
       }
-      list = await this.listApiPromise[key]
+      try {
+        list = await this.listApiPromise[key]
+      } catch (error) {
+        this.listApiPromise[key] = undefined
+        throw error
+      }
       this.setlistData(key, list)
     }
     return list
@@ -88,64 +102,84 @@ class ResourceManager {
 class ArticleManager extends ResourceManager {
   baseApi = API_HOST + 'article/'
   pageInfo = {}
-
   setPageInfo(key, pageSize, total) {
     this.pageInfo[key] = {
       pageSize: pageSize,
       total: total,
     }
   }
+  makeListKey(params) {
+    // 收集key用于获取文章列表
+    let key = {}
+    let { page, cate_id, topic_id, q } = params
+    if (page) { key.page = page }
+    if (cate_id) { key.cate_id = cate_id }
+    if (topic_id) { key.topic_id = topic_id }
+    if (q) { key.q = q }
+    return JSON.stringify(key)
+  }
+  parsePage(params) {
+    let { page } = params
+    page = parseInt(page)
+    page = (page ? page : 1)
+    return page
+  }
+  parseCateId(params) {
+    let { cate_id } = params
+    if (cate_id) { cate_id = parseInt(cate_id) }
+    return cate_id
+  }
+  parseTopicId(params) {
+    let { topic_id } = params
+    if (topic_id) { topic_id = parseInt(topic_id) }
+    return topic_id
+  }
+  parseQ(params) {
+    let { q } = params
+    if (q) { q = decodeURI(q) }
+    return q
+  }
 
   async getItemFromApi(id) {
-    try {
-      if (!id) {
-        return undefined
-      }
-      let url = `${this.baseApi}${id}/`
-      let rsp = await fetch(url, { headers: headers })
-      if (rsp.status === 404) {
-        return {}
-      }
-      let rawData = await rsp.json()
-      return rawData
-    } catch (error) {
-      console.log(error)
+    if (!id) {
       return undefined
     }
+    let url = `${this.baseApi}${id}/`
+    let rsp = await fetch(url, { headers: headers })
+    if (rsp.status === 404) {
+      return {}
+    }
+    let rawData = await rsp.json()
+    return rawData
   }
 
   async getListFromApi(key) {
-    try {
-      let { page, cate_id, topic_id, q } = JSON.parse(key)
-      let url = this.baseApi
-      let params = []
-      if (cate_id) {
-        url = `${url}category/${cate_id}/`
-      } else if (topic_id) {
-        url = `${url}topic/${topic_id}/`
-      } else if (q) {
-        url = `${url}search/`
-        params.push(`q=${q}`)
-      }
-      if (page) {
-        params.push(`page=${page}`)
-      }
-      if (params.length > 0) {
-        url += '?' + params.join('&')
-      }
-      let rsp = await fetch(url, { headers: headers })
-      if (rsp.status === 404) {
-        return []
-      }
-      let rawData = await rsp.json()
-      if (rawData.pageInfo) {
-        this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
-      }
-      return rawData.data
-    } catch (error) {
-      console.log(error)
-      return undefined
+    let { page, cate_id, topic_id, q } = JSON.parse(key)
+    let url = this.baseApi
+    let params = []
+    if (cate_id) {
+      url = `${url}category/${cate_id}/`
+    } else if (topic_id) {
+      url = `${url}topic/${topic_id}/`
+    } else if (q) {
+      url = `${url}search/`
+      params.push(`q=${q}`)
     }
+    if (page) {
+      params.push(`page=${page}`)
+    }
+    if (params.length > 0) {
+      url += '?' + params.join('&')
+    }
+    let rsp = await fetch(url, { headers: headers })
+    if (rsp.status === 404) {
+      return []
+    }
+    let rawData = await rsp.json()
+    if (rawData.pageInfo) {
+      this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
+    }
+    return rawData.data
   }
 }
 const articleManager = new ArticleManager()
@@ -156,15 +190,10 @@ class CategoryManager extends ResourceManager {
   baseApi = API_HOST + 'category/'
 
   async getListFromApi(key) {
-    try {
-      let url = this.baseApi
-      let rsp = await fetch(url, { headers: headers })
-      let rawData = await rsp.json()
-      return rawData.data
-    } catch (error) {
-      console.log(error)
-      return undefined
-    }
+    let url = this.baseApi
+    let rsp = await fetch(url, { headers: headers })
+    let rawData = await rsp.json()
+    return rawData.data
   }
 
   async getItemFromApi(id) {
@@ -195,19 +224,32 @@ class UserManager extends ResourceManager {
   // 用户管理
   constructor() {
     super()
-    this.refs = []
+    this.currentUserId = null
+    this.currentUserApiPromise = null
+    this.callbacks = {
+      readNotice: [],
+      login: [],
+      logout: [],
+    }
   }
   baseApi = API_HOST + 'account/'
   profileUrl = API_HOST + 'account/profile/'
   preLoginUrl = API_HOST + 'account/login/prepare/'
   devLoginUrl = API_HOST + 'account/oauth/github/'
   logoutUrl = API_HOST + 'account/logout/'
-  currentUserId = null
 
   async getCurrentUser(refresh = false) {
     let currentUser = this.getItemSync(this.currentUserId)
     if (!currentUser || refresh) {
-      currentUser = await this.getCurrentUserFromApi()
+      if (!this.currentUserApiPromise || refresh) {
+        this.currentUserApiPromise = this.getCurrentUserFromApi()
+      }
+      try {
+        currentUser = await this.currentUserApiPromise
+      } catch (error) {
+        this.currentUserApiPromise = null
+        throw error
+      }
       if (currentUser) {
         this.currentUserId = currentUser.id
         this.setItem(currentUser)
@@ -235,13 +277,19 @@ class UserManager extends ResourceManager {
     if (params.state) {
       url += '&state=' + params.state
     }
-
     let rsp = await fetch(url, { headers: headers, credentials: 'include', redirect: 'manual' })
+    // 调用回调
+    this.callbacks.login.forEach(func => {
+      func({ login: true })
+    })
     return rsp
   }
 
   async logout() {
     let rsp = await fetch(this.logoutUrl, { headers: headers, credentials: 'include', redirect: 'manual' })
+    this.callbacks.logout.forEach(func => {
+      func({ login: false })
+    })
     return rsp
   }
 
@@ -250,9 +298,9 @@ class UserManager extends ResourceManager {
     if (currentUser.new_notice) {
       currentUser.new_notice = false
       this.setItem(currentUser)
-      // 调用引用组件，设置state
-      this.refs.forEach(ref => {
-        ref.setState({ user: currentUser })
+      // 调用回调
+      this.callbacks.readNotice.forEach(func => {
+        func({ currentUser })
       })
     }
   }
@@ -263,19 +311,24 @@ const userManager = new UserManager()
 class NoticeManager extends ResourceManager {
   baseApi = API_HOST + 'account/notice/'
   pageInfo = {}
-
   setPageInfo(key, pageSize, total) {
     this.pageInfo[key] = {
       pageSize: pageSize,
       total: total,
     }
   }
-
   makeListKey(page) {
     // 收集key用于获取列表
     let key = {}
     if (page) { key.page = page }
     return key = JSON.stringify(key)
+  }
+  cleanCaches = () => {
+    this.data = {}
+    this.idListMap = {}
+    this.listApiPromise = {}
+    this.itemApiPromise = {}
+    this.pageInfo = {}
   }
 
   async getListFromApi(key) {
@@ -287,6 +340,8 @@ class NoticeManager extends ResourceManager {
     let rsp = await fetch(url, { headers: headers, credentials: 'include' })
     if (rsp.status === 404) {
       return []
+    } else if (rsp.status === 403) {
+      throw new HttpForbidden()
     }
     let rawData = await rsp.json()
     if (rawData.pageInfo) {
@@ -297,12 +352,11 @@ class NoticeManager extends ResourceManager {
         item.id = 'c' + item.id
       }
     })
-    console.log(rawData)
     return rawData.data
   }
 }
 const noticeManager = new NoticeManager()
-
+window.n = noticeManager
 
 export {
   articleManager, categoryManager, topicManager,

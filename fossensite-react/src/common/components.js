@@ -185,6 +185,20 @@ class Loading extends Component {
 }
 
 
+class LoginNote extends Component {
+  render() {
+    return (
+      <InfoPage>
+        <span style={{ fontSize: '1.5rem' }}>
+          <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
+          &emsp;请登录
+        </span>
+      </InfoPage>
+    )
+  }
+}
+
+
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -229,6 +243,6 @@ function withErrorBoundary(WrappedComponent) {
 
 
 export {
-  Pagination, FrameGrid, ZoomImg, InfoPage, Loading, 
+  Pagination, FrameGrid, ZoomImg, InfoPage, Loading, LoginNote,
   NotFound, ErrorPage, ErrorBoundary, withErrorBoundary
 }

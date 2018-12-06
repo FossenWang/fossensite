@@ -5,9 +5,9 @@ import {
   Avatar, ListItemText
 } from '@material-ui/core';
 
-import { Pagination, Loading, withErrorBoundary } from '../common/components'
+import { Pagination, Loading, withErrorBoundary, LoginNote } from '../common/components'
 import { parseUrlParams, formatDate } from '../common/tools'
-import { Http404 } from '../common/errors'
+import { Http404, HttpForbidden } from '../common/errors'
 import { noticeManager, userManager } from '../resource/manager'
 
 
@@ -87,9 +87,19 @@ class NoticeList extends Component {
     super(props)
     let { page } = this.getCurrentParams()
     this.state = {
-      loading: false, noticeList: [], key: '',
+      login: true, noticeList: [], key: null,
       pageInfo: { page: page, total: 0, pageSize: 0 },
     }
+    // 注册登录和注销的回调
+    userManager.callbacks.login.push((params) => {
+      this.setState({ login: true, key: null })
+    }
+    )
+    userManager.callbacks.logout.push((params) => {
+      this.setState({ login: false, key: null })
+      noticeManager.cleanCaches()
+    }
+    )
   }
   getCurrentParams() {
     // 获取当前的url参数
@@ -99,37 +109,36 @@ class NoticeList extends Component {
     page = (page ? page : 1)
     return { page: page }
   }
-  async setNoticeList(page) {
-    console.log('setNoticeList', page)
-    // 收集key用于获取文章列表
-    page = (page ? page : 1)
-    let key = noticeManager.makeListKey(page)
-    // 异步获取文章列表
-    let noticeList = await noticeManager.getList(key)
-    let pageInfo = { page: page }
-    if (noticeManager.pageInfo[key]) {
-      pageInfo.pageSize = noticeManager.pageInfo[key].pageSize
-      pageInfo.total = noticeManager.pageInfo[key].total
+  async setNoticeList(page, key) {
+    try {
+      let noticeList = await noticeManager.getList(key)
+      let pageInfo = Object.assign({ page: page }, noticeManager.pageInfo[key])
+      // 更新组件state
+      this.setState({
+        noticeList: noticeList, pageInfo: pageInfo, key: key
+      })
+      userManager.readNotice()
+    } catch (error) {
+      if (error instanceof HttpForbidden) {
+        this.setState({ login: false, key: null })
+      } else {
+        throw error
+      }
     }
-    // 更新组件state
-    this.setState({
-      loading: false, noticeList: noticeList, pageInfo: pageInfo, key: key
-    })
-    userManager.readNotice()
   }
 
   render() {
     let { page } = this.getCurrentParams()
     let key = noticeManager.makeListKey(page)
-    let loading = this.state.loading
+    let { login } = this.state
 
-    if (key !== this.state.key && !loading) {
-      loading = true
-      this.setNoticeList(page)
+    if (!login) {
+      return (<LoginNote />)
     }
 
-    // 获取数据时显示加载中
-    if (loading) {
+    if (key !== this.state.key) {
+      this.setNoticeList(page, key)
+      // 获取数据时显示加载中
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return (<Loading />)
     }
@@ -147,16 +156,11 @@ class NoticeList extends Component {
     } else {
       items = (<ListItem className={classes.empty}>暂时没有通知</ListItem>)
     }
-    console.log(pageInfo)
     return (
       <Fade in>
         <Paper className={classes.paper}>
-          <div className={classes.listTitle}>
-            通知
-          </div>
-          <List>
-            {items}
-          </List>
+          <div className={classes.listTitle}>通知</div>
+          <List>{items}</List>
           <Pagination url={this.props.location.pathname} page={pageInfo.page}
             pageSize={pageInfo.pageSize} total={pageInfo.total} />
         </Paper>
