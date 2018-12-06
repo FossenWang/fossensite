@@ -136,22 +136,24 @@ class UserReplyList(LoginRequiredMixin, ListView):
     context_object_name = 'replies'
     paginate_by = 10
     raise_exception = True
+    none = Value(None, IntegerField())
+    fields = ('id', 'content', 'time', 'user_id', 'article_id', 'article__title',
+              'comment_id', 'comment_user_id', 'reply_id', 'reply_user_id')
 
     def get_queryset(self):
         uid = self.request.user.id
         q1 = ArticleCommentReply.objects \
             .filter(Q(comment_user_id=uid) | Q(reply_user_id=uid)) \
-            .exclude(user=uid).order_by('-time') \
-            .values('content', 'comment_user_id', 'reply_user_id', 'article_id',
-                    'user_id', 'id', 'reply_id', 'comment_id', 'time', 'article__title',)
+            .exclude(user=uid)
 
-        # if uid == 2:
-        #     none = Value(None, IntegerField())
-        #     q2 = ArticleComment.objects \
-        #         .annotate(comment=none, reply=none)
-        #         # .values('id', 'content', 'time', 'user__username', 'user__profile__avatar', 'article__title')
-        #     q1 = q1.union(q2, all=True)
+        if uid == 2:
+            # 文章作者收到的评论
+            none = self.none
+            q2 = ArticleComment.objects \
+                .annotate(comment_id=none, comment_user_id=none, reply_id=none, reply_user_id=none)
+            q1 = q1.union(q2, all=True)
 
+        q1 = q1.order_by('-time').values(*self.fields)
         self.request.user.profile.have_read_notice()
         return q1
 

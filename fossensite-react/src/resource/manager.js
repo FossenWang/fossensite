@@ -292,6 +292,11 @@ class NoticeManager extends ResourceManager {
     if (rawData.pageInfo) {
       this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
     }
+    rawData.data.forEach(item => {
+      if (item.comment_id === null) {
+        item.id = 'c' + item.id
+      }
+    })
     console.log(rawData)
     return rawData.data
   }

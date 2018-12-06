@@ -26,17 +26,35 @@ const noticeItemStyle = theme => ({
 class NoticeListItem extends Component {
   render() {
     let { notice, classes } = this.props
+    let title
+    if (notice.comment_id === null) {
+      title = (
+        <div>
+          <a href={notice.user.github_url} target={"_blank"}>
+            {notice.user.username}
+          </a>&nbsp;评论了文章
+          <Link to={`/article/${notice.article_id}/`}>
+            《{notice.article__title}》
+          </Link>
+        </div>
+      )
+    } else {
+      title = (
+        <div>
+          <a href={notice.user.github_url} target={"_blank"}>
+            {notice.user.username}
+          </a>&nbsp;在文章
+          <Link to={`/article/${notice.article_id}/`}>
+            《{notice.article__title}》
+          </Link>中回复了你
+        </div>
+      )
+    }
     return (
       <ListItem>
         <Avatar src={notice.user.avatar} />
-        <ListItemText classes={{primary: classes.itemText}}>
-          <div>
-            <a href={notice.user.github_url} target={"_blank"}>{notice.user.username}</a>
-            &nbsp;在文章
-            <Link to={`/article/${notice.article_id}/`}>
-              《{notice.article__title}》
-            </Link>中回复了你
-          </div>
+        <ListItemText classes={{ primary: classes.itemText }}>
+          {title}
           <div className={classes.time}>{formatDate(notice.time)}</div>
           <div>{notice.content}</div>
         </ListItemText>
@@ -69,7 +87,8 @@ class NoticeList extends Component {
     super(props)
     let { page } = this.getCurrentParams()
     this.state = {
-      loading: false, noticeList: [], pageInfo: { page: page }, key: '',
+      loading: false, noticeList: [], key: '',
+      pageInfo: { page: page, total: 0, pageSize: 0 },
     }
   }
   getCurrentParams() {
@@ -120,7 +139,7 @@ class NoticeList extends Component {
     let items
     if (noticeList.length) {
       items = noticeList.map((notice) => {
-        return (<NoticeListItem  key={notice.id} notice={notice} />
+        return (<NoticeListItem key={notice.id} notice={notice} />
         )
       })
     } else if (pageInfo.page !== 1) {
@@ -128,7 +147,7 @@ class NoticeList extends Component {
     } else {
       items = (<ListItem className={classes.empty}>暂时没有通知</ListItem>)
     }
-
+    console.log(pageInfo)
     return (
       <Fade in>
         <Paper className={classes.paper}>
@@ -138,7 +157,7 @@ class NoticeList extends Component {
           <List>
             {items}
           </List>
-          <Pagination url={pageInfo.url} page={pageInfo.page}
+          <Pagination url={this.props.location.pathname} page={pageInfo.page}
             pageSize={pageInfo.pageSize} total={pageInfo.total} />
         </Paper>
       </Fade>

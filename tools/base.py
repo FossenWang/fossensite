@@ -57,3 +57,7 @@ def update_model(model: Model, update_data: dict):
             update_fields.append(field)
     if update_fields:
         model.save(update_fields=update_fields)
+
+
+def bind_update_model():
+    Model.update = update_model

@@ -41,23 +41,16 @@ class DevConfig:
     #     'disable_existing_loggers': False,
     #     'formatters': {
     #         'simple': {
-    #             'format': '[%(asctime)s] %(message)s'
-    #         },
-    #     },
+    #             'format': '[%(asctime)s] %(message)s'},},
     #     'handlers': {
     #         'console': {
     #             'level': 'DEBUG',
     #             'class': 'logging.StreamHandler',
-    #             'formatter': 'simple'
-    #         },
-    #     },
+    #             'formatter': 'simple'},},
     #     'loggers': {
     #         'django': {
     #             'handlers': ['console'],
-    #             'level': 'DEBUG',
-    #         },
-    #     },
-    # }
+    #             'level': 'DEBUG',},},}
 
 
 class ProConfig:
