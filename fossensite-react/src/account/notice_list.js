@@ -1,10 +1,50 @@
 import React, { Component } from 'react';
-import { withStyles, Grid, Paper, Fade } from '@material-ui/core';
+import { Link } from 'react-router-dom';
+import {
+  withStyles, Paper, Fade, List, ListItem,
+  Avatar, ListItemText
+} from '@material-ui/core';
 
 import { Pagination, Loading, withErrorBoundary } from '../common/components'
-import { parseUrlParams } from '../common/tools'
+import { parseUrlParams, formatDate } from '../common/tools'
 import { Http404 } from '../common/errors'
-import { noticeManager } from '../resource/manager'
+import { noticeManager, userManager } from '../resource/manager'
+
+
+const noticeItemStyle = theme => ({
+  itemText: {
+    fontSize: '1rem',
+    color: theme.palette.primary.contrastText,
+  },
+  time: {
+    fontSize: '0.875rem',
+    color: 'gray',
+  },
+})
+
+
+class NoticeListItem extends Component {
+  render() {
+    let { notice, classes } = this.props
+    return (
+      <ListItem>
+        <Avatar src={notice.user.avatar} />
+        <ListItemText classes={{primary: classes.itemText}}>
+          <div>
+            <a href={notice.user.github_url} target={"_blank"}>{notice.user.username}</a>
+            &nbsp;在文章
+            <Link to={`/article/${notice.article_id}/`}>
+              《{notice.article__title}》
+            </Link>中回复了你
+          </div>
+          <div className={classes.time}>{formatDate(notice.time)}</div>
+          <div>{notice.content}</div>
+        </ListItemText>
+      </ListItem>
+    )
+  }
+}
+NoticeListItem = withStyles(noticeItemStyle)(NoticeListItem)
 
 
 const noticeListStyle = theme => ({
@@ -18,6 +58,8 @@ const noticeListStyle = theme => ({
   empty: {
     margin: '3rem 0',
     fontSize: '1.25rem',
+    textAlign: 'center',
+    justifyContent: 'center',
   },
 })
 
@@ -29,7 +71,6 @@ class NoticeList extends Component {
     this.state = {
       loading: false, noticeList: [], pageInfo: { page: page }, key: '',
     }
-    this.setNoticeList(page)
   }
   getCurrentParams() {
     // 获取当前的url参数
@@ -40,6 +81,7 @@ class NoticeList extends Component {
     return { page: page }
   }
   async setNoticeList(page) {
+    console.log('setNoticeList', page)
     // 收集key用于获取文章列表
     page = (page ? page : 1)
     let key = noticeManager.makeListKey(page)
@@ -54,15 +96,15 @@ class NoticeList extends Component {
     this.setState({
       loading: false, noticeList: noticeList, pageInfo: pageInfo, key: key
     })
+    userManager.readNotice()
   }
 
   render() {
     let { page } = this.getCurrentParams()
     let key = noticeManager.makeListKey(page)
     let loading = this.state.loading
-    // let pageInfo = { url: '/', page: 0, pageSize: 10, total: 0 }
 
-    if (key !== this.state.key) {
+    if (key !== this.state.key && !loading) {
       loading = true
       this.setNoticeList(page)
     }
@@ -78,14 +120,13 @@ class NoticeList extends Component {
     let items
     if (noticeList.length) {
       items = noticeList.map((notice) => {
-        return (
-          <div key={notice.id} notice={notice}>{notice.content}</div>
+        return (<NoticeListItem  key={notice.id} notice={notice} />
         )
       })
     } else if (pageInfo.page !== 1) {
       throw new Http404()
     } else {
-      items = (<div className={classes.empty}>暂时没有通知</div>)
+      items = (<ListItem className={classes.empty}>暂时没有通知</ListItem>)
     }
 
     return (
@@ -94,9 +135,9 @@ class NoticeList extends Component {
           <div className={classes.listTitle}>
             通知
           </div>
-          <Grid container justify={'center'}>
+          <List>
             {items}
-          </Grid>
+          </List>
           <Pagination url={pageInfo.url} page={pageInfo.page}
             pageSize={pageInfo.pageSize} total={pageInfo.total} />
         </Paper>

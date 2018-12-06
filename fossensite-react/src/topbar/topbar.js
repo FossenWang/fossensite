@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-
+import { Link } from 'react-router-dom';
 import { withStyles, AppBar, Hidden, Grid } from '@material-ui/core';
 
 import { FrameGrid } from '../common/components';
@@ -12,21 +12,30 @@ const topbar_style = (theme) => ({
     display: 'block',
     color: theme.palette.text.primary
   },
+  grid: {
+    margin: '0 16px',
+    flexFlow: 'row nowrap'
+  },
+  link: {
+    margin: 'auto 2rem',
+    fontSize: '1.75rem'
+  },
 })
 
 
 class Topbar extends Component {
   render() {
+    let { classes } = this.props
     return (
-      <AppBar classes={this.props.classes} position={'relative'}>
+      <AppBar classes={{ root: classes.root }} position={'relative'}>
         <FrameGrid container>
-          <Grid container alignItems={'center'} style={{ margin: '0 16px', flexFlow: 'row nowrap' }}>
+          <Grid container alignItems={'center'} className={classes.grid}>
             <Hidden mdUp implementation={'css'}>
               <i className="fa fa-bars fa-lg" />
             </Hidden>
-            <a href={'/'} style={{ margin: 'auto 2rem', fontSize: '1.75rem' }}>
+            <Link to={'/'} className={classes.link}>
               Fossen
-            </a>
+            </Link>
             <NavList />
             <TopToolbar />
           </Grid>

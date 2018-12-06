@@ -193,6 +193,10 @@ const linkManager = new LinkManager()
 
 class UserManager extends ResourceManager {
   // 用户管理
+  constructor() {
+    super()
+    this.refs = []
+  }
   baseApi = API_HOST + 'account/'
   profileUrl = API_HOST + 'account/profile/'
   preLoginUrl = API_HOST + 'account/login/prepare/'
@@ -213,14 +217,9 @@ class UserManager extends ResourceManager {
   }
 
   async getCurrentUserFromApi() {
-    try {
-      let rsp = await fetch(this.profileUrl, { headers: headers, credentials: 'include' })
-      let rawData = await rsp.json()
-      return rawData
-    } catch (error) {
-      console.log(error)
-      return undefined
-    }
+    let rsp = await fetch(this.profileUrl, { headers: headers, credentials: 'include' })
+    let rawData = await rsp.json()
+    return rawData
   }
 
   async prepareLogin(next) {
@@ -244,6 +243,18 @@ class UserManager extends ResourceManager {
   async logout() {
     let rsp = await fetch(this.logoutUrl, { headers: headers, credentials: 'include', redirect: 'manual' })
     return rsp
+  }
+
+  async readNotice() {
+    let currentUser = await this.getCurrentUser()
+    if (currentUser.new_notice) {
+      currentUser.new_notice = false
+      this.setItem(currentUser)
+      // 调用引用组件，设置state
+      this.refs.forEach(ref => {
+        ref.setState({ user: currentUser })
+      })
+    }
   }
 }
 const userManager = new UserManager()

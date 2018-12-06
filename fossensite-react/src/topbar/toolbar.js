@@ -174,6 +174,8 @@ class UserBar extends Component {
       }
     }
     this.setUser()
+    // 注册该组件的引用
+    userManager.refs.push(this)
   }
 
   setUser = async (refresh = false) => {
@@ -196,13 +198,14 @@ class UserBar extends Component {
     let user = this.state.user
     if (user.id) {
       parts = <Fragment>
-        <Button className={classes.button}>
-          <Link to={"/account/notice/"}>
+        <Link to={"/account/notice/"}>
+          <Button className={classes.button}>
             <Badge color="error" invisible={!user.new_notice} badgeContent={''}
               classes={{ badge: classes.badge }}>
               <i className="fa fa-envelope" aria-hidden="true"></i>
-            </Badge></Link>
-        </Button>
+            </Badge>
+          </Button>
+        </Link>
         <Button className={classes.button}
           href={user.github_url ? user.github_url : null}
           target={'_blank'}>{user.username}</Button>
