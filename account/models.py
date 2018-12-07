@@ -20,16 +20,11 @@ class Profile(models.Model):
 
     def get_new_notice(self):
         '收到新通知'
-        if not self.new_notice:
-            self.new_notice = True
-            self.save()
+        self.update(new_notice=True)
 
     def have_read_notice(self):
         '已读通知'
-        if self.new_notice:
-            self.new_notice = False
-            self.read_notice = timezone.now()
-            self.save()
+        self.update(new_notice=False, read_notice=timezone.now())
 
     class Meta:
         verbose_name = '用户资料'

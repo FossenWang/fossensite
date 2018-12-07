@@ -13,7 +13,7 @@ def migrate_data(apps, schema_editor):
         update_values = {'article_id': r.comment.article_id, 'comment_user_id': r.comment.user_id}
         if r.reply_id is not None:
             update_values['reply_user_id'] = r.reply.user_id
-        update_model(r, update_values)
+        update_model(r, **update_values)
 
 
 class Migration(migrations.Migration):

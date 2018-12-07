@@ -30,7 +30,7 @@ class ArticleComment(BaseComment):
 class ArticleCommentReply(BaseComment):
     '文章评论回复(二级评论)'
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='replies', verbose_name='评论文章')
-    comment = models.ForeignKey(ArticleComment, on_delete=models.CASCADE, verbose_name='一级评论', related_name='+')
+    comment = models.ForeignKey(ArticleComment, on_delete=models.CASCADE, verbose_name='一级评论', related_name='replies')
     comment_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='一级评论者', related_name='+')
     reply = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, verbose_name='二级评论', related_name='+')
     reply_user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, verbose_name='二级评论者', related_name='+')

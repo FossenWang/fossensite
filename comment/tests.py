@@ -38,22 +38,63 @@ class CommentTestCase(TestCase):
             content='r3', user=fossen, article=a1, comment=c1, comment_user=c1.user,
             reply=r2, reply_user=r2.user)
 
+        self.a1 = a1
+        self.user = user
+        self.fossen = fossen
         self.client.defaults = {'HTTP_ACCEPT': 'application/json'}
 
     def test_comment(self):
         c = self.client
         c.login(username='user1', password='user1')
 
+        self.assertTrue(self.user.profile.new_notice, '有新通知')
         rsp = c.get('/account/notice/')
         self.assertEqual(rsp.status_code, 200)
+        self.user.profile.refresh_from_db()
+        self.assertFalse(self.user.profile.new_notice, '通知已读')
         r = rsp.json()
         self.assertEqual(set(r['data'][0]), {
             'reply_id', 'user', 'article_id', 'id', 'comment_user',
             'article__title', 'comment_id', 'reply_user', 'time', 'content'})
-        self.assertEqual(set(r['data'][0]['user']), {'username', 'id', 'avatar', 'github_url'})
-        self.assertEqual(set(r['data'][0]['comment_user']), {'username', 'id', 'avatar', 'github_url'})
-        self.assertEqual(set(r['data'][0]['reply_user']), {'username', 'id', 'avatar', 'github_url'})
+        user_fields = {'id', 'avatar', 'github_url', 'username'}
+        self.assertEqual(set(r['data'][0]['user']), user_fields)
+        self.assertEqual(set(r['data'][0]['comment_user']), user_fields)
+        self.assertEqual(set(r['data'][0]['reply_user']), user_fields)
         self.assertEqual(set(r['pageInfo']), {'lastPage', 'page', 'pageSize', 'total'})
+
+        rsp = c.get('/article/1/comment/')
+        self.assertEqual(rsp.status_code, 200)
+        r = rsp.json()
+        self.assertEqual(set(r['data'][0]), {
+            'time', 'user', 'article_id', 'id', 'content', 'reply_list'})
+        self.assertEqual(set(r['data'][0]['reply_list'][0]), {
+            'reply_user', 'id', 'content', 'user', 'reply_id',
+            'comment_user', 'time', 'comment_id', 'article_id'})
+        user_fields = {'id', 'avatar', 'github_url', 'username'}
+        self.assertEqual(set(r['data'][0]['user']), user_fields)
+        self.assertEqual(set(r['data'][0]['reply_list'][1]['user']), user_fields)
+        self.assertEqual(set(r['data'][0]['reply_list'][1]['comment_user']), user_fields)
+        self.assertEqual(set(r['data'][0]['reply_list'][1]['reply_user']), user_fields)
+
+        for i in range(2, 6):
+            cm = ArticleComment.objects.create(content=f'c{i}', user=self.user, article=self.a1)
+            for j in range(1, 6):
+                ArticleCommentReply.objects.create(
+                    content=f'r{j}', user=self.fossen, article=self.a1,
+                    comment=cm, comment_user=cm.user)
+        self.user.profile.refresh_from_db()
+        self.assertTrue(self.user.profile.new_notice, '有新通知')
+
+        rsp = c.get('/article/1/comment/')
+        self.assertEqual(rsp.status_code, 200)
+        r = rsp.json()
+        # 一级评论为时间倒序
+        self.assertTrue(r['data'][0]['id'] > r['data'][1]['id'])
+        for comment in r['data']:
+            # 二级评论为时间顺序
+            self.assertTrue(comment['reply_list'][0]['id'] < comment['reply_list'][1]['id'])
+            for reply in comment['reply_list']:
+                self.assertEqual(reply['comment_id'], comment['id'])
 
         # from pprint import pprint
         # pprint(rsp.json())

@@ -10,7 +10,6 @@ from django.utils.decorators import method_decorator
 
 from fossensite import settings
 from tools.views import JSONView
-from tools.base import update_model
 
 from .models import Profile, BlankProfile
 from .forms import OauthEditUsernameForm
@@ -103,8 +102,9 @@ class GitHubOAuthView(JSONView):
                               github_url=user_info.get('html_url'))
             profile.save()
         else:
-            update_model(user.profile, {'avatar': user_info.get('avatar_url'),
-                                        'github_url': user_info.get('html_url')})
+            user.profile.update(**{
+                'avatar': user_info.get('avatar_url'),
+                'github_url': user_info.get('html_url')})
             user = user[0]
         return self.login_user(user)
 

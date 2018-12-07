@@ -9,8 +9,7 @@ def notify_user(sender, **kwargs):
     if not kwargs['created']:
         return
     if sender is ArticleComment:
-        fossen = User.objects.select_related(
-            'profile').only('profile__new_notice').get(id=2)
+        fossen = User.objects.select_related('profile').get(id=2)
         fossen.profile.get_new_notice()
     elif sender is ArticleCommentReply:
         reply = kwargs['instance']

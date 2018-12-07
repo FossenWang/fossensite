@@ -48,7 +48,7 @@ def send_email(title, message):
     )  # 在setting.py中定义邮箱与密码
 
 
-def update_model(model: Model, update_data: dict):
+def update_model(model: Model, **update_data):
     '根据内容改变与否判断需要更新的模型字段'
     update_fields = []
     for field in update_data:

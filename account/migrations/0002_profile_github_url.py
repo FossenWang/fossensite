@@ -9,7 +9,7 @@ def migrate_data(apps, schema_editor):
     ps = Profile.objects.select_related('user').all()
     for p in ps:
         if not p.github_url:
-            update_model(p, {'github_url': 'https://github.com/' + p.user.username})
+            update_model(p, **{'github_url': 'https://github.com/' + p.user.username})
 
 
 class Migration(migrations.Migration):

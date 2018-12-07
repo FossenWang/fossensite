@@ -1,6 +1,6 @@
-from django.urls import re_path, path
-from comment.views import ArticleCommentView, CreateArticleCommentView, \
-    CreateArticleCommentReplyView, DeleteArticleCommentView, DeleteArticleCommentReplyView
+from django.urls import path
+
+from comment.urls import urlpatterns as comment_urls
 from .views import ArticleListView, ArticleCategoryView, ArticleTopicView, SearchArticleView, \
     ArticleDetailView, HomeView, upload_image, CategoryListView, TopicListView, LinkListView
 
@@ -18,9 +18,4 @@ urlpatterns = [
     path('article/topic/<int:topic_id>/', ArticleTopicView.as_view(), name='topic'),
     path('article/search/', SearchArticleView.as_view(), name='search'),
     path('article/upload/image/', upload_image, name='upload_image'),
-    path('article/<int:article_id>/comment/', ArticleCommentView.as_view(), name='article_comment'),
-    path('article/comment/create/', CreateArticleCommentView.as_view(), name='create_article_comment'),
-    path('article/comment/reply/create/', CreateArticleCommentReplyView.as_view(), name='create_article_comment_reply'),
-    path('article/comment/delete/<int:pk>/', DeleteArticleCommentView.as_view(), name='delete_article_comment'),
-    path('article/comment/reply/delete/<int:pk>/', DeleteArticleCommentReplyView.as_view(), name='delete_article_comment_reply'),
-]
+] + comment_urls
