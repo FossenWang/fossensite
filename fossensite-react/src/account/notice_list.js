@@ -93,13 +93,11 @@ class NoticeList extends Component {
     // 注册登录和注销的回调
     userManager.callbacks.login.push((params) => {
       this.setState({ login: true, key: null })
-    }
-    )
+    })
     userManager.callbacks.logout.push((params) => {
       this.setState({ login: false, key: null })
       noticeManager.cleanCaches()
-    }
-    )
+    })
   }
   getCurrentParams() {
     // 获取当前的url参数

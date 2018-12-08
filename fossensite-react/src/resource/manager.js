@@ -55,10 +55,11 @@ class ResourceManager {
       try {
         list = await this.listApiPromise[key]
       } catch (error) {
-        this.listApiPromise[key] = undefined
+        delete this.listApiPromise[key]
         throw error
       }
       this.setlistData(key, list)
+      delete this.listApiPromise[key]
     }
     return list
   }
@@ -100,8 +101,11 @@ class ResourceManager {
 
 
 class ArticleManager extends ResourceManager {
+  constructor() {
+    super()
+    this.pageInfo = {}
+  }
   baseApi = API_HOST + 'article/'
-  pageInfo = {}
   setPageInfo(key, pageSize, total) {
     this.pageInfo[key] = {
       pageSize: pageSize,
@@ -241,7 +245,7 @@ class UserManager extends ResourceManager {
   async getCurrentUser(refresh = false) {
     let currentUser = this.getItemSync(this.currentUserId)
     if (!currentUser || refresh) {
-      if (!this.currentUserApiPromise || refresh) {
+      if (!this.currentUserApiPromise) {
         this.currentUserApiPromise = this.getCurrentUserFromApi()
       }
       try {
@@ -250,10 +254,9 @@ class UserManager extends ResourceManager {
         this.currentUserApiPromise = null
         throw error
       }
-      if (currentUser) {
-        this.currentUserId = currentUser.id
-        this.setItem(currentUser)
-      }
+      this.currentUserId = currentUser.id
+      this.setItem(currentUser)
+      this.currentUserApiPromise = null
     }
     return currentUser
   }
@@ -309,8 +312,11 @@ const userManager = new UserManager()
 
 
 class NoticeManager extends ResourceManager {
+  constructor() {
+    super()
+    this.pageInfo = {}
+  }
   baseApi = API_HOST + 'account/notice/'
-  pageInfo = {}
   setPageInfo(key, pageSize, total) {
     this.pageInfo[key] = {
       pageSize: pageSize,
@@ -356,9 +362,54 @@ class NoticeManager extends ResourceManager {
   }
 }
 const noticeManager = new NoticeManager()
-window.n = noticeManager
+
+
+class CommentManager extends ResourceManager {
+  constructor() {
+    super()
+    this.pageInfo = {}
+  }
+  setPageInfo(key, pageSize, total, bothTotal) {
+    this.pageInfo[key] = {
+      pageSize: pageSize,
+      total: total,
+      bothTotal: bothTotal
+    }
+  }
+  baseApi = API_HOST + 'article/'
+  
+  makeListKey(articleId, page) {
+    // 收集key用于获取列表
+    let key = {}
+    if (page) { key.page = page }
+    key.articleId = articleId
+    return key = JSON.stringify(key)
+  }
+  async getListFromApi(key) {
+    let { page, articleId } = JSON.parse(key)
+    let url = `${this.baseApi}${articleId}/comment/`
+    if (page) {
+      url += `?page=${page}`
+    }
+    let rsp = await fetch(url, { headers: headers })
+    if (rsp.status === 404) {
+      return []
+    } else if (rsp.status === 403) {
+      throw new HttpForbidden()
+    }
+    let rawData = await rsp.json()
+    if (rawData.pageInfo) {
+      this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
+    }
+    console.log(rawData)
+    return rawData.data
+  }
+}
+const commentManager = new CommentManager()
+
+
 
 export {
   articleManager, categoryManager, topicManager,
-  linkManager, userManager, noticeManager
+  linkManager, userManager, noticeManager, commentManager
 }

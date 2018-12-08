@@ -65,6 +65,7 @@ class CommentTestCase(TestCase):
         rsp = c.get('/article/1/comment/')
         self.assertEqual(rsp.status_code, 200)
         r = rsp.json()
+        self.assertEqual(set(r), {'data', 'pageInfo', 'totalCommentAndReply'})
         self.assertEqual(set(r['data'][0]), {
             'time', 'user', 'article_id', 'id', 'content', 'reply_list'})
         self.assertEqual(set(r['data'][0]['reply_list'][0]), {

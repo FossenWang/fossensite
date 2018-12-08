@@ -175,7 +175,7 @@ class ArticleCommentView(ListView):
         article_id = self.kwargs['article_id']
         comment_list = list(self.context['comments'])
         self.set_related_data(comment_list)
-        data['totalCount'] = self.get_both_count(
+        data['totalCommentAndReply'] = self.get_both_count(
             article_id, data['pageInfo']['total'])
         data['data'] = comment_list
         return data

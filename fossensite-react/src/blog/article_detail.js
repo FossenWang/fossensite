@@ -2,9 +2,10 @@ import React, { Component, Fragment } from 'react';
 import { Link } from "react-router-dom";
 import { withStyles, Paper, Fade } from '@material-ui/core';
 
-import { Loading } from '../common/components'
+import { Loading, withErrorBoundary } from '../common/components'
 import { formatDate } from '../common/tools'
 import { articleManager } from '../resource/manager'
+import { CommentList } from '../comment/comment';
 
 
 const articleInfoStyle = theme => ({
@@ -133,11 +134,11 @@ class ArticleDetail extends Component {
   constructor(props) {
     super(props)
     this.state = { article: {} }
-    this.setArticle()
+    // this.setArticle()
   }
 
   async setArticle() {
-    let aid = this.props.match.params.id
+    let aid = parseInt(this.props.match.params.id)
     let article = await articleManager.getItem(aid)
     this.setState({ article: article })
   }
@@ -186,17 +187,22 @@ class ArticleDetail extends Component {
   }
 
   render() {
-    let { classes } = this.props
-    let article = this.state.article
-    if (!article || !article.id) {
+    let { classes, match } = this.props
+    let { article } = this.state
+    console.log(article.id, parseInt(match.params.id))
+    if (article.id !== parseInt(match.params.id)) {
+      this.setArticle()
       return <Loading />
     }
+    // if (!article.id) {
+    //   return <Loading />
+    // }
     return (
       <Fade in>
         <Paper className={classes.paper}>
           <div className={classes.breadcrumb}>
             <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
-            <Link to="/article/category/2/">分类：{article.category.name}</Link>
+            <Link to={`/article/category/${article.category.id}/`}>分类：{article.category.name}</Link>
           </div>
           <article className={classes.article}>
             {article.cover ?
@@ -207,6 +213,7 @@ class ArticleDetail extends Component {
             <ArticleInfo article={article} />
             <div className={classes.content} dangerouslySetInnerHTML={{ __html: article.content }}></div>
           </article>
+          <CommentList articleId={article.id} />
         </Paper>
       </Fade>
     )
@@ -214,5 +221,5 @@ class ArticleDetail extends Component {
 }
 
 
-export default withStyles(articleDetailStyle)(ArticleDetail)
+export default withErrorBoundary(withStyles(articleDetailStyle)(ArticleDetail))
 export { ArticleInfo }
