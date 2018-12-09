@@ -5,7 +5,7 @@ import { withStyles, Paper, Fade } from '@material-ui/core';
 import { Loading, withErrorBoundary } from '../common/components'
 import { formatDate } from '../common/tools'
 import { articleManager } from '../resource/manager'
-import { CommentList } from '../comment/comment';
+import { ArticleComment } from '../comment/comment';
 
 
 const articleInfoStyle = theme => ({
@@ -189,14 +189,10 @@ class ArticleDetail extends Component {
   render() {
     let { classes, match } = this.props
     let { article } = this.state
-    console.log(article.id, parseInt(match.params.id))
     if (article.id !== parseInt(match.params.id)) {
       this.setArticle()
       return <Loading />
     }
-    // if (!article.id) {
-    //   return <Loading />
-    // }
     return (
       <Fade in>
         <Paper className={classes.paper}>
@@ -213,7 +209,7 @@ class ArticleDetail extends Component {
             <ArticleInfo article={article} />
             <div className={classes.content} dangerouslySetInnerHTML={{ __html: article.content }}></div>
           </article>
-          <CommentList articleId={article.id} />
+          <ArticleComment articleId={article.id} />
         </Paper>
       </Fade>
     )

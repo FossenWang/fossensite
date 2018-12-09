@@ -369,11 +369,11 @@ class CommentManager extends ResourceManager {
     super()
     this.pageInfo = {}
   }
-  setPageInfo(key, pageSize, total, bothTotal) {
+  setPageInfo(key, pageSize, total, totalCommentAndReply) {
     this.pageInfo[key] = {
       pageSize: pageSize,
       total: total,
-      bothTotal: bothTotal
+      totalCommentAndReply: totalCommentAndReply
     }
   }
   baseApi = API_HOST + 'article/'
@@ -398,10 +398,11 @@ class CommentManager extends ResourceManager {
       throw new HttpForbidden()
     }
     let rawData = await rsp.json()
-    if (rawData.pageInfo) {
-      this.setPageInfo(key, rawData.pageInfo.pageSize, rawData.pageInfo.total)
+    let { pageInfo } = rawData
+    if (pageInfo) {
+      this.setPageInfo(key, pageInfo.pageSize,
+        pageInfo.total, rawData.totalCommentAndReply)
     }
-    console.log(rawData)
     return rawData.data
   }
 }

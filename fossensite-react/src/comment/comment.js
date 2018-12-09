@@ -1,17 +1,16 @@
 import React, { Component } from 'react';
 // import { Link } from "react-router-dom";
-import { withStyles, Button } from '@material-ui/core';
-import { commentManager } from '../resource/manager';
+import {
+  withStyles, Button, List, ListItem,
+  ListItemText,
+} from '@material-ui/core';
 
-const commentStyle = theme => ({
-  comment: {
-    padding: '8px 24px',
-  },
-  title: {
-    padding: '16px 0',
-    fontSize: '1.2rem',
-    borderTop: '1px solid lightgray',
-  },
+import { commentManager } from '../resource/manager';
+import { UserAvatar, Loading } from '../common/components'
+import { formatDate } from '../common/tools';
+
+
+const commentFormStyle = theme => ({
   input: {
     display: 'none',
   },
@@ -22,7 +21,6 @@ const commentStyle = theme => ({
   button: {
     borderColor: theme.palette.text.secondary,
     color: theme.palette.text.secondary,
-    // fontSize: '0.9rem',
     minWidth: 48
   },
   textarea: {
@@ -41,40 +39,214 @@ const commentStyle = theme => ({
 })
 
 
+class CommentForm extends Component {
+  render() {
+    let { classes } = this.props
+    return (
+      <form id="comment_form" action="/article/comment/create/" method="get">
+        <textarea name="content" rows="6" maxLength="500"
+          required id="id_content" placeholder="写下你的评论..."
+          className={classes.textarea} />
+        <div className={classes.submit}>
+          <input id='comment_submit' type="submit" className={classes.input} />
+          <label htmlFor="comment_submit">
+            <Button component="span" size="small" variant="outlined"
+              className={classes.button}>评论</Button>
+          </label>
+        </div>
+      </form>
+    )
+  }
+}
+CommentForm = withStyles(commentFormStyle)(CommentForm)
+
+
+class ReplyList extends Component {
+  render() {
+    let { classes, replyList } = this.props
+    if (replyList.length === 0) {
+      return null
+    }
+    let items = replyList.map((reply) => {
+      return (
+        <ListItem disableGutters key={reply.id} className={classes.item}>
+          <UserAvatar src={reply.user.avatar} />
+          <ListItemText classes={{ primary: classes.text }}>
+            <div>
+              <a href={reply.user.github_url} target={"_blank"} >
+                {reply.user.username}
+              </a>
+            </div>
+            <div className={classes.content}>
+              {reply.content}
+            </div>
+            <div className={classes.time}>
+              <span>{formatDate(reply.time)}</span>
+            </div>
+          </ListItemText>
+        </ListItem>
+      )
+    })
+    return (
+      <List>
+        {items}
+      </List>
+    )
+  }
+}
+
+
+const commentListStyle = theme => ({
+  item: {
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderTop: '1px solid lightgray',
+    alignItems: 'flex-start',
+  },
+  text: {
+    color: theme.palette.primary.contrastText,
+    fontSize: '1rem',
+    lineHeight: 'auto',
+  },
+  content: {
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-word',
+    paddingTop: 8,
+  },
+  number: {
+    fontSize: '0.875rem',
+    float: 'right',
+  },
+  time: {
+    fontSize: '0.875rem',
+    color: 'gray',
+  },
+  empty: {
+    padding: '16px 0',
+  },
+})
+
+
 class CommentList extends Component {
+  render() {
+    let { classes, commentList, pageInfo } = this.props
+    if (commentList.length === 0) {
+      return <div className={classes.empty}>暂时没有评论</div>
+    }
+    let number = pageInfo.total
+    let items = commentList.map(comment => {
+      return (
+        <ListItem disableGutters key={comment.id} className={classes.item}>
+          <UserAvatar src={comment.user.avatar} />
+          <ListItemText classes={{ primary: classes.text }}>
+            <div>
+              <a href={comment.user.github_url} target={"_blank"} >
+                {comment.user.username}
+              </a>
+              <span className={classes.number}>#{number--}</span>
+            </div>
+            <div className={classes.content}>
+              {comment.content}
+            </div>
+            <div className={classes.time}>
+              <span>{formatDate(comment.time)}</span>
+            </div>
+            <ReplyList replyList={comment.reply_list} classes={classes}></ReplyList>
+          </ListItemText>
+        </ListItem>
+      )
+    })
+    return (
+      <List>
+        {items}
+      </List>
+    )
+  }
+}
+CommentList = withStyles(commentListStyle)(CommentList)
+
+
+const commentStyle = theme => ({
+  comment: {
+    padding: '8px 24px',
+  },
+  title: {
+    padding: '16px 0',
+    fontSize: '1.2rem',
+    borderTop: '1px solid lightgray',
+  },
+})
+
+
+class ArticleComment extends Component {
   constructor(props) {
     super(props)
-    this.state = { commentList: [] }
-    this.setComments(1, 1)
+    this.state = {
+      loading: false,
+      articleId: this.props.articleId,
+      commentList: [], pageInfo: {
+        pageSize: 10,
+        total: 0,
+        totalCommentAndReply: 0
+      }
+    }
+    this.bindScroll()
   }
-  setComments = async (aid, page) => {
-    let key = commentManager.makeListKey(aid, page)
+  bindScroll() {
+    let _this = this
+    window.onscroll = function (e) {
+      let docHeight = document.body.clientHeight
+      let scrollBottom = window.scrollY + window.innerHeight
+      let { loading } = _this.state
+      if ((docHeight - scrollBottom < 100) && !loading) {
+        let { page, lastPage } = _this.getCurrentParams()
+        _this.setState({ loading: true })
+        _this.setComments(page + 1).then(() => {
+          let { page, lastPage } = _this.getCurrentParams()
+          if (page >= lastPage) {
+            // 加载完最后一页即取消监听滚动事件
+            window.onscroll = null
+          }
+        })
+        console.log('scroll', page, lastPage, _this.state, _this)
+      }
+    }
+  }
+  getCurrentParams() {
+    let length = this.state.commentList.length
+    let { pageSize, total } = this.state.pageInfo
+    let page = Math.ceil(length / pageSize)
+    let lastPage = total ? Math.ceil(total / pageSize) : 1
+    return { page: page, lastPage: lastPage }
+  }
+  setComments = async (page) => {
+    let { articleId } = this.state
+    let key = commentManager.makeListKey(articleId, page)
     let list = await commentManager.getList(key)
-    console.log(list)
+    let pageInfo = commentManager.pageInfo[key]
+    this.setState(state => {
+      state.commentList.push(...list)
+      return {
+        commentList: state.commentList, pageInfo: pageInfo,
+        loading: false
+      }
+    })
+    console.log(list, pageInfo, this.props)
   }
   render() {
     let { classes } = this.props
-    // let { commentList } = this.state
+    let { commentList, pageInfo, loading } = this.state
     return (
       <div className={classes.comment}>
-        <div className={classes.title}>评论</div>
-        <form id="comment_form" action="/article/comment/create/" method="get">
-          <textarea name="content" rows="6" maxLength="500"
-            required id="id_content" placeholder="写下你的评论..."
-            className={classes.textarea} />
-          <div className={classes.submit}>
-            <input id='comment_submit' type="submit" className={classes.input} />
-            <label htmlFor="comment_submit">
-              <Button component="span" size="small" variant="outlined"
-                className={classes.button}>评论</Button>
-            </label>
-          </div>
-        </form>
+        <div className={classes.title}>{pageInfo.totalCommentAndReply}条评论</div>
+        <CommentForm />
+        <CommentList commentList={commentList} pageInfo={pageInfo} />
+        {loading ? <Loading elevation={0} /> : null}
       </div>
     )
   }
 }
-CommentList = withStyles(commentStyle)(CommentList)
+ArticleComment = withStyles(commentStyle)(ArticleComment)
 
 
-export { CommentList }
+export { ArticleComment }

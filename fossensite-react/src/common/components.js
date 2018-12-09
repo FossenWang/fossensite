@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-import { withStyles, Grid, Paper } from '@material-ui/core';
+import { withStyles, Grid, Paper, Avatar } from '@material-ui/core';
 
 import { Http404 } from './errors';
 
@@ -136,7 +136,7 @@ Pagination = withStyles(paginationStyle)(Pagination)
 class InfoPage extends Component {
   render() {
     return (
-      <Paper>
+      <Paper {...this.props}>
         <Grid container justify={'center'}>
           <p style={{ padding: '2rem', margin: 0 }}>{this.props.children}</p>
         </Grid>
@@ -176,7 +176,7 @@ class NotFound extends Component {
 class Loading extends Component {
   render() {
     return (
-      <InfoPage>
+      <InfoPage {...this.props}>
         <i className="fa fa-spinner fa-spin fa-3x"></i>
         <br /><br />{'加载中...'}
       </InfoPage>
@@ -242,7 +242,33 @@ function withErrorBoundary(WrappedComponent) {
 }
 
 
+
+const avatarStyle = theme => ({
+  default: {
+    color: theme.palette.primary.main,
+  }
+})
+
+
+class UserAvatar extends Component {
+  render() {
+    let { src, classes } = this.props
+    if (src) {
+      return <Avatar src={src} />
+    } else {
+      return (
+        <Avatar className={classes.default} >
+          <i className="fa fa-user" />
+        </Avatar>
+      )
+    }
+  }
+}
+UserAvatar = withStyles(avatarStyle)(UserAvatar)
+
+
 export {
   Pagination, FrameGrid, ZoomImg, InfoPage, Loading, LoginNote,
-  NotFound, ErrorPage, ErrorBoundary, withErrorBoundary
+  NotFound, ErrorPage, ErrorBoundary, withErrorBoundary,
+  UserAvatar
 }

@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import {
   withStyles, Paper, Fade, List, ListItem,
-  Avatar, ListItemText
+  ListItemText
 } from '@material-ui/core';
 
-import { Pagination, Loading, withErrorBoundary, LoginNote } from '../common/components'
+import { Pagination, Loading, withErrorBoundary, LoginNote, UserAvatar } from '../common/components'
 import { parseUrlParams, formatDate } from '../common/tools'
 import { Http404, HttpForbidden } from '../common/errors'
 import { noticeManager, userManager } from '../resource/manager'
@@ -52,7 +52,7 @@ class NoticeListItem extends Component {
     }
     return (
       <ListItem>
-        <Avatar src={notice.user.avatar} />
+        <UserAvatar src={notice.user.avatar} />
         <ListItemText classes={{ primary: classes.itemText }}>
           {title}
           <div className={classes.time}>{formatDate(notice.time)}</div>
