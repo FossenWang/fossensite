@@ -11,17 +11,22 @@ import { formatDate } from '../common/tools';
 
 
 const commentFormStyle = theme => ({
-  input: {
+  hiddenInput: {
     display: 'none',
   },
   submit: {
     textAlign: 'right',
     marginBottom: 16,
+    '&>span': {
+      fontSize: '0.875rem',
+      color: 'gray',
+    }
   },
   button: {
     borderColor: theme.palette.text.secondary,
     color: theme.palette.text.secondary,
-    minWidth: 48
+    minWidth: 48,
+    lineHeight: 1,
   },
   textarea: {
     boxSizing: 'border-box',
@@ -30,25 +35,36 @@ const commentFormStyle = theme => ({
     marginBottom: 10,
     padding: 10,
     width: '100%',
-    height: '10rem',
+    height: '8rem',
     borderRadius: 4,
     fontFamily: 'inherit',
     fontSize: 'inherit',
     lineHeight: 'inherit',
-  }
+  },
+  replyTextarea: {
+    height: '5rem',
+    marginTop: 10,
+  },
+  cancel: {
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.text.primary,
+    },
+  },
 })
+const withFormStyle = withStyles(commentFormStyle)
 
 
 class CommentForm extends Component {
   render() {
     let { classes } = this.props
     return (
-      <form id="comment_form" action="/article/comment/create/" method="get">
-        <textarea name="content" rows="6" maxLength="500"
-          required id="id_content" placeholder="写下你的评论..."
+      <form id="comment_form" action="/article/comment/create/" method="post">
+        <textarea name="content" maxLength="500" required
+          id="id_content" placeholder="写下你的评论..."
           className={classes.textarea} />
         <div className={classes.submit}>
-          <input id='comment_submit' type="submit" className={classes.input} />
+          <input id='comment_submit' type="submit" className={classes.hiddenInput} />
           <label htmlFor="comment_submit">
             <Button component="span" size="small" variant="outlined"
               className={classes.button}>评论</Button>
@@ -58,42 +74,53 @@ class CommentForm extends Component {
     )
   }
 }
-CommentForm = withStyles(commentFormStyle)(CommentForm)
+CommentForm = withFormStyle(CommentForm)
 
 
-class ReplyList extends Component {
+class ReplyForm extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { open: false }
+    if (this.props.reference) {
+      this.props.reference.openReplyForm = this.open
+    }
+  }
+  open = ()=>{
+    if (!this.state.open){
+      this.setState({open: true})
+    }
+  }
+  close = ()=>{
+    if (this.state.open){
+      this.setState({open: false})
+    }
+  }
   render() {
-    let { classes, replyList } = this.props
-    if (replyList.length === 0) {
+    let { open } = this.state
+    if (!open) {
       return null
     }
-    let items = replyList.map((reply) => {
-      return (
-        <ListItem disableGutters key={reply.id} className={classes.item}>
-          <UserAvatar src={reply.user.avatar} />
-          <ListItemText classes={{ primary: classes.text }}>
-            <div>
-              <a href={reply.user.github_url} target={"_blank"} >
-                {reply.user.username}
-              </a>
-            </div>
-            <div className={classes.content}>
-              {reply.content}
-            </div>
-            <div className={classes.time}>
-              <span>{formatDate(reply.time)}</span>
-            </div>
-          </ListItemText>
-        </ListItem>
-      )
-    })
+    let { classes, replyTo } = this.props
+    console.log(replyTo)
+    let inputId = `cid${replyTo.id}`
     return (
-      <List>
-        {items}
-      </List>
+      <form action="/article/comment/reply/create/" method="post">
+        <textarea name="content" maxLength="500" required placeholder="写下你的评论..."
+          className={classes.textarea +' '+ classes.replyTextarea} />
+        <div className={classes.submit}>
+          <input id={inputId} type="submit" value="评论" className={classes.hiddenInput} />
+          <span><i className="fa fa-reply"></i> 回复 {replyTo.user.username}</span>&emsp;
+          <span onClick={this.close} className={classes.cancel}>取消</span>&emsp;
+          <label htmlFor={inputId}>
+            <Button component="span" size="small" variant="outlined"
+              className={classes.button}>评论</Button>
+          </label>
+        </div>
+      </form>
     )
   }
 }
+ReplyForm = withFormStyle(ReplyForm)
 
 
 const commentListStyle = theme => ({
@@ -115,6 +142,7 @@ const commentListStyle = theme => ({
   },
   number: {
     fontSize: '0.875rem',
+    color: 'gray',
     float: 'right',
   },
   time: {
@@ -124,7 +152,53 @@ const commentListStyle = theme => ({
   empty: {
     padding: '16px 0',
   },
+  reply: {
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.text.primary,
+    },
+  }
 })
+
+
+class ReplyList extends Component {
+  render() {
+    let { classes, replyList } = this.props
+    if (replyList.length === 0) {
+      return null
+    }
+    let items = replyList.map((reply) => {
+      let reference = {openReplyForm: null}
+      return (
+        <ListItem disableGutters key={reply.id} className={classes.item}>
+          <UserAvatar src={reply.user.avatar} />
+          <ListItemText classes={{ primary: classes.text }}>
+            <div>
+              <a href={reply.user.github_url} target={"_blank"} >
+                {reply.user.username}
+              </a>
+            </div>
+            <div className={classes.content}>
+              {reply.content}
+            </div>
+            <div className={classes.time}>
+              <span>{formatDate(reply.time)}</span>&emsp;
+              <span onClick={()=>{reference.openReplyForm()}} className={classes.reply}>
+                <i className="fa fa-reply"></i> 回复
+              </span>
+            </div>
+            <ReplyForm reference={reference} replyTo={reply} />
+          </ListItemText>
+        </ListItem>
+      )
+    })
+    return (
+      <List>
+        {items}
+      </List>
+    )
+  }
+}
 
 
 class CommentList extends Component {
@@ -135,6 +209,7 @@ class CommentList extends Component {
     }
     let number = pageInfo.total
     let items = commentList.map(comment => {
+      let reference = {openReplyForm: null}
       return (
         <ListItem disableGutters key={comment.id} className={classes.item}>
           <UserAvatar src={comment.user.avatar} />
@@ -149,8 +224,12 @@ class CommentList extends Component {
               {comment.content}
             </div>
             <div className={classes.time}>
-              <span>{formatDate(comment.time)}</span>
+              <span>{formatDate(comment.time)}</span>&emsp;
+              <span onClick={()=>{reference.openReplyForm()}} className={classes.reply}>
+                <i className="fa fa-reply"></i> 回复
+              </span>
             </div>
+            <ReplyForm reference={reference} replyTo={comment} />
             <ReplyList replyList={comment.reply_list} classes={classes}></ReplyList>
           </ListItemText>
         </ListItem>
