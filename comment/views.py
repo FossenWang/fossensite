@@ -1,94 +1,11 @@
-from django.views.generic.edit import BaseCreateView, BaseDeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseRedirect
-from django.urls import reverse, NoReverseMatch
-from django.db.models import Prefetch
-from django.core.exceptions import ImproperlyConfigured
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
 from django.db.models import Q, Value, IntegerField
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, AccessMixin
 from django.contrib.auth.models import User
 
-from tools.views import ListView
+from tools.views import ListView, CreateMixin, JSONView, DeletionMixin, SingleObjectMixin
+from blog.models import Article
 
 from .models import ArticleComment, ArticleCommentReply
-from .forms import ArticleCommentForm, ArticleCommentReplyForm
-
-
-class EditArticleCommentMixin():
-    '修改文章评论Mixin'
-
-    def get_success_url(self):
-        '操作成功后转向文章详情页'
-        try:  # POST字典中必须提供文章的id
-            url = reverse('blog:detail', kwargs={
-                          'pk': self.request.POST['article']})
-        except NoReverseMatch:
-            raise ImproperlyConfigured('Wrong URL to redirect.')
-        return url
-
-    def render_to_response(self, context, **response_kwargs):
-        '禁止get方法和form无效的post'
-        if self.request.method == "GET":
-            return HttpResponseNotAllowed('Get Method Not Alllowed')
-        else:
-            return HttpResponseBadRequest('Invalid Form')
-
-    def form_valid(self, form):
-        '保存前设置创建评论的用户'
-        self.object = form.save(commit=False)
-        self.object.user = self.request.user
-        self.object.save()
-        self.clean_caches()
-        return HttpResponseRedirect(self.get_success_url())
-
-    def delete(self, *args, **kwargs):
-        self.clean_caches()
-        return super().delete(*args, **kwargs)
-
-    def clean_caches(self):
-        article_id = self.request.POST['article']
-        cache.delete('article_%s_comment_sum' % article_id)
-        pages = ArticleComment.objects.filter(
-            article_id=article_id).count()//10 + 1
-        for i in range(1, pages+1):
-            cache.delete(make_template_fragment_key(
-                'article_comment', [article_id, i]))
-
-
-class CreateArticleCommentView(LoginRequiredMixin, EditArticleCommentMixin, BaseCreateView):
-    '创建一条新的文章评论'
-    model = ArticleComment
-    form_class = ArticleCommentForm
-
-
-class CreateArticleCommentReplyView(CreateArticleCommentView):
-    '创建一条新的文章二级评论'
-    model = ArticleCommentReply
-    form_class = ArticleCommentReplyForm
-
-
-class CommentCreatorTestMixin(UserPassesTestMixin):
-    '验证发送请求的用户是否是评论创建者'
-
-    def test_func(self):
-        if self.request.user.is_authenticated:
-            self.object = self.get_object()
-            is_creator = self.request.user.id == self.object.user_id
-            self.raise_exception = not is_creator
-        else:
-            is_creator = False
-        return is_creator
-
-
-class DeleteArticleCommentView(CommentCreatorTestMixin, EditArticleCommentMixin, BaseDeleteView):
-    '删除一条文章评论'
-    model = ArticleComment
-
-
-class DeleteArticleCommentReplyView(DeleteArticleCommentView):
-    '删除一条文章二级评论'
-    model = ArticleCommentReply
 
 
 def fetch_user_dict(user_dict):
@@ -112,6 +29,7 @@ class UserReplyList(LoginRequiredMixin, ListView):
     context_object_name = 'replies'
     paginate_by = 10
     raise_exception = True
+    json_only = True
     none = Value(None, IntegerField())
     fields = ('id', 'content', 'time', 'user_id', 'article_id', 'article__title',
               'comment_id', 'comment_user_id', 'reply_id', 'reply_user_id')
@@ -158,7 +76,16 @@ class UserReplyList(LoginRequiredMixin, ListView):
         return reply_list
 
 
-class ArticleCommentView(ListView):
+class PostLoginRequiredMixin(AccessMixin):
+    raise_exception = True
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        return super().post(request, *args, **kwargs)
+
+
+class ArticleCommentView(PostLoginRequiredMixin, CreateMixin, ListView):
     '文章评论列表'
     model = ArticleComment
     template_name = 'index.html'
@@ -218,3 +145,119 @@ class ArticleCommentView(ListView):
         else:
             reply_count = 0
         return comment_count + reply_count
+
+    def validate_data(self, data: dict):
+        if not data:
+            return False
+        content = data.get('content')
+        if not content or len(content) > 500:
+            return False
+
+        try:
+            article_id = int(self.kwargs.get('article_id'))
+        except Exception:
+            return False
+        if not Article.objects.filter(id=article_id).exists():
+            return False
+        return True
+
+    def data_valid(self, data):
+        user = self.request.user
+        comment = ArticleComment.objects.create(
+            content=data['content'], user=user, article_id=self.kwargs['article_id'])
+        avatar = user.profile.avatar
+        rsp_data = {
+            'id': comment.id,
+            'content': comment.content,
+            'time': comment.time,
+            'article_id': comment.article_id,
+            'reply_list': None,
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'avatar': avatar.name if avatar else None,
+                'github_url': user.profile.github_url,
+            }
+        }
+        return rsp_data
+
+
+class ArticleCommentReplyView(PostLoginRequiredMixin, CreateMixin, JSONView):
+
+    def validate_data(self, data: dict):
+        if not data:
+            return False
+        try:
+            content = data.get('content')
+            article_id = int(self.kwargs.get('article_id'))
+            if not content or len(content) > 500:
+                return False
+            if not Article.objects.filter(id=article_id).exists():
+                return False
+
+            reply_id = data.get('reply_id')
+            reply_id = int(reply_id) if reply_id is not None else reply_id
+
+            if reply_id:
+                self.reply_to = ArticleCommentReply.objects.get(id=reply_id)
+                self.comment = self.reply_to.comment
+            else:
+                self.reply_to = None
+                comment_id = int(data.get('comment_id'))
+                self.comment = ArticleComment.objects.get(id=comment_id)
+
+        except Exception:
+            return False
+
+        return True
+
+    def data_valid(self, data):
+        user = self.request.user
+        comment_data = dict(
+            content=data['content'], user_id=user.id, article_id=self.kwargs['article_id'],
+            comment_id=self.comment.id, comment_user_id=self.comment.user_id
+            )
+        if self.reply_to:
+            comment_data['reply_id'] = self.reply_to.id
+            comment_data['reply_user_id'] = self.reply_to.user_id
+        reply = ArticleCommentReply.objects.create(**comment_data)
+
+        user_dict = {}
+        user_dict[reply.user_id] = None
+        user_dict[reply.comment_user_id] = None
+        user_dict[reply.reply_user_id] = None
+        user_dict = fetch_user_dict(user_dict)
+
+        rsp_data = {
+            'id': reply.id,
+            'content': reply.content,
+            'time': reply.time,
+            'article_id': reply.article_id,
+            'comment_id': reply.comment_id,
+            'reply_id': reply.reply_id,
+            'user': user_dict[reply.user_id],
+            'comment_user': user_dict[reply.comment_user_id],
+            'reply_user': user_dict[reply.reply_user_id],
+        }
+        return rsp_data
+
+
+class CreatorTestMixin(UserPassesTestMixin):
+    '验证发送请求的用户是否是评论创建者'
+    raise_exception = True
+
+    def test_func(self):
+        if self.request.user.is_authenticated:
+            self.object = self.get_object()
+            is_creator = self.request.user.id == self.object.user_id
+        else:
+            is_creator = False
+        return is_creator
+
+
+class DeleteArticleCommentView(CreatorTestMixin, DeletionMixin, SingleObjectMixin, JSONView):
+    model = ArticleComment
+
+
+class DeleteArticleCommentReplyView(DeleteArticleCommentView):
+    model = ArticleCommentReply

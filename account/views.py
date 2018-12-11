@@ -12,7 +12,6 @@ from fossensite import settings
 from tools.views import JSONView
 
 from .models import Profile, BlankProfile
-from .forms import OauthEditUsernameForm
 
 
 class ProfileDetailView(JSONView):
@@ -36,9 +35,6 @@ class ProfileDetailView(JSONView):
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class PrepareLoginView(JSONView):
-    '第三方登录视图'
-    template_name = 'account/login.html'
-
     def get(self, request, **kwargs):
         context = {'github_oauth_url': 'https://github.com/login/oauth/authorize?client_id={}&state={}' \
             .format(settings.GITHUB_CLIENT_ID, self.request.META['CSRF_COOKIE'])}
@@ -91,11 +87,6 @@ class GitHubOAuthView(JSONView):
     def authenticate(self, user_info):
         user = User.objects.filter(profile__github_id=user_info.get('id'))
         if not user:
-            if User.objects.filter(username=user_info.get('login')).exists():
-                # 若用户名已存在，则需要改名
-                self.request.session['github_oauth'] = user_info
-                return redirect(reverse('account:edit_name'))
-
             user = User.objects.create_user(user_info.get('login'))
             profile = Profile(user=user, avatar=user_info.get('avatar_url'),
                               github_id=user_info.get('id'),
@@ -126,36 +117,3 @@ class GitHubOAuthView(JSONView):
         except ObjectDoesNotExist:
             raise PermissionDenied('没有该用户')
         return self.login_user(user)
-
-
-class OAuthEditUsername(FormView):
-    '通过第三方账户注册时，用户名若重复，则通过该视图修改合适的用户名'
-    template_name = 'account/edit_name.html'
-    form_class = OauthEditUsernameForm
-
-    def dispatch(self, request, *args, **kwargs):
-        if 'github_oauth' not in request.session:
-            raise PermissionDenied('未经GitHub验证')
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['username'] = self.request.session['github_oauth']['login']
-        return context
-
-    def form_valid(self, form):
-        """If the form is valid, save the associated model."""
-        if 'github_oauth' in self.request.session:
-            user_info = self.request.session.pop('github_oauth')
-            user = form.save()
-            profile = Profile(
-                user=user, github_id=user_info.get('id'), avatar=user_info.get('avatar_url'))
-            profile.save()
-            login(self.request, user)
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        url = self.request.COOKIES.get('next')
-        if not url:
-            url = '/'
-        return url

@@ -34,7 +34,7 @@ class CommentTestCase(TestCase):
         r2 = ArticleCommentReply.objects.create(
             content='r2', user=user, article=a1, comment=c1, comment_user=c1.user,
             reply=r1, reply_user=r1.user)
-        r3 = ArticleCommentReply.objects.create(
+        ArticleCommentReply.objects.create(
             content='r3', user=fossen, article=a1, comment=c1, comment_user=c1.user,
             reply=r2, reply_user=r2.user)
 
@@ -97,5 +97,55 @@ class CommentTestCase(TestCase):
             for reply in comment['reply_list']:
                 self.assertEqual(reply['comment_id'], comment['id'])
 
-        # from pprint import pprint
-        # pprint(rsp.json())
+        # 创建评论
+        rsp = c.post('/article/1/comment/', {'content': 'new comment'}, 'application/json')
+        self.assertEqual(rsp.status_code, 200)
+        r = rsp.json()
+        self.assertEqual(set(r), {
+            'time', 'user', 'article_id', 'id', 'content', 'reply_list'})
+        self.assertEqual(set(r['user']), user_fields)
+        comment_id = r['id']
+
+        rsp = c.post('/article/1/comment/', {'content': ''}, 'application/json')
+        self.assertEqual(rsp.status_code, 403)
+        rsp = c.post('/article/1/comment/', {'content': 'new comment'})
+        self.assertEqual(rsp.status_code, 403)
+
+        # 创建回复
+        rsp = c.post('/article/1/comment/reply/', {
+            'content': 'new comment', 'comment_id': comment_id
+            }, 'application/json')
+        self.assertEqual(rsp.status_code, 200)
+        r = rsp.json()
+        self.assertEqual(set(r), {
+            'reply_user', 'id', 'content', 'user', 'reply_id',
+            'comment_user', 'time', 'comment_id', 'article_id'})
+        self.assertEqual(r['comment_id'], comment_id)
+        reply_id = r['id']
+
+        rsp = c.post('/article/1/comment/reply/', {
+            'content': 'new comment', 'comment_id': comment_id,
+            'reply_id': reply_id,
+            }, 'application/json')
+        self.assertEqual(rsp.status_code, 200)
+        r = rsp.json()
+        self.assertEqual(r['reply_id'], reply_id)
+        self.assertEqual(r['comment_id'], comment_id)
+
+        rsp = c.post('/article/1/comment/reply/', {
+            'content': 'new comment', 'comment_id': comment_id,
+            'reply_id': 100,
+            }, 'application/json')
+        self.assertEqual(rsp.status_code, 403)
+        rsp = c.post('/article/1/comment/reply/', {
+            'content': 'new comment', 'comment_id': 100,
+            }, 'application/json')
+        self.assertEqual(rsp.status_code, 403)
+
+        # 删除评论
+        rsp = c.delete(f'/article/reply/{reply_id}/')
+        self.assertEqual(rsp.status_code, 204)
+        rsp = c.delete(f'/article/comment/{comment_id}/')
+        self.assertEqual(rsp.status_code, 204)
+        rsp = c.delete(f'/article/reply/{1}/')
+        self.assertEqual(rsp.status_code, 403)

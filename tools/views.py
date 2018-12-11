@@ -5,9 +5,10 @@ from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 from django.http import HttpRequest, HttpResponse, JsonResponse, Http404
+from django.core.exceptions import PermissionDenied
 
 
-def is_json(request):
+def is_json(request: HttpRequest):
     """Check if the mimetype indicates JSON data, either
     :mimetype:`application/json` or :mimetype:`application/*+json`.
     """
@@ -18,7 +19,7 @@ def is_json(request):
     )
 
 
-def get_json(request, force=False, raise_error=True):
+def get_json(request: HttpRequest, force=False, raise_error=True):
     if not (force or request.is_json):
         return None
 
@@ -62,6 +63,9 @@ class JSONMixin:
     def handle404(self, error):
         return JsonResponse({'msg': str(error)}, status=404)
 
+    def handle403(self, error):
+        return JsonResponse({'msg': str(error)}, status=403)
+
 
 class JSONView(JSONMixin, View):
     def dispatch(self, request: HttpRequest, *args, **kwargs):
@@ -71,8 +75,8 @@ class JSONView(JSONMixin, View):
                 response = self.render_to_json_response(response)
         except Http404 as e:
             return self.handle404(e)
-        except Exception as e:
-            raise e
+        except PermissionDenied as e:
+            return self.handle403(e)
         return response
 
 
@@ -92,13 +96,13 @@ class TemplateJSONView(JSONMixin, TemplateResponseMixin, View):
                     response = self.render_to_json_response(response)
         except Http404 as e:
             return self.handle404(e)
-        except Exception as e:
-            raise e
+        except PermissionDenied as e:
+            return self.handle403(e)
         return response
 
 
 class ListView(MultipleObjectMixin, TemplateJSONView):
-    def get(self, request, **kwargs):
+    def get(self, request: HttpRequest, **kwargs):
         self.object_list = self.get_queryset()
         self.context = self.get_context_data()
         data = self.serialize()
@@ -123,8 +127,36 @@ class ListView(MultipleObjectMixin, TemplateJSONView):
         return data
 
 
+class CreateMixin:
+    invalid_message = 'Post data invalid.'
+
+    def post(self, request: HttpRequest, **kwargs):
+        self.data = request.json
+        if self.validate_data(self.data):
+            return self.data_valid(self.data)
+        return self.data_invalid(self.data)
+
+    def validate_data(self, data):
+        raise NotImplementedError("Not implemented yet.")
+
+    def data_valid(self, data):
+        raise NotImplementedError("Not implemented yet.")
+
+    def data_invalid(self, data=None, msg=invalid_message):
+        raise PermissionDenied(msg)
+
+
 class DetailView(SingleObjectMixin, TemplateJSONView):
-    def get(self, request, **kwargs):
-        self.object = self.get_object()
+    def get(self, request: HttpRequest, **kwargs):
+        if not hasattr(self, 'object'):
+            self.object = self.get_object()
         context = self.get_context_data()
         return context
+
+
+class DeletionMixin:
+    def delete(self, request, *args, **kwargs):
+        if not hasattr(self, 'object'):
+            self.object = self.get_object()
+        self.object.delete()
+        return self.render_to_json_response('', status=204)

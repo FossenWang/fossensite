@@ -13,5 +13,4 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('login/prepare/', views.PrepareLoginView.as_view(), name='login_prepare'),
     path('oauth/github/', views.GitHubOAuthView.as_view(), name='github_oauth'),
-    path('oauth/edit_name/', views.OAuthEditUsername.as_view(), name='edit_name'),
 ]

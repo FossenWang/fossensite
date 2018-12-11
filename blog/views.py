@@ -4,7 +4,6 @@ from django.http import JsonResponse
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
-# from django.contrib.auth.models import User
 
 from tools.views import ListView, DetailView
 from .models import Article, Category, Topic, Link
