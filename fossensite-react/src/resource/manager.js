@@ -1,4 +1,4 @@
-import { NotImplementedError, HttpForbidden } from '../common/errors'
+import { NotImplementedError, HttpForbidden, Exception } from '../common/errors'
 import { parseUrlParams } from '../common/tools'
 
 
@@ -364,6 +364,16 @@ class NoticeManager extends ResourceManager {
 const noticeManager = new NoticeManager()
 
 
+async function getCSRFToken() {
+  let url = API_HOST + 'csrf/'
+  let rsp = await fetch(url, {
+    headers: headers, credentials: 'include'
+  })
+  let data = await rsp.json()
+  return data.csrftoken
+}
+
+
 class CommentManager extends ResourceManager {
   constructor() {
     super()
@@ -377,7 +387,7 @@ class CommentManager extends ResourceManager {
     }
   }
   baseApi = API_HOST + 'article/'
-  
+
   makeListKey(articleId, page) {
     // 收集key用于获取列表
     let key = {}
@@ -405,9 +415,48 @@ class CommentManager extends ResourceManager {
     }
     return rawData.data
   }
+  async createComment(content, articleId) {
+    if (!content || !articleId) {
+      throw new Exception('wrong args')
+    }
+    let csrftoken = await getCSRFToken()
+    let url = `${this.baseApi}${articleId}/comment/`
+    let rsp = await fetch(url, {
+      method: 'post',
+      body: JSON.stringify({ content: content }),
+      credentials: 'include',
+      headers: {
+        Accept: headers.Accept,
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      }
+    })
+    let newComment = await rsp.json()
+    if (rsp.status === 403) {
+      throw new HttpForbidden(newComment)
+    }
+    return newComment
+  }
+  async deleteComment(commentId) {
+    if (!commentId) {
+      throw new Exception('wrong args')
+    }
+    let csrftoken = await getCSRFToken()
+    let url = `${this.baseApi}comment/${commentId}/`
+    let rsp = await fetch(url, {
+      method: 'delete',
+      credentials: 'include',
+      headers: {
+        Accept: headers.Accept,
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      }
+    })
+    return rsp.status
+  }
 }
 const commentManager = new CommentManager()
-
+window.c = commentManager
 
 
 export {

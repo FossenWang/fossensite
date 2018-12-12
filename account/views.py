@@ -1,8 +1,7 @@
 import requests
 
-from django.shortcuts import redirect, reverse
+from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
-from django.views.generic import FormView
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.views.decorators.csrf import ensure_csrf_cookie

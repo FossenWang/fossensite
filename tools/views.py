@@ -6,6 +6,8 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 from django.http import HttpRequest, HttpResponse, JsonResponse, Http404
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 
 
 def is_json(request: HttpRequest):
@@ -160,3 +162,9 @@ class DeletionMixin:
             self.object = self.get_object()
         self.object.delete()
         return self.render_to_json_response('', status=204)
+
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class CSRFView(JSONView):
+    def get(self, request: HttpRequest):
+        return {'csrftoken': request.META['CSRF_COOKIE']}

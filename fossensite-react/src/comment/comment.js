@@ -5,7 +5,7 @@ import {
   ListItemText,
 } from '@material-ui/core';
 
-import { commentManager } from '../resource/manager';
+import { commentManager, userManager } from '../resource/manager';
 import { UserAvatar, Loading } from '../common/components'
 import { formatDate } from '../common/tools';
 
@@ -56,10 +56,20 @@ const withFormStyle = withStyles(commentFormStyle)
 
 
 class CommentForm extends Component {
+  submit = (e) => {
+    e.preventDefault()
+    let { articleId } = this.props
+    let content = e.target.elements.content.value
+    this.createComment(content, articleId)
+  }
+  createComment = async (content, articleId) => {
+    let newComment = await commentManager.createComment(content, articleId)
+    console.log(newComment)
+  }
   render() {
     let { classes } = this.props
     return (
-      <form id="comment_form" action="/article/comment/create/" method="post">
+      <form id="comment_form" onSubmit={this.submit}>
         <textarea name="content" maxLength="500" required
           id="id_content" placeholder="写下你的评论..."
           className={classes.textarea} />
@@ -157,13 +167,21 @@ const commentListStyle = theme => ({
     '&:hover': {
       color: theme.palette.text.primary,
     },
+  },
+  delete: {
+    cursor: 'pointer',
+    opacity: 0,
+    '&:hover': {
+      opacity: 1,
+      color: theme.palette.text.primary,
+    }
   }
 })
 
 
 class ReplyList extends Component {
   render() {
-    let { classes, replyList } = this.props
+    let { classes, replyList, currentUser } = this.props
     if (replyList.length === 0) {
       return null
     }
@@ -185,7 +203,11 @@ class ReplyList extends Component {
               <span>{formatDate(reply.time)}</span>&emsp;
               <span onClick={()=>{reference.openReplyForm()}} className={classes.reply}>
                 <i className="fa fa-reply"></i> 回复
-              </span>
+              </span>&emsp;
+              {currentUser.id === reply.user.id ?
+                <span className={classes.delete}>
+                  <i className="fa fa-trash"></i> 删除
+                </span> : null}
             </div>
             <ReplyForm reference={reference} replyTo={reply} />
           </ListItemText>
@@ -202,8 +224,15 @@ class ReplyList extends Component {
 
 
 class CommentList extends Component {
+  delete = async (commentId) => {
+    let code = await commentManager.deleteComment(commentId)
+    if (code === 204) {
+      console.log('delete')
+    }
+    console.log(code)
+  }
   render() {
-    let { classes, commentList, pageInfo } = this.props
+    let { classes, commentList, pageInfo, currentUser } = this.props
     if (commentList.length === 0) {
       return <div className={classes.empty}>暂时没有评论</div>
     }
@@ -227,10 +256,15 @@ class CommentList extends Component {
               <span>{formatDate(comment.time)}</span>&emsp;
               <span onClick={()=>{reference.openReplyForm()}} className={classes.reply}>
                 <i className="fa fa-reply"></i> 回复
-              </span>
+              </span>&emsp;
+              {currentUser.id === comment.user.id ?
+                <span className={classes.delete}
+                  onClick={() => {this.delete(comment.id)}}>
+                  <i className="fa fa-trash"></i> 删除
+                </span> : null}
             </div>
             <ReplyForm reference={reference} replyTo={comment} />
-            <ReplyList replyList={comment.reply_list} classes={classes}></ReplyList>
+            <ReplyList replyList={comment.reply_list} currentUser={currentUser} classes={classes}></ReplyList>
           </ListItemText>
         </ListItem>
       )
@@ -263,11 +297,13 @@ class ArticleComment extends Component {
     this.state = {
       loading: false,
       articleId: this.props.articleId,
-      commentList: [], pageInfo: {
+      commentList: [],
+      currentUser: {id: null},
+      pageInfo: {
         pageSize: 10,
         total: 0,
         totalCommentAndReply: 0
-      }
+      },
     }
     this.bindScroll()
   }
@@ -303,23 +339,26 @@ class ArticleComment extends Component {
     let key = commentManager.makeListKey(articleId, page)
     let list = await commentManager.getList(key)
     let pageInfo = commentManager.pageInfo[key]
+    let currentUser = await userManager.getCurrentUser()
+
     this.setState(state => {
       state.commentList.push(...list)
       return {
         commentList: state.commentList, pageInfo: pageInfo,
-        loading: false
+        loading: false, currentUser: currentUser,
       }
     })
-    console.log(list, pageInfo, this.props)
+    console.log(list, pageInfo, currentUser)
   }
   render() {
     let { classes } = this.props
-    let { commentList, pageInfo, loading } = this.state
+    let { commentList, pageInfo, loading, currentUser, articleId } = this.state
     return (
       <div className={classes.comment}>
         <div className={classes.title}>{pageInfo.totalCommentAndReply}条评论</div>
-        <CommentForm />
-        <CommentList commentList={commentList} pageInfo={pageInfo} />
+        <CommentForm articleId={articleId} />
+        <CommentList commentList={commentList}
+          pageInfo={pageInfo} currentUser={currentUser} />
         {loading ? <Loading elevation={0} /> : null}
       </div>
     )
