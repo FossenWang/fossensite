@@ -14,6 +14,7 @@ class ResourceManager {
     this.idListMap = {}  //idListMap = {key: [idList]}
     this.listApiPromise = {}
     this.itemApiPromise = {}
+    this.callbacks = {}
   }
 
   async getItem(id) {
@@ -96,6 +97,16 @@ class ResourceManager {
 
   async getListFromApi(key) {
     throw new NotImplementedError()
+  }
+
+  runCallbacks(callbacks, ...kwargs) {
+    for (let key in callbacks) {
+      try {
+        callbacks[key](...kwargs)
+      } catch (error) {
+        delete callbacks[key]
+      }
+    }
   }
 }
 
@@ -231,9 +242,9 @@ class UserManager extends ResourceManager {
     this.currentUserId = null
     this.currentUserApiPromise = null
     this.callbacks = {
-      readNotice: [],
-      login: [],
-      logout: [],
+      readNotice: {},
+      login: {},
+      logout: {},
     }
   }
   baseApi = API_HOST + 'account/'
@@ -282,17 +293,13 @@ class UserManager extends ResourceManager {
     }
     let rsp = await fetch(url, { headers: headers, credentials: 'include', redirect: 'manual' })
     // 调用回调
-    this.callbacks.login.forEach(func => {
-      func({ login: true })
-    })
+    this.runCallbacks(this.callbacks.login, {login: true})
     return rsp
   }
 
   async logout() {
     let rsp = await fetch(this.logoutUrl, { headers: headers, credentials: 'include', redirect: 'manual' })
-    this.callbacks.logout.forEach(func => {
-      func({ login: false })
-    })
+    this.runCallbacks(this.callbacks.logout, {login: false})
     return rsp
   }
 
@@ -302,9 +309,7 @@ class UserManager extends ResourceManager {
       currentUser.new_notice = false
       this.setItem(currentUser)
       // 调用回调
-      this.callbacks.readNotice.forEach(func => {
-        func({ currentUser })
-      })
+      this.runCallbacks(this.callbacks.readNotice, currentUser)
     }
   }
 }
@@ -379,10 +384,12 @@ class CommentManager extends ResourceManager {
     super()
     this.pageInfo = {}
   }
-  setPageInfo(key, pageSize, total, totalCommentAndReply) {
+  setPageInfo(key, pageInfo, totalCommentAndReply) {
+    let { pageSize, total, page } = pageInfo
     this.pageInfo[key] = {
       pageSize: pageSize,
       total: total,
+      page: page,
       totalCommentAndReply: totalCommentAndReply
     }
   }
@@ -408,12 +415,11 @@ class CommentManager extends ResourceManager {
       throw new HttpForbidden()
     }
     let rawData = await rsp.json()
-    let { pageInfo } = rawData
+    let { data, pageInfo, totalCommentAndReply } = rawData
     if (pageInfo) {
-      this.setPageInfo(key, pageInfo.pageSize,
-        pageInfo.total, rawData.totalCommentAndReply)
+      this.setPageInfo(key, pageInfo, totalCommentAndReply)
     }
-    return rawData.data
+    return data
   }
   async createComment(content, articleId) {
     if (!content || !articleId) {
@@ -435,9 +441,10 @@ class CommentManager extends ResourceManager {
     if (rsp.status === 403) {
       throw new HttpForbidden(newComment)
     }
+    this.cleanIdList(articleId)
     return newComment
   }
-  async deleteComment(commentId) {
+  async deleteComment(commentId, articleId) {
     if (!commentId) {
       throw new Exception('wrong args')
     }
@@ -452,11 +459,18 @@ class CommentManager extends ResourceManager {
         'X-CSRFToken': csrftoken
       }
     })
+    this.cleanIdList(articleId)
     return rsp.status
+  }
+  cleanIdList(articleId) {
+    for (let key in this.idListMap) {
+      if (key.match(`"articleId":${articleId}`)) {
+        delete this.idListMap[key]
+      }
+    }
   }
 }
 const commentManager = new CommentManager()
-window.c = commentManager
 
 
 export {

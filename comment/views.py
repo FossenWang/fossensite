@@ -147,7 +147,6 @@ class ArticleCommentView(PostLoginRequiredMixin, CreateMixin, ListView):
         return comment_count + reply_count
 
     def validate_data(self, data: dict):
-        print(data, self.kwargs)
         if not data:
             return False
         content = data.get('content')
@@ -172,7 +171,7 @@ class ArticleCommentView(PostLoginRequiredMixin, CreateMixin, ListView):
             'content': comment.content,
             'time': comment.time,
             'article_id': comment.article_id,
-            'reply_list': None,
+            'reply_list': [],
             'user': {
                 'id': user.id,
                 'username': user.username,

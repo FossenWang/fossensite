@@ -103,6 +103,7 @@ class LoginDialog extends Component {
   constructor(props) {
     super(props)
     this.state = { open: false }
+    userManager.openLoginDialog = this.openDialog
   }
 
   openDialog = () => {
@@ -175,10 +176,10 @@ class UserBar extends Component {
       openLogoutMsg: false,
     }
     this.setUser()
-    // 注册已读阅读的回调
-    userManager.callbacks.readNotice.push((params) => {
-      this.setState({ user: params.currentUser })
-    })
+    // 注册已读回复的回调
+    userManager.callbacks.readNotice['UserBar'] = (currentUser) => {
+      this.setState({ user: currentUser })
+    }
   }
 
   setUser = async (refresh = false) => {

@@ -90,14 +90,20 @@ class NoticeList extends Component {
       login: true, noticeList: [], key: null,
       pageInfo: { page: page, total: 0, pageSize: 0 },
     }
+  }
+  componentDidMount() {
     // 注册登录和注销的回调
-    userManager.callbacks.login.push((params) => {
+    userManager.callbacks.login['NoticeList'] = () => {
       this.setState({ login: true, key: null })
-    })
-    userManager.callbacks.logout.push((params) => {
+    }
+    userManager.callbacks.logout['NoticeList'] = () => {
       this.setState({ login: false, key: null })
       noticeManager.cleanCaches()
-    })
+    }
+  }
+  componentWillUnmount() {
+    delete userManager.callbacks.login['NoticeList']
+    delete userManager.callbacks.logout['NoticeList']
   }
   getCurrentParams() {
     // 获取当前的url参数
