@@ -1,5 +1,5 @@
 import { NotImplementedError, HttpForbidden, Exception } from '../common/errors'
-import { parseUrlParams } from '../common/tools'
+import { parseUrlParams, fetchPost, fetchDelete } from '../common/tools'
 
 
 const API_HOST = 'http://127.0.0.1:8000/'
@@ -371,9 +371,7 @@ const noticeManager = new NoticeManager()
 
 async function getCSRFToken() {
   let url = API_HOST + 'csrf/'
-  let rsp = await fetch(url, {
-    headers: headers, credentials: 'include'
-  })
+  let rsp = await fetch(url, { credentials: 'include' })
   let data = await rsp.json()
   return data.csrftoken
 }
@@ -427,16 +425,7 @@ class CommentManager extends ResourceManager {
     }
     let csrftoken = await getCSRFToken()
     let url = `${this.baseApi}${articleId}/comment/`
-    let rsp = await fetch(url, {
-      method: 'post',
-      body: JSON.stringify({ content: content }),
-      credentials: 'include',
-      headers: {
-        Accept: headers.Accept,
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
-      }
-    })
+    let rsp = await fetchPost(url, { content: content }, csrftoken)
     let newComment = await rsp.json()
     if (rsp.status === 403) {
       throw new HttpForbidden(newComment)
@@ -450,15 +439,38 @@ class CommentManager extends ResourceManager {
     }
     let csrftoken = await getCSRFToken()
     let url = `${this.baseApi}comment/${commentId}/`
-    let rsp = await fetch(url, {
-      method: 'delete',
-      credentials: 'include',
-      headers: {
-        Accept: headers.Accept,
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
-      }
-    })
+    let rsp = await fetchDelete(url, csrftoken)
+    this.cleanIdList(articleId)
+    return rsp.status
+  }
+  async createReply(content, articleId, replyTo) {
+    if (!content || !articleId || !replyTo) {
+      throw new Exception('wrong args')
+    }
+    let csrftoken = await getCSRFToken()
+    let url = `${this.baseApi}${articleId}/comment/reply/`
+    let postData = { content: content }
+    if (replyTo.comment_id) {
+      postData.comment_id = replyTo.comment_id
+      postData.reply_id = replyTo.id
+    } else {
+      postData.comment_id = replyTo.id
+    }
+    let rsp = await fetchPost(url, postData, csrftoken)
+    let newComment = await rsp.json()
+    if (rsp.status === 403) {
+      throw new HttpForbidden(newComment)
+    }
+    this.cleanIdList(articleId)
+    return newComment
+  }
+  async deleteReply(replyId, articleId) {
+    if (!replyId) {
+      throw new Exception('wrong args')
+    }
+    let csrftoken = await getCSRFToken()
+    let url = `${this.baseApi}reply/${replyId}/`
+    let rsp = await fetchDelete(url, csrftoken)
     this.cleanIdList(articleId)
     return rsp.status
   }
@@ -471,7 +483,7 @@ class CommentManager extends ResourceManager {
   }
 }
 const commentManager = new CommentManager()
-
+window.c = commentManager
 
 export {
   articleManager, categoryManager, topicManager,

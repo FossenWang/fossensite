@@ -29,6 +29,7 @@ const simple_white_theme = createMuiTheme({
     pxToRem: (px) => {
       return (px / 16) + 'rem'
     },
+    useNextVariants: true,
     fontFamily: '"Roboto", Helvetica, "Lucida Sans", "Microsoft YaHei", Georgia, Arial, Sans-serif',
   },
   global: {

@@ -1,9 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 // import { Link } from "react-router-dom";
 import {
   withStyles, Button, List, ListItem,
   ListItemText, Snackbar,
   Grid,
+  Dialog,
 } from '@material-ui/core';
 
 import { commentManager, userManager } from '../resource/manager';
@@ -31,6 +32,10 @@ const commentFormStyle = theme => ({
     color: theme.palette.text.secondary,
     minWidth: 48,
     lineHeight: 1,
+  },
+  form: {
+    margin: '6px 16px 0',
+    minWidth: 300,
   },
   textarea: {
     boxSizing: 'border-box',
@@ -65,6 +70,79 @@ const commentFormStyle = theme => ({
   },
 })
 const withFormStyle = withStyles(commentFormStyle)
+
+
+class ReplyForm extends Component {
+  static contextType = CommentContext
+  submit = (e) => {
+    e.preventDefault()
+    let content = e.target.elements.content.value
+    this.createReply(content, e.target.elements.content)
+  }
+  createReply = async (content, textarea) => {
+    if (this.submiting) {
+      this.context.snackbar.current.openSnackbar('正在提交中, 请稍后...')
+      return
+    }
+    this.submiting = true
+    try {
+      let newReply = await commentManager.createReply(
+        content, this.context.articleId, this.props.replyTo)
+      textarea.value = null
+      this.context.snackbar.current.openSnackbar('回复成功！')
+      this.context.insertReply(newReply)
+    } catch {
+      this.context.snackbar.current.openSnackbar('好像出了点错~')
+    } finally {
+      this.submiting = false
+      this.context.replyForm.current.close()
+    }
+  }
+  render() {
+    let { classes, replyTo } = this.props
+    return (
+      <form onSubmit={this.submit} className={classes.form}>
+        <textarea name="content" maxLength="500" required placeholder="写下你的评论..."
+          className={classes.textarea + ' ' + classes.replyTextarea} />
+        <div className={classes.submit}>
+          <input id='replyForm' type="submit" value="评论" className={classes.hiddenInput} />
+          <span><i className="fa fa-reply"></i> 回复 {replyTo.user.username}</span>&emsp;
+          <span onClick={() => {
+            this.context.replyForm.current.close()
+          }} className={classes.cancel}>取消</span>&emsp;
+          <label htmlFor='replyForm'>
+            <Button component="span" size="small" variant="outlined"
+              className={classes.button}>评论</Button>
+          </label>
+        </div>
+      </form>
+    )
+  }
+}
+ReplyForm = withFormStyle(ReplyForm)
+
+
+class ReplyFormDialog extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { open: false, replyTo: {} }
+  }
+  open = (replyTo) => {
+    this.setState({ open: true, replyTo: replyTo })
+  }
+  close = () => {
+    if (this.state.open) {
+      this.setState({ open: false })
+    }
+  }
+  render() {
+    return (
+      <Dialog open={this.state.open} onClose={this.close} >
+        <ReplyForm replyTo={this.state.replyTo} />
+      </Dialog>
+    )
+  }
+}
 
 
 class CommentForm extends Component {
@@ -118,51 +196,6 @@ class CommentForm extends Component {
 CommentForm = withFormStyle(CommentForm)
 
 
-class ReplyForm extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { open: false }
-    if (this.props.reference) {
-      this.props.reference.openReplyForm = this.open
-    }
-  }
-  open = () => {
-    if (!this.state.open) {
-      this.setState({ open: true })
-    }
-  }
-  close = () => {
-    if (this.state.open) {
-      this.setState({ open: false })
-    }
-  }
-  render() {
-    let { open } = this.state
-    if (!open) {
-      return null
-    }
-    let { classes, replyTo } = this.props
-    let inputId = `cid${replyTo.id}`
-    return (
-      <form action="/article/comment/reply/create/" method="post">
-        <textarea name="content" maxLength="500" required placeholder="写下你的评论..."
-          className={classes.textarea + ' ' + classes.replyTextarea} />
-        <div className={classes.submit}>
-          <input id={inputId} type="submit" value="评论" className={classes.hiddenInput} />
-          <span><i className="fa fa-reply"></i> 回复 {replyTo.user.username}</span>&emsp;
-          <span onClick={this.close} className={classes.cancel}>取消</span>&emsp;
-          <label htmlFor={inputId}>
-            <Button component="span" size="small" variant="outlined"
-              className={classes.button}>评论</Button>
-          </label>
-        </div>
-      </form>
-    )
-  }
-}
-ReplyForm = withFormStyle(ReplyForm)
-
-
 const commentListStyle = theme => ({
   item: {
     paddingTop: 16,
@@ -185,7 +218,7 @@ const commentListStyle = theme => ({
     color: 'gray',
     float: 'right',
   },
-  time: {
+  info: {
     fontSize: '0.875rem',
     color: 'gray',
   },
@@ -210,13 +243,29 @@ const commentListStyle = theme => ({
 
 
 class ReplyList extends Component {
+  static contextType = CommentContext
+  deleteReply = async (commentId, replyId) => {
+    if (this.submiting) {
+      this.context.snackbar.current.openSnackbar('删除中, 请稍后...')
+      return
+    }
+    this.submiting = true
+    try {
+      let code = await commentManager.deleteReply(replyId, this.context.articleId)
+      if (code === 204) {
+        this.context.deleteReply(commentId, replyId)
+        this.context.snackbar.current.openSnackbar('删除评论成功！')
+      }
+    } finally {
+      this.submiting = false
+    }
+  }
   render() {
     let { classes, replyList, currentUser } = this.props
     if (replyList.length === 0) {
       return null
     }
     let items = replyList.map((reply) => {
-      let reference = { openReplyForm: null }
       return (
         <ListItem disableGutters key={reply.id} className={classes.item}>
           <UserAvatar src={reply.user.avatar} />
@@ -225,21 +274,32 @@ class ReplyList extends Component {
               <a href={reply.user.github_url} target={"_blank"} >
                 {reply.user.username}
               </a>
+              {reply.reply_id ?
+                <Fragment>
+                  <span className={classes.info}> 回复 </span>
+                  <a href={reply.reply_user.github_url} target={"_blank"} >
+                    {reply.reply_user.username}
+                  </a>
+                </Fragment>: null}
             </div>
             <div className={classes.content}>
               {reply.content}
             </div>
-            <div className={classes.time}>
+            <div className={classes.info}>
               <span>{formatDate(reply.time)}</span>&emsp;
-              {currentUser.id ? <span onClick={() => { reference.openReplyForm() }} className={classes.reply}>
+              {currentUser.id ?
+                <span onClick={() => {
+                  this.context.replyForm.current.open(reply)
+                }} className={classes.reply}>
                 <i className="fa fa-reply"></i> 回复
-              </span> : null}&emsp;
+                </span> : null}&emsp;
               {currentUser.id === reply.user.id ?
-                <span className={classes.delete}>
+                <span
+                  onClick={() => { this.deleteReply(reply.comment_id, reply.id) }}
+                  className={classes.delete}>
                   <i className="fa fa-trash"></i> 删除
                 </span> : null}
             </div>
-            {currentUser.id ? <ReplyForm reference={reference} replyTo={reply} /> : null}
           </ListItemText>
         </ListItem>
       )
@@ -255,7 +315,6 @@ class ReplyList extends Component {
 
 class CommentList extends Component {
   static contextType = CommentContext
-
   deleteComment = async (commentId) => {
     if (this.submiting) {
       this.context.snackbar.current.openSnackbar('删除中, 请稍后...')
@@ -279,7 +338,6 @@ class CommentList extends Component {
     }
     let number = pageInfo.total
     let items = commentList.map(comment => {
-      let reference = { openReplyForm: null }
       return (
         <ListItem disableGutters key={comment.id} className={classes.item}>
           <UserAvatar src={comment.user.avatar} />
@@ -293,18 +351,20 @@ class CommentList extends Component {
             <div className={classes.content}>
               {comment.content}
             </div>
-            <div className={classes.time}>
+            <div className={classes.info}>
               <span>{formatDate(comment.time)}</span>&emsp;
-              {currentUser.id ? <span onClick={() => { reference.openReplyForm() }} className={classes.reply}>
+              {currentUser.id ?
+                <span onClick={() => {
+                  this.context.replyForm.current.open(comment)
+                }} className={classes.reply}>
                 <i className="fa fa-reply"></i> 回复
-              </span> : null}&emsp;
+                </span> : null}&emsp;
               {currentUser.id === comment.user.id ?
                 <span className={classes.delete}
                   onClick={() => { this.deleteComment(comment.id) }}>
                   <i className="fa fa-trash"></i> 删除
                 </span> : null}
             </div>
-            {currentUser.id ? <ReplyForm reference={reference} replyTo={comment} /> : null}
             <ReplyList replyList={comment.reply_list} currentUser={currentUser} classes={classes}></ReplyList>
           </ListItemText>
         </ListItem>
@@ -377,28 +437,6 @@ class ArticleComment extends Component {
     this.bindScroll()
   }
   static contextType = CommentContext
-  resetComment = () => {
-    window.onscroll = null
-    this.bindScroll()
-    this.setState({
-      commentList: [],
-      pageInfo: {
-        pageSize: 10,
-        total: 0,
-        page: 0,
-        totalCommentAndReply: 0,
-      },
-      loading: true,
-      loaded: false,
-    })
-    this.setComments(1).then(() => {
-      let { page, lastPage } = this.getCurrentParams()
-      if (page >= lastPage) {
-        // 加载完最后一页即取消监听滚动事件
-        window.onscroll = null
-      }
-    })
-  }
   componentDidMount() {
     userManager.callbacks.login['ArticleComment'] = this.setCurrentUser
     userManager.callbacks.logout['ArticleComment'] = this.setCurrentUser
@@ -451,16 +489,68 @@ class ArticleComment extends Component {
       }
     })
   }
+  resetComment = () => {
+    window.onscroll = null
+    this.bindScroll()
+    this.setState({
+      commentList: [],
+      pageInfo: {
+        pageSize: 10,
+        total: 0,
+        page: 0,
+        totalCommentAndReply: 0,
+      },
+      loading: true,
+      loaded: false,
+    })
+    this.setComments(1).then(() => {
+      let { page, lastPage } = this.getCurrentParams()
+      if (page >= lastPage) {
+        // 加载完最后一页即取消监听滚动事件
+        window.onscroll = null
+      }
+    })
+  }
+  insertReply = (newReply) => {
+    let { commentList } = this.state
+    for (let i in commentList) {
+      if (newReply.comment_id === commentList[i].id) {
+        commentList[i].reply_list.push(newReply)
+        this.setState({ commentList: commentList })
+        break
+      }
+    }
+  }
+  deleteReply = (commentId, replyId) => {
+    let { commentList } = this.state
+    for (let i in commentList) {
+      if (commentId === commentList[i].id) {
+        let replyList = commentList[i].reply_list
+        for (let j in replyList) {
+          if (replyId === replyList[j].id) {
+            replyList.splice(j, 1)
+            this.setState({ commentList: commentList })
+            break
+          }
+        }
+      }
+    }
+  }
   render() {
     let { classes, articleId } = this.props
     let { commentList, pageInfo, loading, currentUser } = this.state
     let snackbar = React.createRef()
+    let replyForm = React.createRef()
+    let context = {
+      resetComment: this.resetComment,
+      insertReply: this.insertReply,
+      deleteReply: this.deleteReply,
+      snackbar: snackbar,
+      replyForm: replyForm,
+      articleId: articleId,
+    }
     return (
-      <CommentContext.Provider value={{
-        resetComment: this.resetComment,
-        snackbar: snackbar,
-        articleId: articleId,
-      }}>
+      <CommentContext.Provider value={context}>
         <div className={classes.comment}>
           <div className={classes.title}>{pageInfo.totalCommentAndReply}条评论</div>
           <CommentForm articleId={articleId} login={currentUser.id} />
@@ -468,6 +558,7 @@ class ArticleComment extends Component {
             pageInfo={pageInfo} currentUser={currentUser} />
           {loading ? <Loading elevation={0} /> : null}
           <CommentMsg ref={snackbar} />
+          {currentUser.id ? <ReplyFormDialog ref={replyForm} />: null}
         </div>
       </CommentContext.Provider>
     )
