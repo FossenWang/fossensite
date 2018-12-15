@@ -1,4 +1,4 @@
-import { NotImplementedError, HttpForbidden, Exception } from '../common/errors'
+import { NotImplementedError, HttpForbidden, Exception, HttpError } from '../common/errors'
 import { parseUrlParams, fetchPost, fetchDelete } from '../common/tools'
 
 
@@ -241,6 +241,7 @@ class UserManager extends ResourceManager {
     super()
     this.currentUserId = null
     this.currentUserApiPromise = null
+    this.csrftoken = null
     this.callbacks = {
       readNotice: {},
       login: {},
@@ -250,7 +251,7 @@ class UserManager extends ResourceManager {
   baseApi = API_HOST + 'account/'
   profileUrl = API_HOST + 'account/profile/'
   preLoginUrl = API_HOST + 'account/login/prepare/'
-  devLoginUrl = API_HOST + 'account/oauth/github/'
+  loginUrl = API_HOST + 'account/oauth/github/'
   logoutUrl = API_HOST + 'account/logout/'
 
   async getCurrentUser(refresh = false) {
@@ -265,8 +266,7 @@ class UserManager extends ResourceManager {
         this.currentUserApiPromise = null
         throw error
       }
-      this.currentUserId = currentUser.id
-      this.setItem(currentUser)
+      this.setCurrentUser(currentUser)
       this.currentUserApiPromise = null
     }
     return currentUser
@@ -277,30 +277,48 @@ class UserManager extends ResourceManager {
     let rawData = await rsp.json()
     return rawData
   }
-
+  setCurrentUser(user) {
+    this.currentUserId = user.id
+    this.setItem(user)
+  }
   async prepareLogin(next) {
     let url = this.preLoginUrl + (next ? '?next=' + next : '')
     let rsp = await fetch(url, { headers: headers, credentials: 'include' })
     let rawData = await rsp.json()
+    let { state } = parseUrlParams(rawData.github_oauth_url)
+    this.csrftoken = state
     return rawData
   }
 
-  async devLogin(id, githubOauthUrl) {
-    let params = parseUrlParams(githubOauthUrl)
-    let url = this.devLoginUrl + '?id=' + id
-    if (params.state) {
-      url += '&state=' + params.state
+  async baseLogin(url) {
+    let rsp = await fetch(url, { headers: headers, credentials: 'include' })
+    if (rsp.status !== 200) {
+      throw HttpError({rsp: rsp})
     }
-    let rsp = await fetch(url, { headers: headers, credentials: 'include', redirect: 'manual' })
+    let rawData = await rsp.json()
+    this.setCurrentUser(rawData.user)
     // 调用回调
-    this.runCallbacks(this.callbacks.login, {login: true})
-    return rsp
+    this.runCallbacks(this.callbacks.login, rawData.user)
+    return rawData
+  }
+  async login(code) {
+    let url = `${this.loginUrl}?code=${code}&state=${this.csrftoken}`
+    return await this.baseLogin(url)
+  }
+  async devLogin(id) {
+    let url = `${this.loginUrl}?id=${id}&state=${this.csrftoken}`
+    return await this.baseLogin(url)
   }
 
   async logout() {
     let rsp = await fetch(this.logoutUrl, { headers: headers, credentials: 'include', redirect: 'manual' })
-    this.runCallbacks(this.callbacks.logout, {login: false})
-    return rsp
+    if (rsp.status !== 200) {
+      throw HttpError({rsp: rsp})
+    }
+    let user = await rsp.json()
+    this.setCurrentUser(user)
+    this.runCallbacks(this.callbacks.logout, user)
+    return user
   }
 
   async readNotice() {
@@ -483,7 +501,7 @@ class CommentManager extends ResourceManager {
   }
 }
 const commentManager = new CommentManager()
-window.c = commentManager
+
 
 export {
   articleManager, categoryManager, topicManager,

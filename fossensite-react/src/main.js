@@ -11,6 +11,7 @@ import {
 import SideBar from './blog/side_bar'
 import ArticleDetail from './blog/article_detail'
 import { NoticeList } from './account/notice_list';
+import LoginPage from './account/login'
 
 
 const mainStyle = theme => ({
@@ -40,6 +41,7 @@ class Main extends Component {
             <Route exact path="/article/topic/:topic_id(\d+)/" component={TopicArticleList} />
             <Route exact path="/article/search/" component={SearchArticleList} />
             <Route exact path="/account/notice/" component={NoticeList} />
+            <Route exact path="/account/login/" component={LoginPage} />
             <NotFound />
           </Switch>
         </Grid>

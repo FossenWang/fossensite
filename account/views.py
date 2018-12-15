@@ -1,9 +1,8 @@
 import requests
 
-from django.shortcuts import redirect
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.contrib.auth.models import User
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 
@@ -30,6 +29,12 @@ class ProfileDetailView(JSONView):
             'new_notice': profile.new_notice,
         }
         return data
+
+
+class LogoutView(ProfileDetailView):
+    def get(self, request):
+        logout(request)
+        return super().get(request)
 
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
@@ -100,11 +105,20 @@ class GitHubOAuthView(JSONView):
 
     def login_user(self, user):
         login(self.request, user)
+        profile = user.profile
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'avatar': profile.avatar.name if profile.avatar else None,
+            'github_url': profile.github_url,
+            'new_notice': profile.new_notice,
+        }
 
         url = self.request.COOKIES.get('next')
         if not url:
             url = '/'
-        rsp = redirect(url)
+
+        rsp = self.render_to_json_response({'next': url, 'user': user_data})
         rsp.delete_cookie('next')
         return rsp
 

@@ -438,16 +438,19 @@ class ArticleComment extends Component {
   }
   static contextType = CommentContext
   componentDidMount() {
-    userManager.callbacks.login['ArticleComment'] = this.setCurrentUser
-    userManager.callbacks.logout['ArticleComment'] = this.setCurrentUser
+    userManager.callbacks.login['ArticleComment'] = this.resetCurrentUser
+    userManager.callbacks.logout['ArticleComment'] = this.resetCurrentUser
   }
   componentWillUnmount() {
     delete userManager.callbacks.login['ArticleComment']
     delete userManager.callbacks.logout['ArticleComment']
   }
   setCurrentUser = async () => {
-    let currentUser = await userManager.getCurrentUser(true)
+    let currentUser = await userManager.getCurrentUser()
     this.setState({ currentUser: currentUser })
+  }
+  resetCurrentUser = (user) => {
+    this.setState({ currentUser: user })
   }
   bindScroll() {
     let _this = this

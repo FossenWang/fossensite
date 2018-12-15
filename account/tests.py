@@ -21,8 +21,12 @@ class AccountTestCase(TestCase):
         csrftoken = rsp.cookies.get('csrftoken').value
         # 模拟登录
         rsp = c.get('/api/account/oauth/github/?id=2&state=' + csrftoken)
-        self.assertEqual(rsp.status_code, 302)
-        self.assertEqual(rsp.url, '/article/')
+        self.assertEqual(rsp.status_code, 200)
+        r = rsp.json()
+        self.assertEqual(set(r), {'user', 'next'})
+        self.assertEqual(set(r['user']), {
+            'id', 'github_url', 'avatar', 'new_notice', 'username'})
+        self.assertEqual(r['next'], '/article/')
         # 获取用户信息
         rsp = c.get('/api/account/profile/')
         self.assertEqual(rsp.status_code, 200)
@@ -31,7 +35,9 @@ class AccountTestCase(TestCase):
         self.assertEqual(rsp.json()['id'], 2)
         # 退出登录
         rsp = c.get('/api/account/logout/')
-        self.assertEqual(rsp.status_code, 302)
+        self.assertEqual(rsp.status_code, 200)
+        self.assertEqual(set(rsp.json()), {
+            'id', 'github_url', 'avatar', 'new_notice', 'username'})
         # 退出登录后为匿名用户
         rsp = c.get('/api/account/profile/')
         self.assertEqual(rsp.status_code, 200)

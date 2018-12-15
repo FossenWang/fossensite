@@ -149,7 +149,6 @@ class NewArticleList extends Component {
   }
 
   async setArticleList(params) {
-    console.log('loading', params)
     // 收集key用于获取文章列表
     let { page } = params
     page = (page ? page : 1)

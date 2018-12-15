@@ -1,10 +1,27 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { withStyles, AppBar, Hidden, Grid } from '@material-ui/core';
+import { withStyles, AppBar, Hidden, Grid, Toolbar } from '@material-ui/core';
 
-import { FrameGrid } from '../common/components';
+import { FrameGrid, ErrorBoundary } from '../common/components';
 import NavList from './navlist'
-import TopToolbar from './toolbar'
+import Search from './search'
+import UserBar from './userbar'
+
+
+class TopToolbar extends Component {
+  render() {
+    return (
+      <ErrorBoundary errorPage={''}>
+        <Grid container alignItems={'center'} justify={'flex-end'}>
+          <Toolbar>
+            <Search />
+            <UserBar />
+          </Toolbar>
+        </Grid>
+      </ErrorBoundary>
+    )
+  }
+}
 
 
 const topbar_style = (theme) => ({
