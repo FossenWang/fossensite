@@ -194,13 +194,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': 'caches',
-        'TIMEOUT': 3600,
-    }
-}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+#         'LOCATION': 'caches',
+#         'TIMEOUT': 3600,
+#     }
+# }
 
 
 if getattr(env, 'LOGGING', None):

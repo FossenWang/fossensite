@@ -2,7 +2,7 @@ import { NotImplementedError, HttpForbidden, Exception } from '../common/errors'
 import { parseUrlParams, fetchPost, fetchDelete } from '../common/tools'
 
 
-const API_HOST = 'http://127.0.0.1:8000/'
+const API_HOST = 'http://127.0.0.1:8000/api/'
 var headers = {
   'Accept': 'application/json',
 }

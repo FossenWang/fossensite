@@ -2,8 +2,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
+# from django.core.cache import cache
+# from django.core.cache.utils import make_template_fragment_key
 
 
 class Category(models.Model):
@@ -63,22 +63,22 @@ class Article(models.Model):
         self.views += 1
         super().save(update_fields=['views'])
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # 保存后清空相关缓存
-        cache.delete(make_template_fragment_key('home'))
-        cache.delete(make_template_fragment_key('article_detail', [self.id]))
-        cache.delete(make_template_fragment_key(
-            'article_detail_title', [self.id]))
-        c_pages = self.category.article_set.count()//10 + 1
-        for i in range(1, c_pages+1):
-            cache.delete(make_template_fragment_key(
-                'article_category', [self.category.id, i]))
-        for topic in self.topics.all():
-            t_pages = topic.article_set.count()//10 + 1
-            for i in range(1, t_pages+1):
-                cache.delete(make_template_fragment_key(
-                    'article_topic', [topic.id, i]))
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     # 保存后清空相关缓存
+    #     cache.delete(make_template_fragment_key('home'))
+    #     cache.delete(make_template_fragment_key('article_detail', [self.id]))
+    #     cache.delete(make_template_fragment_key(
+    #         'article_detail_title', [self.id]))
+    #     c_pages = self.category.article_set.count()//10 + 1
+    #     for i in range(1, c_pages+1):
+    #         cache.delete(make_template_fragment_key(
+    #             'article_category', [self.category.id, i]))
+    #     for topic in self.topics.all():
+    #         t_pages = topic.article_set.count()//10 + 1
+    #         for i in range(1, t_pages+1):
+    #             cache.delete(make_template_fragment_key(
+    #                 'article_topic', [topic.id, i]))
 
     class Meta:
         ordering = ['-pub_date']

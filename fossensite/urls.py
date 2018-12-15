@@ -23,9 +23,9 @@ from tools.views import CSRFView
 
 
 urlpatterns = [
-    path('', include('blog.urls')),
     path('admin/', admin.site.urls),
-    path('account/', include('account.urls')),
-    path('csrf/', CSRFView.as_view(), name='csrf'),
-    path('deploy', deploy_view, name='deploy'),
+    path('api/', include('blog.urls')),
+    path('api/account/', include('account.urls')),
+    path('api/csrf/', CSRFView.as_view(), name='csrf'),
+    path('api/deploy/', deploy_view, name='deploy'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

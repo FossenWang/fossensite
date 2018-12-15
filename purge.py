@@ -10,7 +10,7 @@ def main():
     results = sp.results
 
     sp.run('python3 manage.py clearsessions')
-    sp.run(f'rm {project_root}/caches/*')
+    # sp.run(f'rm {project_root}/caches/*')
 
     sp.run('ls /var/log/letsencrypt/')
     for log in results[-1].stdout.split('\n'):

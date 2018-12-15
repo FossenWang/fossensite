@@ -9,6 +9,6 @@ static/admin
 static/js
 /fossensite-react/README.md
 /fossensite-react/package-lock.json
-/fossensite-react/public/favicon.ico
+/fossensite-react/public/static/
 /fossensite-react/public/manifest.json
 /fossensite-react/build

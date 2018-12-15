@@ -1,21 +1,19 @@
 import json
 
-from django.http import HttpResponseForbidden
-from django.test import TestCase, Client
+from django.test import TestCase
 
-
-c = Client()
 
 class TaskTestCase(TestCase):
     def test_deploy(self):
-        rsp = c.post('/deploy')
+        c = self.client
+        rsp = c.post('/api/deploy/')
         self.assertEqual(json.loads(rsp.content), 'ignore')
 
-        rsp = c.post('/deploy', {}, 'application/json')
+        rsp = c.post('/api/deploy/', {}, 'application/json')
         self.assertEqual(json.loads(rsp.content), 'ignore')
 
-        rsp = c.post('/deploy', {'ref': 'refs/heads/test'}, 'application/json')
+        rsp = c.post('/api/deploy/', {'ref': 'refs/heads/test'}, 'application/json')
         self.assertEqual(json.loads(rsp.content), 'ignore')
 
-        # rsp = c.post('/deploy', {'ref': 'refs/heads/master'}, 'application/json')
+        # rsp = c.post('/api/deploy/', {'ref': 'refs/heads/master'}, 'application/json')
         # self.assertEqual(json.loads(rsp.content), 'success')

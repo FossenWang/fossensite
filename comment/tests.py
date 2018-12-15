@@ -48,7 +48,7 @@ class CommentTestCase(TestCase):
         c.login(username='user1', password='user1')
 
         self.assertTrue(self.user.profile.new_notice, '有新通知')
-        rsp = c.get('/account/notice/')
+        rsp = c.get('/api/account/notice/')
         self.assertEqual(rsp.status_code, 200)
         self.user.profile.refresh_from_db()
         self.assertFalse(self.user.profile.new_notice, '通知已读')
@@ -62,7 +62,7 @@ class CommentTestCase(TestCase):
         self.assertEqual(set(r['data'][0]['reply_user']), user_fields)
         self.assertEqual(set(r['pageInfo']), {'lastPage', 'page', 'pageSize', 'total'})
 
-        rsp = c.get('/article/1/comment/')
+        rsp = c.get('/api/article/1/comment/')
         self.assertEqual(rsp.status_code, 200)
         r = rsp.json()
         self.assertEqual(set(r), {'data', 'pageInfo', 'totalCommentAndReply'})
@@ -86,7 +86,7 @@ class CommentTestCase(TestCase):
         self.user.profile.refresh_from_db()
         self.assertTrue(self.user.profile.new_notice, '有新通知')
 
-        rsp = c.get('/article/1/comment/')
+        rsp = c.get('/api/article/1/comment/')
         self.assertEqual(rsp.status_code, 200)
         r = rsp.json()
         # 一级评论为时间倒序
@@ -98,7 +98,7 @@ class CommentTestCase(TestCase):
                 self.assertEqual(reply['comment_id'], comment['id'])
 
         # 创建评论
-        rsp = c.post('/article/1/comment/', {'content': 'new comment'}, 'application/json')
+        rsp = c.post('/api/article/1/comment/', {'content': 'new comment'}, 'application/json')
         self.assertEqual(rsp.status_code, 200)
         r = rsp.json()
         self.assertEqual(set(r), {
@@ -106,13 +106,13 @@ class CommentTestCase(TestCase):
         self.assertEqual(set(r['user']), user_fields)
         comment_id = r['id']
 
-        rsp = c.post('/article/1/comment/', {'content': ''}, 'application/json')
+        rsp = c.post('/api/article/1/comment/', {'content': ''}, 'application/json')
         self.assertEqual(rsp.status_code, 403)
-        rsp = c.post('/article/1/comment/', {'content': 'new comment'})
+        rsp = c.post('/api/article/1/comment/', {'content': 'new comment'})
         self.assertEqual(rsp.status_code, 403)
 
         # 创建回复
-        rsp = c.post('/article/1/comment/reply/', {
+        rsp = c.post('/api/article/1/comment/reply/', {
             'content': 'new comment', 'comment_id': comment_id
             }, 'application/json')
         self.assertEqual(rsp.status_code, 200)
@@ -123,7 +123,7 @@ class CommentTestCase(TestCase):
         self.assertEqual(r['comment_id'], comment_id)
         reply_id = r['id']
 
-        rsp = c.post('/article/1/comment/reply/', {
+        rsp = c.post('/api/article/1/comment/reply/', {
             'content': 'new comment', 'comment_id': comment_id,
             'reply_id': reply_id,
             }, 'application/json')
@@ -132,20 +132,20 @@ class CommentTestCase(TestCase):
         self.assertEqual(r['reply_id'], reply_id)
         self.assertEqual(r['comment_id'], comment_id)
 
-        rsp = c.post('/article/1/comment/reply/', {
+        rsp = c.post('/api/article/1/comment/reply/', {
             'content': 'new comment', 'comment_id': comment_id,
             'reply_id': 100,
             }, 'application/json')
         self.assertEqual(rsp.status_code, 403)
-        rsp = c.post('/article/1/comment/reply/', {
+        rsp = c.post('/api/article/1/comment/reply/', {
             'content': 'new comment', 'comment_id': 100,
             }, 'application/json')
         self.assertEqual(rsp.status_code, 403)
 
         # 删除评论
-        rsp = c.delete(f'/article/reply/{reply_id}/')
+        rsp = c.delete(f'/api/article/reply/{reply_id}/')
         self.assertEqual(rsp.status_code, 204)
-        rsp = c.delete(f'/article/comment/{comment_id}/')
+        rsp = c.delete(f'/api/article/comment/{comment_id}/')
         self.assertEqual(rsp.status_code, 204)
-        rsp = c.delete(f'/article/reply/{1}/')
+        rsp = c.delete(f'/api/article/reply/{1}/')
         self.assertEqual(rsp.status_code, 403)

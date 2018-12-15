@@ -15,25 +15,25 @@ class AccountTestCase(TestCase):
     def test_user(self):
         c = self.client
         # 登录准备
-        rsp = c.get('/account/login/prepare/?next=/article/')
+        rsp = c.get('/api/account/login/prepare/?next=/article/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(rsp.cookies.get('next').value, '/article/')
         csrftoken = rsp.cookies.get('csrftoken').value
         # 模拟登录
-        rsp = c.get('/account/oauth/github/?id=2&state=' + csrftoken)
+        rsp = c.get('/api/account/oauth/github/?id=2&state=' + csrftoken)
         self.assertEqual(rsp.status_code, 302)
         self.assertEqual(rsp.url, '/article/')
         # 获取用户信息
-        rsp = c.get('/account/profile/')
+        rsp = c.get('/api/account/profile/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(set(rsp.json()), {
             'id', 'github_url', 'avatar', 'new_notice', 'username'})
         self.assertEqual(rsp.json()['id'], 2)
         # 退出登录
-        rsp = c.get('/account/logout/')
+        rsp = c.get('/api/account/logout/')
         self.assertEqual(rsp.status_code, 302)
         # 退出登录后为匿名用户
-        rsp = c.get('/account/profile/')
+        rsp = c.get('/api/account/profile/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(set(rsp.json()), {
             'id', 'github_url', 'avatar', 'new_notice', 'username'})

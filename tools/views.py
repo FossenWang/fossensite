@@ -1,7 +1,6 @@
 import json
 
 from django.views import View
-from django.views.generic.base import TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 from django.http import HttpRequest, HttpResponse, JsonResponse, Http404
@@ -82,28 +81,7 @@ class JSONView(JSONMixin, View):
         return response
 
 
-class TemplateJSONView(JSONMixin, TemplateResponseMixin, View):
-    json_only = False
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs):
-        try:
-            response = super().dispatch(request, *args, **kwargs)
-            if not isinstance(response, HttpResponse):
-                if not self.json_only and request.method == 'GET' \
-                   and 'json' not in request.META.get('HTTP_ACCEPT', ''):
-                    # when request uses GET method and dosen't accept json response
-                    # response should be render to TemplateResponse
-                    response = self.render_to_response(response)
-                else:
-                    response = self.render_to_json_response(response)
-        except Http404 as e:
-            return self.handle404(e)
-        except PermissionDenied as e:
-            return self.handle403(e)
-        return response
-
-
-class ListView(MultipleObjectMixin, TemplateJSONView):
+class ListView(MultipleObjectMixin, JSONView):
     def get(self, request: HttpRequest, **kwargs):
         self.object_list = self.get_queryset()
         self.context = self.get_context_data()
@@ -148,7 +126,7 @@ class CreateMixin:
         raise PermissionDenied(msg)
 
 
-class DetailView(SingleObjectMixin, TemplateJSONView):
+class DetailView(SingleObjectMixin, JSONView):
     def get(self, request: HttpRequest, **kwargs):
         if not hasattr(self, 'object'):
             self.object = self.get_object()

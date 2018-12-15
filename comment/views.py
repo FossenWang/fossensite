@@ -29,7 +29,6 @@ class UserReplyList(LoginRequiredMixin, ListView):
     context_object_name = 'replies'
     paginate_by = 10
     raise_exception = True
-    json_only = True
     none = Value(None, IntegerField())
     fields = ('id', 'content', 'time', 'user_id', 'article_id', 'article__title',
               'comment_id', 'comment_user_id', 'reply_id', 'reply_user_id')

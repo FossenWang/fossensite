@@ -20,13 +20,13 @@ class BlogTestCase(TestCase):
 
     def test_article_list(self):
         c = self.client
-        rsp = c.get('/')
+        rsp = c.get('/api/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(rsp.json()['data'], [])
-        rsp = c.get('/article/')
+        rsp = c.get('/api/article/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(rsp.json()['data'], [])
-        rsp = c.get('/article/?page=10')
+        rsp = c.get('/api/article/?page=10')
         self.assertEqual(rsp.status_code, 404)
 
         a1 = Article.objects.create(**{
@@ -37,7 +37,7 @@ class BlogTestCase(TestCase):
         })
         a1.topics.add(self.t1)
 
-        rsp = c.get('/article/')
+        rsp = c.get('/api/article/')
         self.assertEqual(rsp.status_code, 200)
         r = rsp.json()
         aid = r['data'][0]['id']
@@ -51,7 +51,7 @@ class BlogTestCase(TestCase):
         self.assertDictEqual(r['pageInfo'], {
             'lastPage': 1, 'page': 1, 'pageSize': 10, 'total': 1})
 
-        rsp = c.get(f'/article/{aid}/')
+        rsp = c.get(f'/api/article/{aid}/')
         self.assertEqual(rsp.status_code, 200)
         r = rsp.json()
         self.assertEqual(set(r), {
@@ -60,28 +60,28 @@ class BlogTestCase(TestCase):
         self.assertEqual(set(r['category']), {'id', 'name'})
         self.assertEqual(set(r['topics'][0]), {'id', 'name'})
 
-        rsp = c.get('/article/category/1/')
+        rsp = c.get('/api/article/category/1/')
         self.assertEqual(rsp.status_code, 200)
         self.assertDictEqual(rsp.json()['pageInfo'], {
             'lastPage': 1, 'page': 1, 'pageSize': 10, 'total': 1})
 
-        rsp = c.get('/article/topic/1/')
+        rsp = c.get('/api/article/topic/1/')
         self.assertEqual(rsp.status_code, 200)
         self.assertDictEqual(rsp.json()['pageInfo'], {
             'lastPage': 1, 'page': 1, 'pageSize': 10, 'total': 1})
 
         # test cate & topic & link
-        rsp = c.get('/category/')
+        rsp = c.get('/api/category/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(set(rsp.json()['data'][0]), {
             'id', 'name'})
 
-        rsp = c.get('/topic/')
+        rsp = c.get('/api/topic/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(set(rsp.json()['data'][0]), {
             'id', 'name'})
 
-        rsp = c.get('/link/')
+        rsp = c.get('/api/link/')
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(set(rsp.json()['data'][0]), {
             'id', 'name', 'url'})
