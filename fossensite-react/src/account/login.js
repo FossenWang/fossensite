@@ -6,16 +6,25 @@ import { userManager } from '../resource/manager'
 
 
 class LoginPage extends Component {
-  login = async () => {
-    let data
+  constructor(props) {
+    super(props)
     if (process.env.NODE_ENV === 'development') {
-      data = await userManager.devLogin(2)
-    } else {
-      let { code } = parseUrlParams(this.props.location.search)
-      data = await userManager.login(code)
+      this.login = this.devLogin
     }
+  }
+  login = async () => {
+    let { code } = parseUrlParams(this.props.location.search)
+    let data = await userManager.login(code)
     let next = data.next
-    if (next.match('/account/login/')){
+    if (next.match('/account/oauth/github/')){
+      next = '/'
+    }
+    this.props.history.push(next)
+  }
+  devLogin = async () => {
+    let data = await userManager.login(2)
+    let next = data.next
+    if (next.match('/account/oauth/github/')){
       next = '/'
     }
     this.props.history.push(next)

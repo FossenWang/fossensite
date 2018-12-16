@@ -20,7 +20,7 @@ class AccountTestCase(TestCase):
         self.assertEqual(rsp.cookies.get('next').value, '/article/')
         csrftoken = rsp.cookies.get('csrftoken').value
         # 模拟登录
-        rsp = c.get('/api/account/oauth/github/?id=2&state=' + csrftoken)
+        rsp = c.get('/api/account/oauth/github/?code=2&state=' + csrftoken)
         self.assertEqual(rsp.status_code, 200)
         r = rsp.json()
         self.assertEqual(set(r), {'user', 'next'})

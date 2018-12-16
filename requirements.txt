@@ -4,4 +4,4 @@ psycopg2-binary==2.7.5
 pytz==2018.5
 requests==2.20.1
 gunicorn==19.9.0
-django-cors-headers=2.4.0
+django-cors-headers==2.4.0

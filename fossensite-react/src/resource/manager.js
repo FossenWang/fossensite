@@ -2,7 +2,14 @@ import { NotImplementedError, HttpForbidden, Exception, HttpError } from '../com
 import { parseUrlParams, fetchPost, fetchDelete } from '../common/tools'
 
 
-const API_HOST = 'http://127.0.0.1:8000/api/'
+let API_HOST
+
+if (process.env.NODE_ENV === 'development') {
+  API_HOST = 'http://127.0.0.1:8000/api/'
+}
+else {
+  API_HOST = '/api/'
+}
 var headers = {
   'Accept': 'application/json',
 }
@@ -285,15 +292,15 @@ class UserManager extends ResourceManager {
     let url = this.preLoginUrl + (next ? '?next=' + next : '')
     let rsp = await fetch(url, { headers: headers, credentials: 'include' })
     let rawData = await rsp.json()
-    let { state } = parseUrlParams(rawData.github_oauth_url)
-    this.csrftoken = state
     return rawData
   }
 
-  async baseLogin(url) {
+  async login(code) {
+    let { state } = parseUrlParams(window.location.search)
+    let url = `${this.loginUrl}?code=${code}&state=${state}`
     let rsp = await fetch(url, { headers: headers, credentials: 'include' })
     if (rsp.status !== 200) {
-      throw HttpError({rsp: rsp})
+      throw new HttpError({rsp: rsp})
     }
     let rawData = await rsp.json()
     this.setCurrentUser(rawData.user)
@@ -301,19 +308,11 @@ class UserManager extends ResourceManager {
     this.runCallbacks(this.callbacks.login, rawData.user)
     return rawData
   }
-  async login(code) {
-    let url = `${this.loginUrl}?code=${code}&state=${this.csrftoken}`
-    return await this.baseLogin(url)
-  }
-  async devLogin(id) {
-    let url = `${this.loginUrl}?id=${id}&state=${this.csrftoken}`
-    return await this.baseLogin(url)
-  }
 
   async logout() {
     let rsp = await fetch(this.logoutUrl, { headers: headers, credentials: 'include', redirect: 'manual' })
     if (rsp.status !== 200) {
-      throw HttpError({rsp: rsp})
+      throw new HttpError({rsp: rsp})
     }
     let user = await rsp.json()
     this.setCurrentUser(user)

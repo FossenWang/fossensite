@@ -41,7 +41,7 @@ class Main extends Component {
             <Route exact path="/article/topic/:topic_id(\d+)/" component={TopicArticleList} />
             <Route exact path="/article/search/" component={SearchArticleList} />
             <Route exact path="/account/notice/" component={NoticeList} />
-            <Route exact path="/account/login/" component={LoginPage} />
+            <Route exact path="/account/oauth/github/" component={LoginPage} />
             <NotFound />
           </Switch>
         </Grid>

@@ -56,9 +56,13 @@ class GitHubOAuthView(JSONView):
     client_id = settings.GITHUB_CLIENT_ID
     client_secret = settings.GITHUB_CLIENT_SECRET
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if settings.DEBUG:
+            self.get = self.login_in_test
+
+
     def get(self, request, *args, **kwargs):
-        if settings.DEBUG and self.request.GET.get('id'):
-            return self.login_in_test()
         access_token = self.get_access_token()
         user_info = self.get_user_info(access_token)
         return self.authenticate(user_info)
@@ -97,10 +101,10 @@ class GitHubOAuthView(JSONView):
                               github_url=user_info.get('html_url'))
             profile.save()
         else:
+            user = user[0]
             user.profile.update(**{
                 'avatar': user_info.get('avatar_url'),
                 'github_url': user_info.get('html_url')})
-            user = user[0]
         return self.login_user(user)
 
     def login_user(self, user):
@@ -122,11 +126,11 @@ class GitHubOAuthView(JSONView):
         rsp.delete_cookie('next')
         return rsp
 
-    def login_in_test(self):
+    def login_in_test(self, request, *args, **kwargs):
         if self.request.GET.get('state') != self.request.COOKIES.get('csrftoken'):
             raise PermissionDenied('Wrong csrftoken.')
         try:
-            user = User.objects.get(pk=self.request.GET.get('id'))
+            user = User.objects.get(pk=self.request.GET.get('code'))
         except ObjectDoesNotExist:
             raise PermissionDenied('没有该用户')
         return self.login_user(user)

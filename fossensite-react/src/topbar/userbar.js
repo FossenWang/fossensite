@@ -6,6 +6,7 @@ import {
 
 import { userManager } from '../resource/manager'
 import Link from 'react-router-dom/Link';
+import { parseUrlParams } from '../common/tools';
 
 
 const loginStyle = theme => ({
@@ -25,6 +26,9 @@ class LoginDialog extends Component {
   constructor(props) {
     super(props)
     this.state = { open: false }
+    if (process.env.NODE_ENV === 'development') {
+      this.login = this.devLogin
+    }
     userManager.openLoginDialog = this.openDialog
   }
 
@@ -37,11 +41,14 @@ class LoginDialog extends Component {
   login = async () => {
     let next = window.location.pathname
     let data = await userManager.prepareLogin(next)
-    if (process.env.NODE_ENV === 'development') {
-      this.props.history.push(`/account/login/?next=${next}`)
-    } else {
-      window.location.href = data.github_oauth_url
-    }
+    window.location.href = data.github_oauth_url
+    this.setState({ open: false })
+  }
+  devLogin = async () => {
+    let next = window.location.pathname
+    let data = await userManager.prepareLogin(next)
+    let { state } = parseUrlParams(data.github_oauth_url)
+    this.props.history.push(`/account/oauth/github/?next=${next}&state=${state}`)
     this.setState({ open: false })
   }
 
