@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-// import { Link } from "react-router-dom";
 import {
   withStyles, Button, List, ListItem,
   ListItemText, Snackbar,
@@ -35,7 +34,9 @@ const commentFormStyle = theme => ({
   },
   form: {
     margin: '6px 16px 0',
-    minWidth: 300,
+    '@media (min-width: 960px)': {
+      minWidth: 360,
+    }
   },
   textarea: {
     boxSizing: 'border-box',
@@ -529,13 +530,21 @@ class ArticleComment extends Component {
     for (let i in commentList) {
       if (commentId === commentList[i].id) {
         let replyList = commentList[i].reply_list
+        let deleteIds = {[replyId]: true}
         for (let j in replyList) {
-          if (replyId === replyList[j].id) {
-            replyList.splice(j, 1)
-            this.setState({ commentList: commentList })
-            break
+          // 如果评论j的回复对象的id在删除名单里，则把j的id也添加进删除名单
+          if (deleteIds[replyList[j].reply_id]) {
+            deleteIds[replyList[j].id] = true
           }
         }
+        for (let j = replyList.length - 1; j >= 0; j--) {
+          if (deleteIds[replyList[j].id]) {
+            replyList.splice(j, 1)
+          }
+        }
+        console.log(deleteIds, replyList)
+        this.setState({ commentList: commentList })
+        break
       }
     }
   }

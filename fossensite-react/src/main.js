@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Route, Switch } from "react-router-dom";
-import { withStyles, Grid } from '@material-ui/core';
+import { withStyles, Grid, Hidden } from '@material-ui/core';
 
 
 import { FrameGrid, NotFound } from './common/components'
@@ -32,7 +32,7 @@ class Main extends Component {
     let { classes } = this.props
     return (
       <FrameGrid container component={'main'} className={classes.root}>
-        <Grid item md={8}>
+        <Grid item md={8} xs={12}>
           <Switch>
             <Route exact path="/" component={NewArticleList} />
             <Route exact path="/article/:id(\d+)/" component={ArticleDetail} />
@@ -45,11 +45,13 @@ class Main extends Component {
             <NotFound />
           </Switch>
         </Grid>
-        <Grid item md={4}>
-          <SideBar />
+        <Grid item md={4} xs={12}>
+          <Hidden smDown>
+            <SideBar />
+          </Hidden>
         </Grid>
       </FrameGrid>
-    );
+    )
   }
 }
 

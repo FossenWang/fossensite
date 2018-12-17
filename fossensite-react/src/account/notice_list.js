@@ -132,23 +132,23 @@ class NoticeList extends Component {
   }
 
   render() {
+    let { classes } = this.props
     let { page } = this.getCurrentParams()
     let key = noticeManager.makeListKey(page)
     let { login } = this.state
 
     if (!login) {
-      return (<LoginNote />)
+      return (<LoginNote className={classes.paper} />)
     }
 
     if (key !== this.state.key) {
       this.setNoticeList(page, key)
       // 获取数据时显示加载中
       window.scrollTo({ top: 0, behavior: 'smooth' })
-      return (<Loading />)
+      return (<Loading className={classes.paper} />)
     }
 
     let { noticeList, pageInfo } = this.state
-    let { classes } = this.props
     let items
     if (noticeList.length) {
       items = noticeList.map((notice) => {

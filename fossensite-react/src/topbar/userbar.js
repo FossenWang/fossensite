@@ -7,6 +7,7 @@ import {
 import { userManager } from '../resource/manager'
 import Link from 'react-router-dom/Link';
 import { parseUrlParams } from '../common/tools';
+import { UserAvatar } from '../common/components';
 
 
 const loginStyle = theme => ({
@@ -71,7 +72,7 @@ LoginDialog = withRouter(withStyles(loginStyle)(LoginDialog))
 
 const userBarStyle = theme => ({
   root: {
-    '&>i': {
+    '&>div': {
       margin: '0 8px',
     },
   },
@@ -124,10 +125,10 @@ class UserBar extends Component {
   }
   async logout() {
     let user = await userManager.logout()
-    this.setState({ user: user, openMsg: true, message: '已注销'})
+    this.setState({ user: user, openMsg: true, message: '已注销' })
   }
   closeLogoutMsg = () => {
-    this.setState({openMsg: false})
+    this.setState({ openMsg: false })
   }
 
   render() {
@@ -136,7 +137,7 @@ class UserBar extends Component {
     let user = this.state.user
     if (user.id) {
       parts = <Fragment>
-        <Link to={"/account/notice/"}>
+        <Link to={"/account/notice/"} title={'通知'}>
           <Button className={classes.button}>
             <Badge color="error" invisible={!user.new_notice} badgeContent={''}
               classes={{ badge: classes.badge }}>
@@ -154,16 +155,16 @@ class UserBar extends Component {
       parts = <LoginDialog />
     }
     return (
-      <div className={classes.root}>
-        <i className="fa fa-user fa-lg" aria-hidden="true"></i>
+      <Grid container justify={'center'} className={classes.root}>
+        <UserAvatar src={user.avatar} />
         {parts}
         <Snackbar
-          anchorOrigin={{vertical: 'top', horizontal: 'right'}}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
           open={this.state.openMsg}
           onClose={this.closeLogoutMsg}
           autoHideDuration={2000}
           message={this.state.message} />
-      </div>
+      </Grid>
     )
   }
 }

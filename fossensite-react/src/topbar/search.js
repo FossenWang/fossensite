@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from "react-router-dom";
 import {
-  withStyles, InputBase, InputAdornment
+  withStyles, InputBase, InputAdornment, TextField
 } from '@material-ui/core';
 
 
@@ -32,6 +32,11 @@ const searchStyle = theme => ({
       fontSize: '1rem',
       padding: '6px 0',
     }
+  },
+  underline: {
+    '&:after': {
+      borderBottomColor: theme.palette.text.secondary,
+    }
   }
 })
 
@@ -53,7 +58,28 @@ class Search extends Component {
   blurInput = () => {
     this.setState({ focused: false })
   }
+  textFieldSearch() {
+    return (
+      <form method='get' action={'/article/search/'} onSubmit={this.submit}>
+        <TextField
+          id={'search'} name={'q'} required placeholder={'Search...'}
+          InputProps={{
+            maxLength: 88,
+            classes: {focused: this.props.classes.underline},
+            startAdornment: (
+              <InputAdornment position="start">
+                <i className="fa fa-search fa-lg"></i>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </form>
+    )
+  }
   render() {
+    if (this.props.useTextField) {
+      return this.textFieldSearch()
+    }
     let classNames = this.props.classes.root
     if (this.state.focused) {
       classNames += ' ' + this.props.classes.inputOnFocus

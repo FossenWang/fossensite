@@ -9,6 +9,7 @@ const cardStyle = theme => ({
   card: {
     padding: 10,
     marginBottom: 8,
+    width: 'inherit',
     '& P': {
       padding: 10,
       margin: 0,
@@ -27,7 +28,7 @@ class TitleCard extends Component {
     let { classes, title, children } = this.props
     return (
       <Card className={classes.card}>
-        <p className={classes.title}>{title}</p>
+        {title ? <p className={classes.title}>{title}</p> : null}
         {children}
       </Card>
     )
@@ -176,4 +177,5 @@ class SideBar extends Component {
 }
 
 
+export { TitleCard, TopicCard, FriendLinkCard }
 export default SideBar

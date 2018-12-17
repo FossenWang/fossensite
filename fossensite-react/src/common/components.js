@@ -149,7 +149,7 @@ class InfoPage extends Component {
 class ErrorPage extends Component {
   render() {
     return (
-      <InfoPage>
+      <InfoPage {...this.props}>
         <span style={{ fontSize: '1.5rem' }}>
           好像出了点问题...
         </span>
@@ -162,7 +162,7 @@ class ErrorPage extends Component {
 class NotFound extends Component {
   render() {
     return (
-      <InfoPage>
+      <InfoPage {...this.props}>
         <span style={{ fontSize: '1.5rem' }}>
           <i className="fa fa-exclamation-circle" aria-hidden="true"></i>&emsp;
           404&emsp;当前页面不存在
@@ -188,7 +188,7 @@ class Loading extends Component {
 class LoginNote extends Component {
   render() {
     return (
-      <InfoPage>
+      <InfoPage {...this.props}>
         <span style={{ fontSize: '1.5rem' }}>
           <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
           &emsp;请登录
@@ -233,7 +233,7 @@ class ErrorBoundary extends React.Component {
 function withErrorBoundary(WrappedComponent) {
   function NewComponent(props) {
     return (
-      <ErrorBoundary>
+      <ErrorBoundary errorPage={props.errorPage}>
         <WrappedComponent {...props}/>
       </ErrorBoundary>
     )

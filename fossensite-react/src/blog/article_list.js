@@ -98,7 +98,7 @@ class BaseArticleList extends Component {
     // 获取数据时显示加载中
     if (loading) {
       window.scrollTo({ top: 0, behavior: 'smooth' })
-      return (<Loading />)
+      return (<Loading className={classes.paper} />)
     }
 
     let items

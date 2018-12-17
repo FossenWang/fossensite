@@ -36,7 +36,7 @@ class NavList extends Component {
         return <NavItem key={cate.id} url={url}>{cate.name}</NavItem>
       })
     return (
-      <Hidden smDown implementation={'css'}>
+      <Hidden smDown>
         <List style={{ display: 'flex', flexDirection: 'row' }}>
           {items}
         </List>

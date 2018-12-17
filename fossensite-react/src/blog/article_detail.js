@@ -191,7 +191,7 @@ class ArticleDetail extends Component {
     let { article } = this.state
     if (article.id !== parseInt(match.params.id)) {
       this.setArticle()
-      return <Loading />
+      return <Loading className={classes.paper} />
     }
     return (
       <Fade in>

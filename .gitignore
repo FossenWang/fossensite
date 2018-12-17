@@ -7,6 +7,7 @@ node_modules
 static/simditor
 static/admin
 static/js
+templates/index.html
 /fossensite-react/README.md
 /fossensite-react/package-lock.json
 /fossensite-react/public/static/
