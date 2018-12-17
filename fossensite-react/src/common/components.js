@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-import { withStyles, Grid, Paper, Avatar } from '@material-ui/core';
+import { withStyles, Grid, Paper, Avatar, Snackbar } from '@material-ui/core';
 
 import { Http404 } from './errors';
 
@@ -224,6 +224,8 @@ class ErrorBoundary extends React.Component {
         return <NotFound />
       }
       return <ErrorPage />
+      // let { message, stack } = this.state.error
+      // return <InfoPage>{JSON.stringify({meassage: message, stack: stack})}</InfoPage>
     }
     return this.props.children; 
   }
@@ -267,8 +269,40 @@ class UserAvatar extends Component {
 UserAvatar = withStyles(avatarStyle)(UserAvatar)
 
 
+class FlashMessage extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      open: false,
+      message: '',
+      anchorOrigin: { vertical: 'bottom', horizontal: 'center' }
+    }
+  }
+  close = () => {
+    this.setState({ open: false })
+  }
+  open = (msg, anchor) => {
+    let change = { open: true, message: msg }
+    if (anchor) {
+      change.anchorOrigin = anchor
+    }
+    this.setState(change)
+  }
+  render() {
+    return (
+      <Snackbar
+        anchorOrigin={this.state.anchorOrigin}
+        open={this.state.open}
+        onClose={this.close}
+        autoHideDuration={2000}
+        message={this.state.message} />
+    )
+  }
+}
+
+
 export {
   Pagination, FrameGrid, ZoomImg, InfoPage, Loading, LoginNote,
   NotFound, ErrorPage, ErrorBoundary, withErrorBoundary,
-  UserAvatar
+  UserAvatar, FlashMessage
 }

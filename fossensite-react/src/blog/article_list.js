@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { withStyles, Grid, Paper, Fade } from '@material-ui/core';
 
 import { Pagination, Loading, ZoomImg, withErrorBoundary } from '../common/components'
-import { parseUrlParams } from '../common/tools'
+import { parseUrlParams, windowScrollTo } from '../common/tools'
 import { Http404 } from '../common/errors';
 import { articleManager, categoryManager, topicManager } from '../resource/manager'
 import { ArticleInfo } from './article_detail'
@@ -97,7 +97,7 @@ class BaseArticleList extends Component {
 
     // 获取数据时显示加载中
     if (loading) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      windowScrollTo()
       return (<Loading className={classes.paper} />)
     }
 

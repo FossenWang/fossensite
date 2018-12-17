@@ -4,7 +4,7 @@ import { withStyles, SwipeableDrawer, Grid, Paper } from '@material-ui/core';
 import { TopicCard, FriendLinkCard, TitleCard } from '../blog/side_bar'
 import Search from './search';
 import UserBar from './userbar';
-import { DrawerContext } from './context'
+
 
 const drawerStyle = theme => ({
   paper: {
@@ -55,20 +55,18 @@ class SideDrawer extends Component {
   static getDerivedStateFromProps(props, state) {
     let { location } = props
     if (location.key !== state.locationKey) {
-      return {open: false, locationKey: location.key}
+      return { open: false, locationKey: location.key }
     }
     return null
   }
   render() {
     return (
-      <DrawerContext.Provider value={{ drawer: this }}>
-        <StyleDrawer
-          disableSwipeToOpen={this.isIOS}
-          open={this.state.open}
-          onOpen={this.open}
-          onClose={this.close}>
-        </StyleDrawer>
-      </DrawerContext.Provider>
+      <StyleDrawer
+        disableSwipeToOpen={this.isIOS}
+        open={this.state.open}
+        onOpen={this.open}
+        onClose={this.close}>
+      </StyleDrawer>
     )
   }
 }

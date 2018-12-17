@@ -7,7 +7,9 @@ import simple_white_theme from './theme/simple_white'
 import Topbar from './topbar/topbar'
 import Main from './main'
 import Footer from './footer'
-import { ErrorBoundary } from './common/components';
+import { ErrorBoundary, FlashMessage } from './common/components';
+import { GlobalContext } from './common/context'
+import LoginDialog from './account/dialog';
 
 
 var theme = simple_white_theme
@@ -15,16 +17,26 @@ var theme = simple_white_theme
 
 class Blog extends Component {
   render() {
+    let loginDialog = React.createRef()
+    let flashMessage = React.createRef()
+    let context = {
+      loginDialog: loginDialog,
+      flashMessage: flashMessage,
+    }
     return (
-      <ErrorBoundary>
+      <MuiThemeProvider theme={theme}>
         <Router>
-          <MuiThemeProvider theme={theme}>
-            <Topbar />
-            <Main />
-            <Footer />
-          </MuiThemeProvider>
+          <ErrorBoundary>
+            <GlobalContext.Provider value={context}>
+              <Topbar />
+              <Main />
+              <Footer />
+              <LoginDialog ref={loginDialog} />
+              <FlashMessage ref={flashMessage} />
+            </GlobalContext.Provider>
+          </ErrorBoundary>
         </Router>
-      </ErrorBoundary>
+      </MuiThemeProvider>
     );
   }
 }

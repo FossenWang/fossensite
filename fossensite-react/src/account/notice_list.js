@@ -6,7 +6,7 @@ import {
 } from '@material-ui/core';
 
 import { Pagination, Loading, withErrorBoundary, LoginNote, UserAvatar } from '../common/components'
-import { parseUrlParams, formatDate } from '../common/tools'
+import { parseUrlParams, formatDate, windowScrollTo } from '../common/tools'
 import { Http404, HttpForbidden } from '../common/errors'
 import { noticeManager, userManager } from '../resource/manager'
 
@@ -144,7 +144,7 @@ class NoticeList extends Component {
     if (key !== this.state.key) {
       this.setNoticeList(page, key)
       // 获取数据时显示加载中
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      windowScrollTo()
       return (<Loading className={classes.paper} />)
     }
 

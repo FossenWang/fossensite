@@ -1,73 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { withRouter } from "react-router-dom";
 import {
-  withStyles, Snackbar, Grid, Button, Dialog, Badge
+  withStyles, Grid, Button, Badge
 } from '@material-ui/core';
 
 import { userManager } from '../resource/manager'
 import Link from 'react-router-dom/Link';
-import { parseUrlParams } from '../common/tools';
 import { UserAvatar } from '../common/components';
-
-
-const loginStyle = theme => ({
-  dialog: {
-    padding: 48,
-    '& span': {
-      cursor: 'pointer',
-    },
-    '& i:hover, span:hover': {
-      color: theme.palette.text.secondary,
-    },
-  },
-})
-
-
-class LoginDialog extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { open: false }
-    if (process.env.NODE_ENV === 'development') {
-      this.login = this.devLogin
-    }
-    userManager.openLoginDialog = this.openDialog
-  }
-
-  openDialog = () => {
-    this.setState({ open: true })
-  }
-  closeDialog = (e) => {
-    this.setState({ open: false })
-  }
-  login = async () => {
-    let next = window.location.pathname
-    let data = await userManager.prepareLogin(next)
-    window.location.href = data.github_oauth_url
-    this.setState({ open: false })
-  }
-  devLogin = async () => {
-    let next = window.location.pathname
-    let data = await userManager.prepareLogin(next)
-    let { state } = parseUrlParams(data.github_oauth_url)
-    this.props.history.push(`/account/oauth/github/?next=${next}&state=${state}`)
-    this.setState({ open: false })
-  }
-
-  render() {
-    return (
-      <Fragment>
-        <Button onClick={this.openDialog}>登录</Button>
-        <Dialog open={this.state.open} onClose={this.closeDialog}>
-          <Grid container alignItems={'center'} direction={'column'} className={this.props.classes.dialog}>
-            <i onClick={this.login} className="fa fa-github fa-3x" />
-            <span onClick={this.login}>GitHub登录</span>
-          </Grid>
-        </Dialog>
-      </Fragment>
-    )
-  }
-}
-LoginDialog = withRouter(withStyles(loginStyle)(LoginDialog))
+import { GlobalContext } from '../common/context'
 
 
 const userBarStyle = theme => ({
@@ -98,8 +37,6 @@ class UserBar extends Component {
         id: null, username: "", avatar: null,
         github_url: null, new_notice: false
       },
-      openMsg: false,
-      message: '',
     }
     this.setUser()
   }
@@ -114,6 +51,7 @@ class UserBar extends Component {
     delete userManager.callbacks.login['UserBar']
     delete userManager.callbacks.readNotice['UserBar']
   }
+
   setUser = async (refresh = false) => {
     let currentUser = await userManager.getCurrentUser(refresh)
     if (currentUser && currentUser.id !== undefined) {
@@ -121,16 +59,14 @@ class UserBar extends Component {
     }
   }
   loginCallback = (user) => {
-    this.setState({ user: user, openMsg: true, message: '已登录' })
+    this.setState({ user: user })
   }
   async logout() {
     let user = await userManager.logout()
-    this.setState({ user: user, openMsg: true, message: '已注销' })
-  }
-  closeLogoutMsg = () => {
-    this.setState({ openMsg: false })
+    this.setState({ user: user })
   }
 
+  static contextType = GlobalContext
   render() {
     let { classes } = this.props
     let parts
@@ -152,18 +88,12 @@ class UserBar extends Component {
           onClick={() => { this.logout() }}>注销</Button>
       </Fragment>
     } else {
-      parts = <LoginDialog />
+      parts = <Button onClick={() => { this.context.loginDialog.current.openDialog() }}>登录</Button>
     }
     return (
       <Grid container justify={'center'} className={classes.root}>
         <UserAvatar src={user.avatar} />
         {parts}
-        <Snackbar
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          open={this.state.openMsg}
-          onClose={this.closeLogoutMsg}
-          autoHideDuration={2000}
-          message={this.state.message} />
       </Grid>
     )
   }

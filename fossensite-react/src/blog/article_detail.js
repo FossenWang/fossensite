@@ -134,7 +134,6 @@ class ArticleDetail extends Component {
   constructor(props) {
     super(props)
     this.state = { article: {} }
-    // this.setArticle()
   }
 
   async setArticle() {
@@ -151,7 +150,7 @@ class ArticleDetail extends Component {
     this.codeHighLight()
   }
 
-  codeHighLight() {
+  codeHighLight = () => {
     // 有文章内容且hljs加载完毕时，执行代码高亮
     if (!this.state.article.content || !window.hljs) {
       return null
@@ -170,17 +169,14 @@ class ArticleDetail extends Component {
     }
     let body = document.getElementsByTagName('body')[0]
     let hlcss = document.createElement('link')
-    let codeHighLight = this.codeHighLight.bind(this)
     hlcss.rel = 'stylesheet'
     hlcss.href = 'https://cdn.bootcss.com/highlight.js/9.12.0/styles/tomorrow.min.css'
-    // <link href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet" />
     hlcss.onload = () => {
       // css加载完后加载js
       script = document.createElement('script')
       script.id = 'hljs'
       script.src = 'https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js'
-      // <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
-      script.onload = codeHighLight
+      script.onload = this.codeHighLight
       body.appendChild(script)
     }
     body.appendChild(hlcss)

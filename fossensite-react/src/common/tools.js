@@ -64,4 +64,14 @@ async function fetchDelete(url, csrftoken, headers = {}) {
 }
 
 
-export { formatDate, parseUrlParams, fetchPost, fetchDelete }
+function windowScrollTo(x=0, y=0, behavior='smooth') {
+  try {
+    window.scroll({ left: x, top: y, behavior: behavior })
+  } catch (error) {
+    window.scroll(x, y)
+  }
+}
+
+
+export { formatDate, parseUrlParams, fetchPost, fetchDelete,
+  windowScrollTo }
