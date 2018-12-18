@@ -78,7 +78,7 @@ class GitHubOAuthView(JSONView):
             'client_secret': self.client_secret,
             'code': self.request.GET.get('code')
         }
-        r = requests.post(url, data, headers=headers, timeout=3)
+        r = requests.post(url, data, headers=headers, timeout=10)
         result = r.json()
         if 'access_token' not in result:
             raise PermissionDenied()
@@ -87,7 +87,7 @@ class GitHubOAuthView(JSONView):
     def get_user_info(self, access_token):
         '获取用户信息'
         url = self.user_api + access_token
-        r = requests.get(url, timeout=3)
+        r = requests.get(url, timeout=10)
         user_info = r.json()
         return user_info
 
