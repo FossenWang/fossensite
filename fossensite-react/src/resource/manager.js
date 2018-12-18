@@ -300,7 +300,8 @@ class UserManager extends ResourceManager {
     let url = `${this.loginUrl}?code=${code}&state=${state}`
     let rsp = await fetch(url, { headers: headers, credentials: 'include' })
     if (rsp.status !== 200) {
-      throw new HttpError({rsp: rsp})
+      let msg = await rsp.json()
+      throw new HttpError(msg, rsp.status)
     }
     let rawData = await rsp.json()
     this.setCurrentUser(rawData.user)
@@ -312,7 +313,8 @@ class UserManager extends ResourceManager {
   async logout() {
     let rsp = await fetch(this.logoutUrl, { headers: headers, credentials: 'include', redirect: 'manual' })
     if (rsp.status !== 200) {
-      throw new HttpError({rsp: rsp})
+      let msg = await rsp.json()
+      throw new HttpError(msg, rsp.status)
     }
     let user = await rsp.json()
     this.setCurrentUser(user)

@@ -61,7 +61,6 @@ class GitHubOAuthView(JSONView):
         if settings.DEBUG:
             self.get = self.login_in_test
 
-
     def get(self, request, *args, **kwargs):
         access_token = self.get_access_token()
         user_info = self.get_user_info(access_token)
@@ -134,3 +133,12 @@ class GitHubOAuthView(JSONView):
         except ObjectDoesNotExist:
             raise PermissionDenied('没有该用户')
         return self.login_user(user)
+
+    def handleException(self, error):
+        if (isinstance(error, requests.Timeout)):
+            msg = 'timeout'
+        else:
+            msg = str(error)
+        return self.render_to_json_response({
+            'msg': msg, 'next': self.request.COOKIES.get('next'),
+            }, status=400)

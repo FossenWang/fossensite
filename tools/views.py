@@ -67,6 +67,9 @@ class JSONMixin:
     def handle403(self, error):
         return JsonResponse({'msg': str(error)}, status=403)
 
+    def handleException(self, error):
+        return JsonResponse({'msg': str(error)}, status=400)
+
 
 class JSONView(JSONMixin, View):
     def dispatch(self, request: HttpRequest, *args, **kwargs):
@@ -78,6 +81,8 @@ class JSONView(JSONMixin, View):
             return self.handle404(e)
         except PermissionDenied as e:
             return self.handle403(e)
+        except Exception as e:
+            return self.handleException(e)
         return response
 
 

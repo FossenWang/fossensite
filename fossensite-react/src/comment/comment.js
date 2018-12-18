@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import {
   withStyles, Button, List, ListItem,
-  ListItemText, Grid, Dialog,
+  ListItemText, Grid, Dialog, Popover,
 } from '@material-ui/core';
 
 import { commentManager, userManager } from '../resource/manager';
@@ -91,7 +91,7 @@ class ReplyForm extends Component {
         content, this.context.articleId, this.props.replyTo)
       textarea.value = null
       this.context.flashMessage.current.open('回复成功！', msgAnchor)
-      this.context.insertReply(newReply)
+      this.context.articleComment.insertReply(newReply)
     } catch {
       this.context.flashMessage.current.open('好像出了点错~', msgAnchor)
     } finally {
@@ -164,7 +164,7 @@ class CommentForm extends Component {
     try {
       let newComment = await commentManager.createComment(content, articleId)
       textarea.value = null
-      this.context.resetComment(newComment)
+      this.context.articleComment.resetComment(newComment)
       this.context.flashMessage.current.open('评论成功！', msgAnchor)
     } finally {
       this.submiting = false
@@ -262,7 +262,7 @@ class ReplyList extends Component {
     try {
       let code = await commentManager.deleteReply(replyId, this.context.articleId)
       if (code === 204) {
-        this.context.deleteReply(commentId, replyId)
+        this.context.articleComment.deleteReply(commentId, replyId)
         this.context.flashMessage.current.open('删除评论成功！', msgAnchor)
       }
     } finally {
@@ -303,9 +303,11 @@ class ReplyList extends Component {
                   <i className="fa fa-reply"></i> 回复
                 </span> : null}&emsp;
               {currentUser.id === reply.user.id ?
-                <span
-                  onClick={() => { this.deleteReply(reply.comment_id, reply.id) }}
-                  className={classes.delete}>
+                <span className={classes.reply}
+                  onClick={(e) => {
+                    this.context.popover.current.open(e,
+                      () => { this.deleteReply(reply.comment_id, reply.id) })
+                  }}>
                   <i className="fa fa-trash"></i> 删除
                 </span> : null}
             </div>
@@ -334,7 +336,7 @@ class CommentList extends Component {
     try {
       let code = await commentManager.deleteComment(commentId, this.context.articleId)
       if (code === 204) {
-        this.context.resetComment()
+        this.context.articleComment.resetComment()
         this.context.flashMessage.current.open('删除评论成功！', msgAnchor)
       }
     } finally {
@@ -370,8 +372,11 @@ class CommentList extends Component {
                   <i className="fa fa-reply"></i> 回复
                 </span> : null}&emsp;
               {currentUser.id === comment.user.id ?
-                <span className={classes.delete}
-                  onClick={() => { this.deleteComment(comment.id) }}>
+                <span className={classes.reply}
+                  onClick={(e) => {
+                    this.context.popover.current.open(e,
+                      () => { this.deleteComment(comment.id) })
+                  }}>
                   <i className="fa fa-trash"></i> 删除
                 </span> : null}
             </div>
@@ -388,6 +393,40 @@ class CommentList extends Component {
   }
 }
 CommentList = withStyles(commentListStyle)(CommentList)
+
+
+class DeletePopover extends Component {
+  state = { anchorEl: null, deleteFunc: null }
+  open = (event, deleteFunc) => {
+    this.setState({
+      anchorEl: event.currentTarget,
+      deleteFunc: deleteFunc,
+    });
+  }
+  handleClose = () => {
+    this.setState({ anchorEl: null, deleteFunc: null })
+  }
+
+  render() {
+    let { anchorEl, deleteFunc } = this.state
+    let open = Boolean(anchorEl)
+    return (
+      <Popover open={open} anchorEl={anchorEl}
+        onClose={this.handleClose}>
+        <Grid container direction={'column'} justify={'center'} alignItems={'center'}
+          style={{ padding: 16 }}>
+          <div style={{ marginBottom: 8 }}>
+            &nbsp;确定要删除此评论吗？
+      </div>
+          <div>
+            <Button size={'small'} onClick={()=>{deleteFunc(); this.handleClose()}}>确定</Button>
+            <Button size={'small'} onClick={this.handleClose}>取消</Button>
+          </div>
+        </Grid>
+      </Popover>
+    )
+  }
+}
 
 
 const commentStyle = theme => ({
@@ -427,6 +466,7 @@ class ArticleComment extends Component {
   componentWillUnmount() {
     delete userManager.callbacks.login['ArticleComment']
     delete userManager.callbacks.logout['ArticleComment']
+    window.onscroll = null
   }
   setCurrentUser = async () => {
     let currentUser = await userManager.getCurrentUser()
@@ -534,12 +574,12 @@ class ArticleComment extends Component {
     let { classes, articleId } = this.props
     let { commentList, pageInfo, loading, currentUser } = this.state
     let replyForm = React.createRef()
+    let popover = React.createRef()
     let context = {
-      resetComment: this.resetComment,
-      insertReply: this.insertReply,
-      deleteReply: this.deleteReply,
+      articleComment: this,
       flashMessage: this.context.flashMessage,
       replyForm: replyForm,
+      popover: popover,
       articleId: articleId,
     }
     return (
@@ -551,6 +591,7 @@ class ArticleComment extends Component {
             pageInfo={pageInfo} currentUser={currentUser} />
           {loading ? <Loading elevation={0} /> : null}
           {currentUser.id ? <ReplyFormDialog ref={replyForm} /> : null}
+          {currentUser.id ? <DeletePopover ref={popover} /> : null}
         </div>
       </CommentContext.Provider>
     )

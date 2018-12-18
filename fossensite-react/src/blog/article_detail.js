@@ -61,6 +61,7 @@ const articleDetailStyle = theme => ({
   article: {
     borderTop: '1px solid lightgray',
     wordWrap: 'break-word',
+    wordBreak: 'break-word',
     padding: '10px 15px',
     margin: '0 10px',
   },
@@ -155,9 +156,13 @@ class ArticleDetail extends Component {
     if (!this.state.article.content || !window.hljs) {
       return null
     }
-    let codes = document.querySelectorAll('pre code')
-    for (let i = 0; i < codes.length; i++) {
-      window.hljs.highlightBlock(codes[i])
+    try {
+      let codes = document.querySelectorAll('pre code')
+      for (let i = 0; i < codes.length; i++) {
+        window.hljs.highlightBlock(codes[i])
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
