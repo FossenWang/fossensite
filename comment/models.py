@@ -25,6 +25,9 @@ class ArticleComment(BaseComment):
         ordering = ['-time']
         verbose_name = '文章评论'
         verbose_name_plural = '文章评论'
+        indexes = [
+            models.Index(fields=['-time'])
+        ]
 
 
 class ArticleCommentReply(BaseComment):
@@ -39,3 +42,6 @@ class ArticleCommentReply(BaseComment):
         ordering = ['time']
         verbose_name = '文章评论回复'
         verbose_name_plural = '文章评论回复'
+        indexes = [
+            models.Index(fields=['time'])
+        ]

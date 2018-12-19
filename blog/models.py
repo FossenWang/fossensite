@@ -84,6 +84,9 @@ class Article(models.Model):
         ordering = ['-pub_date']
         verbose_name = '文章'
         verbose_name_plural = '文章'
+        indexes = [
+            models.Index(fields=['-pub_date'])
+        ]
 
 
 class Link(models.Model):

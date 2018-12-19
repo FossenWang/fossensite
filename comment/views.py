@@ -25,7 +25,6 @@ def fetch_user_dict(user_dict):
 class UserReplyList(LoginRequiredMixin, ListView):
     '用户收到的回复列表'
     model = ArticleCommentReply
-    template_name = 'index.html'
     context_object_name = 'replies'
     paginate_by = 10
     raise_exception = True
@@ -87,7 +86,6 @@ class PostLoginRequiredMixin(AccessMixin):
 class ArticleCommentView(PostLoginRequiredMixin, CreateMixin, ListView):
     '文章评论列表'
     model = ArticleComment
-    template_name = 'index.html'
     context_object_name = 'comments'
     paginate_by = 10
 

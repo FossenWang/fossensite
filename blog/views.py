@@ -11,7 +11,6 @@ from .models import Article, Category, Topic, Link
 
 class CategoryListView(ListView):
     model = Topic
-    template_name = 'index.html'
     context_object_name = 'cates'
 
     def get_queryset(self):
@@ -32,7 +31,6 @@ class CategoryListView(ListView):
 
 class TopicListView(ListView):
     model = Topic
-    template_name = 'index.html'
     context_object_name = 'topics'
 
     def get_queryset(self):
@@ -53,7 +51,6 @@ class TopicListView(ListView):
 
 class LinkListView(ListView):
     model = Link
-    template_name = 'index.html'
     context_object_name = 'links'
 
     def serialize(self):
@@ -93,7 +90,6 @@ def serialize_article(article):
 class ArticleListView(ListView):
     '文章列表视图'
     model = Article
-    template_name = 'index.html'
     context_object_name = 'articles'
     paginate_by = 10
     allow_empty = True
@@ -157,7 +153,6 @@ class SearchArticleView(ArticleListView):
 class ArticleDetailView(DetailView):
     '文章详情视图'
     model = Article
-    template_name = 'index.html'
 
     def get_context_data(self):
         article = self.object  # type: Article
