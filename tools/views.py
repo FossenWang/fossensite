@@ -113,7 +113,6 @@ class ListView(MultipleObjectMixin, JSONView):
 
 
 class CreateMixin:
-    invalid_message = 'Post data invalid.'
 
     def post(self, request: HttpRequest, **kwargs):
         self.data = request.json
@@ -127,8 +126,8 @@ class CreateMixin:
     def data_valid(self, data):
         raise NotImplementedError("Not implemented yet.")
 
-    def data_invalid(self, data=None, msg=invalid_message):
-        raise PermissionDenied(msg)
+    def data_invalid(self, data):
+        raise PermissionDenied('Post data invalid.')
 
 
 class DetailView(SingleObjectMixin, JSONView):

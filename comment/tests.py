@@ -110,6 +110,8 @@ class CommentTestCase(TestCase):
         self.assertEqual(rsp.status_code, 403)
         rsp = c.post('/api/article/1/comment/', {'content': 'new comment'})
         self.assertEqual(rsp.status_code, 403)
+        rsp = c.post('/api/article/100/comment/', {'content': 'new comment'}, 'application/json')
+        self.assertEqual(rsp.status_code, 403)
 
         # 创建回复
         rsp = c.post('/api/article/1/comment/reply/', {

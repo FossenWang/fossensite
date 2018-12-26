@@ -7,6 +7,7 @@ from django.db.models import Q
 
 from tools.views import ListView, DetailView
 from .models import Article, Category, Topic, Link
+from .catas import article_catalyst
 
 
 class CategoryListView(ListView):
@@ -67,26 +68,6 @@ class LinkListView(ListView):
         return data
 
 
-def serialize_article(article):
-    result = {
-        'id': article.id,
-        'cover': article.cover.url if article.cover else None,
-        'title': article.title,
-        'content': article.content,
-        'views': article.views,
-        'pub_date': article.pub_date.isoformat(),
-        'category': {
-            'id': article.category.id,
-            'name': article.category.name,
-        },
-        'topics': [{
-            'id': t.id,
-            'name': t.name,
-        } for t in article.topics.all()],
-    }
-    return result
-
-
 class ArticleListView(ListView):
     '文章列表视图'
     model = Article
@@ -107,7 +88,7 @@ class ArticleListView(ListView):
         context = self.context
         articles = []
         for article in context['articles']:
-            item = serialize_article(article)
+            item = article_catalyst.dump(article)
             articles.append(item)
         data['data'] = articles
         return data
@@ -156,7 +137,7 @@ class ArticleDetailView(DetailView):
 
     def get_context_data(self):
         article = self.object  # type: Article
-        data = serialize_article(article)
+        data = article_catalyst.dump(article)
         # 每处理一次get请求就增加一次阅读量
         article.increase_views()
         return data

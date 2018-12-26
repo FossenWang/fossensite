@@ -11,24 +11,53 @@ from tools.views import JSONView
 
 from .models import Profile, BlankProfile
 
+from catalyst import Catalyst, IntegerField, StringField, BoolField
+
+
+class UserCatalyst(Catalyst):
+    id = IntegerField()
+    username = StringField()
+    avatar = StringField()
+    github_url = StringField()
+    new_notice = BoolField()
+
+    @avatar.set_dump_from
+    @github_url.set_dump_from
+    @new_notice.set_dump_from
+    def dump_from_profile(user, name):
+        try:
+            profile = user.profile
+        except (ObjectDoesNotExist, AttributeError):
+            profile = BlankProfile
+            user.profile = profile
+        return getattr(profile, name)
+
+    @avatar.set_formatter
+    def format_avatar(avatar):
+        return avatar.name if avatar else None
+
+user_catalyst = UserCatalyst()
+
 
 class ProfileDetailView(JSONView):
     '登录用户的资料视图'
 
     def get(self, request):
-        user = request.user
-        try:
-            profile = user.profile
-        except (ObjectDoesNotExist, AttributeError):
-            profile = BlankProfile
-        data = {
-            'id': user.id,
-            'username': user.username,
-            'avatar': profile.avatar.name if profile.avatar else None,
-            'github_url': profile.github_url,
-            'new_notice': profile.new_notice,
-        }
-        return data
+        return user_catalyst.dump(request.user)
+        # user = request.user
+        # try:
+        #     profile = user.profile
+        # except (ObjectDoesNotExist, AttributeError):
+        #     profile = BlankProfile
+
+        # data = {
+        #     'id': user.id,
+        #     'username': user.username,
+        #     'avatar': profile.avatar.name if profile.avatar else None,
+        #     'github_url': profile.github_url,
+        #     'new_notice': profile.new_notice,
+        # }
+        # return data
 
 
 class LogoutView(ProfileDetailView):
@@ -108,14 +137,15 @@ class GitHubOAuthView(JSONView):
 
     def login_user(self, user):
         login(self.request, user)
-        profile = user.profile
-        user_data = {
-            'id': user.id,
-            'username': user.username,
-            'avatar': profile.avatar.name if profile.avatar else None,
-            'github_url': profile.github_url,
-            'new_notice': profile.new_notice,
-        }
+        user_data = user_catalyst.dump(user)
+        # profile = user.profile
+        # user_data = {
+        #     'id': user.id,
+        #     'username': user.username,
+        #     'avatar': profile.avatar.name if profile.avatar else None,
+        #     'github_url': profile.github_url,
+        #     'new_notice': profile.new_notice,
+        # }
 
         url = self.request.COOKIES.get('next')
         if not url:

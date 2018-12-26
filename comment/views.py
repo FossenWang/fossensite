@@ -83,6 +83,9 @@ class PostLoginRequiredMixin(AccessMixin):
         return super().post(request, *args, **kwargs)
 
 
+from django.core.exceptions import PermissionDenied
+from .catas import comment_catalyst
+
 class ArticleCommentView(PostLoginRequiredMixin, CreateMixin, ListView):
     '文章评论列表'
     model = ArticleComment
@@ -145,18 +148,25 @@ class ArticleCommentView(PostLoginRequiredMixin, CreateMixin, ListView):
 
     def validate_data(self, data: dict):
         if not data:
-            return False
-        content = data.get('content')
-        if not content or len(content) > 500:
-            return False
+            data = {}
+        data['article_id'] = self.kwargs.get('article_id')
+        result = comment_catalyst.load(data)
+        self.validation_result = result
+        return result.is_valid
 
-        try:
-            article_id = int(self.kwargs.get('article_id'))
-        except Exception:
-            return False
-        if not Article.objects.filter(id=article_id).exists():
-            return False
-        return True
+        # if not data:
+        #     return False
+        # content = data.get('content')
+        # if not content or len(content) > 500:
+        #     return False
+
+        # try:
+        #     article_id = int(self.kwargs.get('article_id'))
+        # except Exception:
+        #     return False
+        # if not Article.objects.filter(id=article_id).exists():
+        #     return False
+        # return True
 
     def data_valid(self, data):
         user = self.request.user
@@ -177,6 +187,10 @@ class ArticleCommentView(PostLoginRequiredMixin, CreateMixin, ListView):
             }
         }
         return rsp_data
+
+    def data_invalid(self, data):
+        result = self.validation_result
+        raise PermissionDenied(result.strferrors())
 
 
 class ArticleCommentReplyView(PostLoginRequiredMixin, CreateMixin, JSONView):
