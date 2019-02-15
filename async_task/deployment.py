@@ -40,6 +40,7 @@ def main():
     message += sp.format_results()
     print(message)
     send_email('www.fossen.cn | 自动部署结果', message)
+    sp.run('docker restart fossensite-deploy')
     return message
 
 
