@@ -1,13 +1,18 @@
-import React, { Component, Fragment } from 'react';
-import {
-  withStyles, Button, List, ListItem,
-  ListItemText, Grid, Dialog, Popover,
-} from '@material-ui/core';
+import React, { Component, Fragment } from 'react'
 
-import { commentManager, userManager } from '../resource/manager';
+import withStyles from '@material-ui/core/styles/withStyles'
+import Grid from '@material-ui/core/Grid/Grid'
+import Button from '@material-ui/core/Button/Button'
+import List from '@material-ui/core/List/List'
+import ListItem from '@material-ui/core/ListItem/ListItem'
+import ListItemText from '@material-ui/core/ListItemText/ListItemText'
+import Dialog from '@material-ui/core/Dialog/Dialog'
+import Popover from '@material-ui/core/Popover/Popover'
+
+import { commentManager, userManager } from '../resource/manager'
 import { UserAvatar, Loading } from '../common/components'
-import { formatDate } from '../common/tools';
-import { GlobalContext } from '../common/context';
+import { formatDate } from '../common/tools'
+import { GlobalContext } from '../common/context'
 
 
 const CommentContext = React.createContext();

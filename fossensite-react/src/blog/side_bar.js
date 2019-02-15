@@ -1,6 +1,8 @@
-import React, { Component, Fragment } from 'react';
-import { Link } from "react-router-dom";
-import { withStyles, Card } from '@material-ui/core';
+import React, { Component, Fragment } from 'react'
+import { Link } from "react-router-dom"
+
+import withStyles from '@material-ui/core/styles/withStyles'
+import Card from '@material-ui/core/Card/Card'
 
 import { topicManager, linkManager } from '../resource/manager'
 

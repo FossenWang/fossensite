@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
-import { InfoPage, withErrorBoundary } from '../common/components';
-import { parseUrlParams } from '../common/tools';
+import { InfoPage, withErrorBoundary } from '../common/components'
+import { parseUrlParams } from '../common/tools'
 import { userManager } from '../resource/manager'
-import { GlobalContext } from '../common/context';
+import { GlobalContext } from '../common/context'
 
 
 class LoginPage extends Component {

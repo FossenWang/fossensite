@@ -1,8 +1,13 @@
-import React, { Component } from 'react';
-import { Link } from "react-router-dom";
-import { withStyles, Grid, Paper, Avatar, Snackbar } from '@material-ui/core';
+import React, { Component } from 'react'
+import { Link } from "react-router-dom"
 
-import { Http404 } from './errors';
+import withStyles from '@material-ui/core/styles/withStyles'
+import Grid from '@material-ui/core/Grid/Grid'
+import Paper from '@material-ui/core/Paper/Paper'
+import Avatar from '@material-ui/core/Avatar/Avatar'
+import Snackbar from '@material-ui/core/Snackbar/Snackbar'
+
+import { Http404 } from './errors'
 
 
 const frameStyle = theme => ({

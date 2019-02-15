@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import { BrowserRouter as Router } from "react-router-dom";
-import { MuiThemeProvider } from '@material-ui/core';
+import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
+import { BrowserRouter as Router } from "react-router-dom"
+
+import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider'
 
 import simple_white_theme from './theme/simple_white'
 import Topbar from './topbar/topbar'

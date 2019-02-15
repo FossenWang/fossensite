@@ -1,11 +1,12 @@
-import React, { Component } from 'react';
-import {
-  withStyles, Grid, Dialog
-} from '@material-ui/core';
+import React, { Component } from 'react'
+
+import withStyles from '@material-ui/core/styles/withStyles'
+import Dialog from '@material-ui/core/Dialog/Dialog'
+import Grid from '@material-ui/core/Grid/Grid'
 
 import { userManager } from '../resource/manager'
-import { parseUrlParams } from '../common/tools';
-import { GlobalContext } from '../common/context';
+import { parseUrlParams } from '../common/tools'
+import { GlobalContext } from '../common/context'
 
 
 const loginStyle = theme => ({

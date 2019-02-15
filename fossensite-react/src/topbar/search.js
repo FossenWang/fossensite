@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
-import { withRouter } from "react-router-dom";
-import {
-  withStyles, InputBase, InputAdornment, TextField
-} from '@material-ui/core';
+import React, { Component } from 'react'
+import { withRouter } from "react-router-dom"
+
+import withStyles from '@material-ui/core/styles/withStyles'
+import InputBase from '@material-ui/core/InputBase/InputBase'
+import InputAdornment from '@material-ui/core/InputAdornment/InputAdornment'
+import TextField from '@material-ui/core/TextField/TextField'
 
 
 const searchStyle = theme => ({

@@ -1,9 +1,13 @@
-import React, { Component } from 'react';
-import { withStyles, SwipeableDrawer, Grid, Paper } from '@material-ui/core';
+import React, { Component } from 'react'
+
+import withStyles from '@material-ui/core/styles/withStyles'
+import Grid from '@material-ui/core/Grid/Grid'
+import SwipeableDrawer from '@material-ui/core/SwipeableDrawer/SwipeableDrawer'
+import Paper from '@material-ui/core/Paper/Paper'
 
 import { TopicCard, FriendLinkCard, TitleCard } from '../blog/side_bar'
-import Search from './search';
-import UserBar from './userbar';
+import Search from './search'
+import UserBar from './userbar'
 
 
 const drawerStyle = theme => ({

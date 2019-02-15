@@ -1,11 +1,14 @@
-import React, { Component, Fragment } from 'react';
-import { Link } from "react-router-dom";
-import { withStyles, Paper, Fade } from '@material-ui/core';
+import React, { Component, Fragment } from 'react'
+import { Link } from "react-router-dom"
+
+import withStyles from '@material-ui/core/styles/withStyles'
+import Fade from '@material-ui/core/Fade/Fade'
+import Paper from '@material-ui/core/Paper/Paper'
 
 import { Loading, withErrorBoundary } from '../common/components'
 import { formatDate } from '../common/tools'
 import { articleManager } from '../resource/manager'
-import { ArticleComment } from '../comment/comment';
+import { ArticleComment } from '../comment/comment'
 
 
 const articleInfoStyle = theme => ({

@@ -1,6 +1,9 @@
-import React, { Component } from 'react';
-import { Link } from "react-router-dom";
-import { List, ListItem, Hidden } from '@material-ui/core';
+import React, { Component } from 'react'
+import { Link } from "react-router-dom"
+
+import List from '@material-ui/core/List/List'
+import ListItem from '@material-ui/core/ListItem/ListItem'
+import Hidden from '@material-ui/core/Hidden/Hidden'
 
 import { categoryManager } from '../resource/manager'
 

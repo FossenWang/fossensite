@@ -1,6 +1,9 @@
-import React, { Component } from 'react';
-import { Route, Switch } from "react-router-dom";
-import { withStyles, Grid, Hidden } from '@material-ui/core';
+import React, { Component } from 'react'
+import { Route, Switch } from "react-router-dom"
+
+import withStyles from '@material-ui/core/styles/withStyles'
+import Grid from '@material-ui/core/Grid/Grid'
+import Hidden from '@material-ui/core/Hidden/Hidden'
 
 
 import { FrameGrid, NotFound } from './common/components'
@@ -10,7 +13,7 @@ import {
 } from './blog/article_list'
 import SideBar from './blog/side_bar'
 import ArticleDetail from './blog/article_detail'
-import { NoticeList } from './account/notice_list';
+import { NoticeList } from './account/notice_list'
 import LoginPage from './account/login'
 
 
