@@ -13,3 +13,4 @@ templates/index.html
 /fossensite-react/public/static/
 /fossensite-react/public/manifest.json
 /fossensite-react/build
+.coverage

@@ -85,3 +85,12 @@ class BlogTestCase(TestCase):
         self.assertEqual(rsp.status_code, 200)
         self.assertEqual(set(rsp.json()['data'][0]), {
             'id', 'name', 'url'})
+
+        # test upload
+        rsp = c.get('/api/article/upload/image/')
+        self.assertEqual(rsp.status_code, 403)
+
+        rsp = c.post('/api/article/upload/image/', {'upload_image': None})
+        self.assertEqual(rsp.status_code, 200)
+        self.assertDictEqual(rsp.json(), {
+            'file_path': '', 'msg': 'Unexpected File Format!', 'success': False})

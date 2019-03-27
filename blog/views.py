@@ -115,7 +115,6 @@ class ArticleListView(ListView):
 
 class HomeView(ArticleListView):
     '首页视图'
-    pass
 
 
 class ArticleCategoryView(ArticleListView):
@@ -163,22 +162,22 @@ class ArticleDetailView(DetailView):
 
 
 def upload_image(request):
-    if request.method == 'POST':
-        image = request.FILES['upload_image']
-        if image.name.split('.')[-1] in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
-            file_path = settings.MEDIA_ROOT + '/blog/image/' + image.name[-10:]
-            file_path = default_storage.save(file_path, image)
-            return JsonResponse({
-                'success': True,
-                # 返回的是文件的url
-                'file_path': settings.MEDIA_URL + 'blog/image/' + file_path.split('/')[-1],
-                'msg': 'Success!'
-            })
-        else:
-            return JsonResponse({
-                'success': False,
-                'file_path': '',
-                'msg': 'Unexpected File Format!'
-            })
-    else:
+    if request.method != 'POST':
         raise PermissionDenied('Only Accept POST Request!')
+
+    image = request.FILES.get('upload_image')
+    if not image or image.name.split('.')[-1] not in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
+        return JsonResponse({
+            'success': False,
+            'file_path': '',
+            'msg': 'Unexpected File Format!'
+        })
+
+    file_path = settings.MEDIA_ROOT + '/blog/image/' + image.name[-10:]
+    file_path = default_storage.save(file_path, image)
+    return JsonResponse({
+        'success': True,
+        # 返回的是文件的url
+        'file_path': settings.MEDIA_URL + 'blog/image/' + file_path.split('/')[-1],
+        'msg': 'Success!'
+    })
