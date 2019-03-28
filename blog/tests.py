@@ -1,7 +1,9 @@
+from io import BytesIO
+
+from django.core.files.storage import default_storage
 from django.utils import timezone
 from django.test import TestCase
 from django.contrib.auth.models import User
-
 
 from account.models import Profile
 from .models import Article, Category, Topic, Link
@@ -70,6 +72,21 @@ class BlogTestCase(TestCase):
         self.assertDictEqual(rsp.json()['pageInfo'], {
             'lastPage': 1, 'page': 1, 'pageSize': 10, 'total': 1})
 
+        rsp = c.get('/api/article/search/?q=python  django')
+        self.assertEqual(rsp.status_code, 200)
+        r = rsp.json()
+        self.assertListEqual(r['data'], [])
+        self.assertDictEqual(r['pageInfo'], {
+            'lastPage': 1, 'page': 1, 'pageSize': 10, 'total': 0})
+
+        rsp = c.get('/api/article/search/?q=title')
+        self.assertEqual(rsp.status_code, 200)
+        self.assertDictEqual(rsp.json()['pageInfo'], {
+            'lastPage': 1, 'page': 1, 'pageSize': 10, 'total': 1})
+
+        rsp = c.get('/api/article/search/?q=%s' % ('x' * 89))
+        self.assertEqual(rsp.status_code, 403)
+
         # test cate & topic & link
         rsp = c.get('/api/category/')
         self.assertEqual(rsp.status_code, 200)
@@ -94,3 +111,17 @@ class BlogTestCase(TestCase):
         self.assertEqual(rsp.status_code, 200)
         self.assertDictEqual(rsp.json(), {
             'file_path': '', 'msg': 'Unexpected File Format!', 'success': False})
+
+        # create file-like object for test
+        img = BytesIO(b'Pretend this is a picture.')
+        img.name = 'test.jpg'
+        # upload test file
+        rsp = c.post('/api/article/upload/image/', {'upload_image': img})
+        self.assertEqual(rsp.status_code, 200)
+        result = rsp.json()
+        self.assertEqual(set(result), {'file_path', 'success', 'msg'})
+        self.assertTrue(result['success'])
+        file_location = result['file_path'].lstrip('/media/')
+        self.assertTrue(default_storage.exists(file_location))
+        # remove test file
+        default_storage.delete(file_location)
