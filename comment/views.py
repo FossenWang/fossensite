@@ -1,6 +1,7 @@
 from django.db.models import Q, Value, IntegerField
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, AccessMixin
 from django.contrib.auth.models import User
+from django.http import Http404
 
 from tools.views import ListView, CreateMixin, JSONView, DeletionMixin, SingleObjectMixin
 from blog.models import Article
@@ -150,12 +151,10 @@ class ArticleCommentView(PostLoginRequiredMixin, CreateMixin, ListView):
         if not content or len(content) > 500:
             return False
 
-        try:
-            article_id = int(self.kwargs.get('article_id'))
-        except Exception:
-            return False
+        article_id = int(self.kwargs.get('article_id'))
+
         if not Article.objects.filter(id=article_id).exists():
-            return False
+            raise Http404(f'Article {article_id} does not exist.')
         return True
 
     def data_valid(self, data):
@@ -184,14 +183,15 @@ class ArticleCommentReplyView(PostLoginRequiredMixin, CreateMixin, JSONView):
     def validate_data(self, data: dict):
         if not data:
             return False
+
+        article_id = int(self.kwargs.get('article_id'))
+        if not Article.objects.filter(id=article_id).exists():
+            raise Http404(f'Article {article_id} does not exist.')
+
         try:
             content = data.get('content')
-            article_id = int(self.kwargs.get('article_id'))
             if not content or len(content) > 500:
                 return False
-            if not Article.objects.filter(id=article_id).exists():
-                return False
-
             reply_id = data.get('reply_id')
             reply_id = int(reply_id) if reply_id is not None else reply_id
 

@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 
 from account.models import Profile
 from .models import Article, Category, Topic, Link
+from .admin import ViewOnSiteAdmin
 
 
 class BlogTestCase(TestCase):
@@ -15,12 +16,15 @@ class BlogTestCase(TestCase):
         user = User.objects.create_user('Fossen', 'fossen@fossen.cn', 'fossen')
         Profile.objects.create(user=user, avatar=None, github_id=1,
                                github_url='https://github.com/FossenWang')
-        Category.objects.create(name='cate1', number=1)
-        self.t1 = Topic.objects.create(name='topic1', number=1)
-        Link.objects.create(name='link1', url='www.fossen.cn')
+        self.cate = Category.objects.create(name='cate1', number=1)
+        self.topic = Topic.objects.create(name='topic1', number=1)
+        self.link = Link.objects.create(name='link1', url='www.fossen.cn')
         self.client.defaults = {'HTTP_ACCEPT': 'application/json'}
 
-    def test_article_list(self):
+    def test_api(self):
+        self._test_model()
+        self._test_admin()
+
         c = self.client
         rsp = c.get('/api/')
         self.assertEqual(rsp.status_code, 200)
@@ -37,7 +41,8 @@ class BlogTestCase(TestCase):
             'pub_date': timezone.now(),
             'category_id': 1,
         })
-        a1.topics.add(self.t1)
+        a1.topics.add(self.topic)
+        self._test_article_model(a1)
 
         rsp = c.get('/api/article/')
         self.assertEqual(rsp.status_code, 200)
@@ -125,3 +130,24 @@ class BlogTestCase(TestCase):
         self.assertTrue(default_storage.exists(file_location))
         # remove test file
         default_storage.delete(file_location)
+
+    def _test_model(self):
+        self.assertEqual(str(self.cate), 'cate1')
+        self.assertEqual(self.cate.get_absolute_url(),
+                         f'/api/article/category/{self.cate.pk}/')
+
+        self.assertEqual(str(self.topic), 'topic1')
+        self.assertEqual(self.topic.get_absolute_url(),
+                         f'/api/article/topic/{self.topic.pk}/')
+
+        self.assertEqual(str(self.link), 'link1')
+
+    def _test_article_model(self, article: Article):
+        self.assertEqual(str(article), article.title)
+        self.assertEqual(article.get_absolute_url(),
+                         f'/api/article/{article.pk}/')
+
+    def _test_admin(self):
+        self.assertEqual(
+            ViewOnSiteAdmin.html_url(None, self.topic),
+            f'<a href="/api/article/topic/{self.topic.pk}/">在站点查看</a>')

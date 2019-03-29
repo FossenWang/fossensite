@@ -2,14 +2,7 @@
 
 from django.db import migrations, models
 
-
-def migrate_data(apps, schema_editor):
-    from account.models import Profile
-    from tools.base import update_model
-    ps = Profile.objects.select_related('user').all()
-    for p in ps:
-        if not p.github_url:
-            update_model(p, **{'github_url': 'https://github.com/' + p.user.username})
+from . import add_github_url
 
 
 class Migration(migrations.Migration):
@@ -24,5 +17,5 @@ class Migration(migrations.Migration):
             name='github_url',
             field=models.CharField(blank=True, max_length=200, null=True, verbose_name='GitHub 个人主页'),
         ),
-        migrations.RunPython(migrate_data)
+        migrations.RunPython(add_github_url)
     ]

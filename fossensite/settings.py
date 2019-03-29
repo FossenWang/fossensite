@@ -12,7 +12,19 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
-
+# ./privacy.py
+# ENV = 'dev'
+# SECRET_KEY = ''
+# PSQL_DEV_NAME = ''
+# PSQL_USER = ''
+# PSQL_PASSWORD = ''
+# PSQL_HOST = ''
+# PSQL_PORT = ''
+# PSQL_NAME = ''
+# GITHUB_CLIENT_ID = ''
+# GITHUB_CLIENT_SECRET = ''
+# EMAIL_HOST_USER = ''
+# EMAIL_HOST_PASSWORD = ''
 from . import privacy
 
 

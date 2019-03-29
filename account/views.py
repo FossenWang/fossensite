@@ -56,10 +56,10 @@ class GitHubOAuthView(JSONView):
     client_id = settings.GITHUB_CLIENT_ID
     client_secret = settings.GITHUB_CLIENT_SECRET
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __new__(cls, *args, **kwargs):
         if settings.DEBUG:
-            self.get = self.login_in_test
+            cls.get = cls.login_in_test
+        return super().__new__(cls, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         access_token = self.get_access_token()
@@ -135,7 +135,7 @@ class GitHubOAuthView(JSONView):
         return self.login_user(user)
 
     def handleException(self, error):
-        if (isinstance(error, requests.Timeout)):
+        if isinstance(error, requests.Timeout):
             msg = 'timeout'
         else:
             msg = str(error)

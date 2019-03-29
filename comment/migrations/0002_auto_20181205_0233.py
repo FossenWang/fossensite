@@ -4,16 +4,17 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 
+from . import fill_in_fk
 
-def migrate_data(apps, schema_editor):
-    from comment.models import ArticleComment, ArticleCommentReply
-    from tools.base import update_model
-    rs = ArticleCommentReply.objects.all()
-    for r in rs:
-        update_values = {'article_id': r.comment.article_id, 'comment_user_id': r.comment.user_id}
-        if r.reply_id is not None:
-            update_values['reply_user_id'] = r.reply.user_id
-        update_model(r, **update_values)
+# def migrate_data(apps, schema_editor):
+#     from comment.models import ArticleComment, ArticleCommentReply
+#     from tools.base import update_model
+#     rs = ArticleCommentReply.objects.all()
+#     for r in rs:
+#         update_values = {'article_id': r.comment.article_id, 'comment_user_id': r.comment.user_id}
+#         if r.reply_id is not None:
+#             update_values['reply_user_id'] = r.reply.user_id
+#         update_model(r, **update_values)
 
 
 class Migration(migrations.Migration):
@@ -52,5 +53,5 @@ class Migration(migrations.Migration):
             name='reply',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='comment.ArticleCommentReply', verbose_name='二级评论'),
         ),
-        migrations.RunPython(migrate_data),
+        migrations.RunPython(fill_in_fk),
     ]
