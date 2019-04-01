@@ -141,12 +141,15 @@ class CommentTestCase(TestCase):
         self.assertEqual(set(r['user']), user_fields)
         comment_id = r['id']
 
+        # no data
+        rsp = c.post('/api/article/1/comment/', '', 'application/json')
+        self.assertEqual(rsp.status_code, 400)
         # empty content
         rsp = c.post('/api/article/1/comment/', {'content': ''}, 'application/json')
-        self.assertEqual(rsp.status_code, 403)
-        # not json
-        rsp = c.post('/api/article/1/comment/', {'content': 'new comment'})
-        self.assertEqual(rsp.status_code, 403)
+        self.assertEqual(rsp.status_code, 400)
+        # wrong format
+        rsp = c.post('/api/article/1/comment/', '"content"', 'application/json')
+        self.assertEqual(rsp.status_code, 400)
         # wrong article id
         rsp = c.post('/api/article/wrong_id/comment/', {'content': 'new comment'}, 'application/json')
         self.assertEqual(rsp.status_code, 404)
@@ -179,19 +182,22 @@ class CommentTestCase(TestCase):
             'content': 'new comment', 'comment_id': comment_id,
             'reply_id': 100,
             }, 'application/json')
-        self.assertEqual(rsp.status_code, 403)
+        self.assertEqual(rsp.status_code, 400)
         rsp = c.post('/api/article/1/comment/reply/', {
             'content': 'new comment', 'comment_id': 100,
             }, 'application/json')
-        self.assertEqual(rsp.status_code, 403)
+        self.assertEqual(rsp.status_code, 400)
         # empty data
         rsp = c.post('/api/article/1/comment/reply/', {}, 'application/json')
-        self.assertEqual(rsp.status_code, 403)
+        self.assertEqual(rsp.status_code, 400)
         # empty content
         rsp = c.post('/api/article/1/comment/reply/', {
             'content': '', 'comment_id': comment_id
             }, 'application/json')
-        self.assertEqual(rsp.status_code, 403)
+        self.assertEqual(rsp.status_code, 400)
+        # wrong format
+        rsp = c.post('/api/article/1/comment/reply/', '"wrong format"', 'application/json')
+        self.assertEqual(rsp.status_code, 400)
         # wrong article id
         rsp = c.post('/api/article/100/comment/reply/', {
             'content': 'new comment', 'comment_id': comment_id
@@ -210,8 +216,8 @@ class CommentTestCase(TestCase):
         # 测试作者账号
         c.force_login(self.fossen)
         # 测试数据库用的 sqllite 不支持复杂语句排序
-        rsp = c.get('/api/account/notice/')
-        self.assertEqual(rsp.status_code, 400)
+        with self.assertRaises(Exception):
+            rsp = c.get('/api/account/notice/')
 
         # 注销
         c.logout()

@@ -1,11 +1,10 @@
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import SuspiciousOperation
 from django.core.files.storage import default_storage
-from django.http import JsonResponse
 from django.conf import settings
 from django.utils import timezone
 from django.db.models import Q
 
-from tools.views import ListView, DetailView
+from tools.views import ListView, DetailView, JSONView
 from .models import Article, Category, Topic, Link
 
 
@@ -138,7 +137,7 @@ class SearchArticleView(ArticleListView):
         q = self.request.GET['q']
         ql = len(q)
         if ql < 0 or ql > 88:
-            raise PermissionDenied
+            raise SuspiciousOperation('搜索关键字长度必须在 0 ~ 88 之间')
         q = q.split(' ')
         while '' in q:
             q.remove('')
@@ -161,23 +160,21 @@ class ArticleDetailView(DetailView):
         return data
 
 
-def upload_image(request):
-    if request.method != 'POST':
-        raise PermissionDenied('Only Accept POST Request!')
+class UploadImageView(JSONView):
+    def post(self, request):
+        image = request.FILES.get('upload_image')
+        if not image or image.name.split('.')[-1] not in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
+            return {
+                'success': False,
+                'file_path': '',
+                'msg': 'Unexpected File Format!'
+            }
 
-    image = request.FILES.get('upload_image')
-    if not image or image.name.split('.')[-1] not in ['jpg', 'jpeg', 'png', 'bmp', 'gif']:
-        return JsonResponse({
-            'success': False,
-            'file_path': '',
-            'msg': 'Unexpected File Format!'
-        })
-
-    file_path = settings.MEDIA_ROOT + '/blog/image/' + image.name[-10:]
-    file_path = default_storage.save(file_path, image)
-    return JsonResponse({
-        'success': True,
-        # 返回的是文件的url
-        'file_path': settings.MEDIA_URL + 'blog/image/' + file_path.split('/')[-1],
-        'msg': 'Success!'
-    })
+        file_path = settings.MEDIA_ROOT + '/blog/image/' + image.name[-10:]
+        file_path = default_storage.save(file_path, image)
+        return {
+            'success': True,
+            # 返回的是文件的url
+            'file_path': settings.MEDIA_URL + 'blog/image/' + file_path.split('/')[-1],
+            'msg': 'Success!'
+        }

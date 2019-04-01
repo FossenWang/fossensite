@@ -81,7 +81,7 @@ class GitHubOAuthView(JSONView):
         r = requests.post(url, data, headers=headers, timeout=10)
         result = r.json()
         if 'access_token' not in result:
-            raise PermissionDenied()
+            raise PermissionDenied('缺少 access_token')
         return result['access_token']
 
     def get_user_info(self, access_token):

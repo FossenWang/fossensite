@@ -1,49 +1,41 @@
-import json
-
 from django.views import View
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
-from django.http import HttpRequest, HttpResponse, JsonResponse, Http404
-from django.core.exceptions import PermissionDenied
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.core.exceptions import SuspiciousOperation
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
+from django.urls.exceptions import Resolver404
 
 
-def is_json(request: HttpRequest):
-    """Check if the mimetype indicates JSON data, either
-    :mimetype:`application/json` or :mimetype:`application/*+json`.
-    """
-    ct = request.content_type
-    return (
-        ct == 'application/json'
-        or (ct.startswith('application/')) and ct.endswith('+json')
-    )
+def bad_request(request, exception):
+    return JsonResponse({'msg': str(exception)}, status=400)
 
+def permission_denied(request, exception):
+    return JsonResponse({'msg': str(exception)}, status=403)
 
-def get_json(request: HttpRequest, force=False, raise_error=True):
-    if not (force or request.is_json):
-        return None
+def page_not_found(request, exception):
+    msg = None
+    if isinstance(exception, Resolver404):
+        msg = f'Not Found: {exception.args[0].get("path")}'
+    else:
+        msg = str(exception)
+    return JsonResponse({'msg': msg}, status=404)
 
-    try:
-        result = json.loads(request.body)
-    except Exception as e:
-        if not raise_error:
-            result = None
-        else:
-            raise e
-    return result
-
-
-def bind_json_to_request():
-    HttpRequest.get_json = get_json
-    HttpRequest.json = property(lambda self: get_json(self, raise_error=False))
-    HttpRequest.is_json = property(is_json)
+def server_error(request):
+    return JsonResponse({'msg': 'Server Error'}, status=500)
 
 
 class JSONMixin:
     """
     A mixin that can be used to render a JSON response.
     """
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        if not isinstance(response, HttpResponse):
+            response = self.render_to_json_response(response)
+        return response
 
     def render_to_json_response(self, data, safe=False, **response_kwargs):
         """
@@ -53,37 +45,17 @@ class JSONMixin:
 
     def get_data(self):
         """
-        Returns an object that will be serialized as JSON by json.dumps().
+        Returns an object from JSON or POST data.
         """
         if getattr(self.request, 'is_json', None):
             data = getattr(self.request, 'json', None)
         else:
-            data = self.request.POST
+            data = self.request.POST.dict()
         return data
-
-    def handle404(self, error):
-        return JsonResponse({'msg': str(error)}, status=404)
-
-    def handle403(self, error):
-        return JsonResponse({'msg': str(error)}, status=403)
-
-    def handleException(self, error):
-        return JsonResponse({'msg': str(error)}, status=400)
 
 
 class JSONView(JSONMixin, View):
-    def dispatch(self, request: HttpRequest, *args, **kwargs):
-        try:
-            response = super().dispatch(request, *args, **kwargs)
-            if not isinstance(response, HttpResponse):
-                response = self.render_to_json_response(response)
-        except Http404 as e:
-            return self.handle404(e)
-        except PermissionDenied as e:
-            return self.handle403(e)
-        except Exception as e:
-            return self.handleException(e)
-        return response
+    pass
 
 
 class ListView(MultipleObjectMixin, JSONView):
@@ -116,7 +88,7 @@ class CreateMixin:
     invalid_message = 'Post data invalid.'
 
     def post(self, request: HttpRequest, **kwargs):
-        self.data = request.json
+        self.data = self.get_data()
         if self.validate_data(self.data):
             return self.data_valid(self.data)
         return self.data_invalid(self.data)
@@ -127,8 +99,8 @@ class CreateMixin:
     def data_valid(self, data):
         raise NotImplementedError("Not implemented yet.")
 
-    def data_invalid(self, data=None, msg=invalid_message):
-        raise PermissionDenied(msg)
+    def data_invalid(self, msg=invalid_message, data=None):
+        raise SuspiciousOperation(msg)
 
 
 class DetailView(SingleObjectMixin, JSONView):

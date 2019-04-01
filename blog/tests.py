@@ -90,7 +90,7 @@ class BlogTestCase(TestCase):
             'lastPage': 1, 'page': 1, 'pageSize': 10, 'total': 1})
 
         rsp = c.get('/api/article/search/?q=%s' % ('x' * 89))
-        self.assertEqual(rsp.status_code, 403)
+        self.assertEqual(rsp.status_code, 400)
 
         # test cate & topic & link
         rsp = c.get('/api/category/')
@@ -110,7 +110,7 @@ class BlogTestCase(TestCase):
 
         # test upload
         rsp = c.get('/api/article/upload/image/')
-        self.assertEqual(rsp.status_code, 403)
+        self.assertEqual(rsp.status_code, 405)
 
         rsp = c.post('/api/article/upload/image/', {'upload_image': None})
         self.assertEqual(rsp.status_code, 200)

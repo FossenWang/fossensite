@@ -2,7 +2,7 @@ from django.urls import path
 
 from comment.urls import urlpatterns as comment_urls
 from .views import ArticleListView, ArticleCategoryView, ArticleTopicView, SearchArticleView, \
-    ArticleDetailView, HomeView, upload_image, CategoryListView, TopicListView, LinkListView
+    ArticleDetailView, HomeView, UploadImageView, CategoryListView, TopicListView, LinkListView
 
 
 app_name = 'blog'
@@ -17,5 +17,5 @@ urlpatterns = [
     path('article/category/<int:category_id>/', ArticleCategoryView.as_view(), name='category'),
     path('article/topic/<int:topic_id>/', ArticleTopicView.as_view(), name='topic'),
     path('article/search/', SearchArticleView.as_view(), name='search'),
-    path('article/upload/image/', upload_image, name='upload_image'),
+    path('article/upload/image/', UploadImageView.as_view(), name='upload_image'),
 ] + comment_urls

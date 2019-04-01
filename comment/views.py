@@ -1,7 +1,8 @@
 from django.db.models import Q, Value, IntegerField
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, AccessMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import Http404
+from django.core.exceptions import PermissionDenied
 
 from tools.views import ListView, CreateMixin, JSONView, DeletionMixin, SingleObjectMixin
 from blog.models import Article
@@ -75,12 +76,10 @@ class UserReplyList(LoginRequiredMixin, ListView):
         return reply_list
 
 
-class PostLoginRequiredMixin(AccessMixin):
-    raise_exception = True
-
+class PostLoginRequiredMixin:
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return self.handle_no_permission()
+            raise PermissionDenied('未登录')
         return super().post(request, *args, **kwargs)
 
 
@@ -146,10 +145,14 @@ class ArticleCommentView(PostLoginRequiredMixin, CreateMixin, ListView):
 
     def validate_data(self, data: dict):
         if not data:
-            return False
+            self.data_invalid('数据不能为空')
+
+        if not isinstance(data, dict):
+            self.data_invalid('格式错误')
+
         content = data.get('content')
         if not content or len(content) > 500:
-            return False
+            self.data_invalid('content 字段不能为空且长度不能大于 500')
 
         article_id = int(self.kwargs.get('article_id'))
 
@@ -182,16 +185,20 @@ class ArticleCommentReplyView(PostLoginRequiredMixin, CreateMixin, JSONView):
 
     def validate_data(self, data: dict):
         if not data:
-            return False
+            self.data_invalid('数据不能为空')
+
+        if not isinstance(data, dict):
+            self.data_invalid('格式错误')
 
         article_id = int(self.kwargs.get('article_id'))
         if not Article.objects.filter(id=article_id).exists():
             raise Http404(f'Article {article_id} does not exist.')
 
+        content = data.get('content')
+        if not content or len(content) > 500:
+            self.data_invalid('content 字段不能为空且长度不能大于 500')
+
         try:
-            content = data.get('content')
-            if not content or len(content) > 500:
-                return False
             reply_id = data.get('reply_id')
             reply_id = int(reply_id) if reply_id is not None else reply_id
 
@@ -203,8 +210,8 @@ class ArticleCommentReplyView(PostLoginRequiredMixin, CreateMixin, JSONView):
                 comment_id = int(data.get('comment_id'))
                 self.comment = ArticleComment.objects.get(id=comment_id)
 
-        except Exception:
-            return False
+        except Exception as e:
+            self.data_invalid(str(e))
 
         return True
 
@@ -239,17 +246,17 @@ class ArticleCommentReplyView(PostLoginRequiredMixin, CreateMixin, JSONView):
         return rsp_data
 
 
-class CreatorTestMixin(UserPassesTestMixin):
+class CreatorTestMixin:
     '验证发送请求的用户是否是评论创建者'
-    raise_exception = True
 
-    def test_func(self):
-        if self.request.user.is_authenticated:
-            self.object = self.get_object()
-            is_creator = self.request.user.id == self.object.user_id
-        else:
-            is_creator = False
-        return is_creator
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            raise PermissionDenied('未登录')
+
+        self.object = self.get_object()
+        if self.request.user.id != self.object.user_id:
+            raise PermissionDenied('用户不是该评论的创建者')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class DeleteArticleCommentView(CreatorTestMixin, DeletionMixin, SingleObjectMixin, JSONView):

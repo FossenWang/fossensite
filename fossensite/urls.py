@@ -29,3 +29,9 @@ urlpatterns = [
     path('api/csrf/', CSRFView.as_view(), name='csrf'),
     path('api/deploy/', deploy_view, name='deploy'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Error handler
+handler400 = 'tools.views.bad_request'
+handler403 = 'tools.views.permission_denied'
+handler404 = 'tools.views.page_not_found'
+handler500 = 'tools.views.server_error'

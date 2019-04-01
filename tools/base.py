@@ -1,10 +1,12 @@
 import os
 import sys
 import subprocess
+import json
 
 from django import setup
 from django.core.mail import send_mail
 from django.db.models import Model
+from django.http import HttpRequest
 
 from fossensite.settings import BASE_DIR
 
@@ -61,3 +63,34 @@ def update_model(model: Model, **update_data):
 
 def bind_update_model():
     Model.update = update_model
+
+
+def is_json(request: HttpRequest):
+    """Check if the mimetype indicates JSON data, either
+    :mimetype:`application/json` or :mimetype:`application/*+json`.
+    """
+    ct = request.content_type
+    return (
+        ct == 'application/json'
+        or (ct.startswith('application/')) and ct.endswith('+json')
+    )
+
+
+def get_json(request: HttpRequest, force=False, raise_error=True):
+    try:
+        if not (force or request.is_json):
+            return None
+
+        result = json.loads(request.body)
+    except Exception as e:
+        if not raise_error:
+            result = None
+        else:
+            raise e
+    return result
+
+
+def bind_json_to_request():
+    HttpRequest.get_json = get_json
+    HttpRequest.json = property(lambda self: get_json(self, raise_error=False))
+    HttpRequest.is_json = property(is_json)
