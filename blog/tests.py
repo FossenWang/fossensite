@@ -134,20 +134,20 @@ class BlogTestCase(TestCase):
     def _test_model(self):
         self.assertEqual(str(self.cate), 'cate1')
         self.assertEqual(self.cate.get_absolute_url(),
-                         f'/api/article/category/{self.cate.pk}/')
+                         f'https://www.fossen.cn/article/category/{self.cate.pk}')
 
         self.assertEqual(str(self.topic), 'topic1')
         self.assertEqual(self.topic.get_absolute_url(),
-                         f'/api/article/topic/{self.topic.pk}/')
+                         f'https://www.fossen.cn/article/topic/{self.topic.pk}')
 
         self.assertEqual(str(self.link), 'link1')
 
     def _test_article_model(self, article: Article):
         self.assertEqual(str(article), article.title)
         self.assertEqual(article.get_absolute_url(),
-                         f'/api/article/{article.pk}/')
+                         f'https://www.fossen.cn/article/{article.pk}')
 
     def _test_admin(self):
         self.assertEqual(
             ViewOnSiteAdmin.html_url(None, self.topic),
-            f'<a href="/api/article/topic/{self.topic.pk}/">在站点查看</a>')
+            f'<a href="https://www.fossen.cn/article/topic/{self.topic.pk}">在站点查看</a>')

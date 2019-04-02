@@ -13,6 +13,7 @@ class TopicAdmin(ViewOnSiteAdmin):
     list_display = ('__str__', 'number', 'html_url')
 
 class ArticleAdmin(ViewOnSiteAdmin):
+    list_display = ('__str__', 'views', 'html_url')
     readonly_fields = ('author',)
 
     class Media:

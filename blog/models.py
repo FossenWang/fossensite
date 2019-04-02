@@ -14,7 +14,7 @@ class Category(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('blog:category', kwargs={'category_id': self.pk})
+        return f'https://www.fossen.cn/article/category/{self.pk}'
 
     class Meta:
         ordering = ['number']
@@ -30,7 +30,7 @@ class Topic(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('blog:topic', kwargs={'topic_id': self.pk})
+        return f'https://www.fossen.cn/article/topic/{self.pk}'
 
     class Meta:
         ordering = ['number']
@@ -57,7 +57,7 @@ class Article(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('blog:detail', kwargs={'pk': self.pk})
+        return f'https://www.fossen.cn/article/{self.pk}'
 
     def increase_views(self):
         self.views += 1
