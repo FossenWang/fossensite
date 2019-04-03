@@ -30,7 +30,7 @@ class ArticleInfo extends Component {
       <div className={this.props.classes.info}>
         {formatDate(article.pub_date)}&emsp;
         {article.views} 阅读&emsp;
-        分类: {this.formatCategory(article.category)}&emsp;
+        {/* 分类: {this.formatCategory(article.category)}&emsp; */}
         话题: {this.formatTopics(article.topics)}
       </div>
     )
@@ -201,8 +201,9 @@ class ArticleDetail extends Component {
       <Fade in>
         <Paper className={classes.paper}>
           <div className={classes.breadcrumb}>
-            <Link to="/">首页</Link>&nbsp;&nbsp;&gt;&nbsp;&nbsp;
-            <Link to={`/article/category/${article.category.id}/`}>分类：{article.category.name}</Link>
+            <Link to="/">首页</Link>
+            {/* &nbsp;&nbsp;&gt;&nbsp;&nbsp; */}
+            {/* <Link to={`/article/category/${article.category.id}/`}>分类：{article.category.name}</Link> */}
           </div>
           <article className={classes.article}>
             {article.cover ?

@@ -8,7 +8,7 @@ import Hidden from '@material-ui/core/Hidden/Hidden'
 import Button from '@material-ui/core/Button/Button'
 
 import { FrameGrid, ErrorBoundary } from '../common/components'
-import NavList from './navlist'
+// import NavList from './navlist'
 import Search from './search'
 import UserBar from './userbar'
 import SideDrawer from './drawer'
@@ -64,7 +64,7 @@ class Topbar extends Component {
             <Link to={'/'} className={classes.link}>
               Fossen
             </Link>
-            <NavList />
+            {/* <NavList /> */}
             <TopToolbar />
           </Grid>
         </FrameGrid>
