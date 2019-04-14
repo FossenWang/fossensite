@@ -6,6 +6,7 @@ let API_HOST
 
 if (process.env.NODE_ENV === 'development') {
   API_HOST = 'http://127.0.0.1:8000/api/'
+  // API_HOST = 'https://www.fossen.cn/api/'
 }
 else {
   API_HOST = '/api/'

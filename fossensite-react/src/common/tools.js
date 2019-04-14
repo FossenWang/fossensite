@@ -1,11 +1,12 @@
-import moment from 'moment'
-
-
 function formatDate(date) {
   if (typeof (date) == 'string') {
     date = new Date(date)
   }
-  return moment(date).format('YYYY年M月D日 HH:mm')
+  let formated_date = date.getFullYear() + '年'
+    + (date.getMonth() + 1) + '月'
+    + date.getDate() + '日 '
+    + date.toTimeString().split(' ')[0].substr(0, 5)
+  return formated_date
 }
 
 
